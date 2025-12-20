@@ -1,0 +1,532 @@
+/**
+ * Sform Library Styles
+ * Default styling for Sform components
+ */
+
+/* ===========================================
+   CSS Custom Properties (Design Tokens)
+   =========================================== */
+:root {
+	/* Colors */
+	--sform-primary: #4f46e5;
+	--sform-primary-hover: #4338ca;
+	--sform-primary-light: #e0e7ff;
+	--sform-success: #10b981;
+	--sform-success-bg: #d1fae5;
+	--sform-error: #ef4444;
+	--sform-error-bg: #fee2e2;
+	--sform-warning: #f59e0b;
+	--sform-warning-bg: #fef3c7;
+
+	/* Neutrals */
+	--sform-bg: #ffffff;
+	--sform-bg-muted: #f9fafb;
+	--sform-border: #d1d5db;
+	--sform-border-focus: var(--sform-primary);
+	--sform-text: #1f2937;
+	--sform-text-muted: #6b7280;
+	--sform-text-placeholder: #9ca3af;
+
+	/* Spacing */
+	--sform-gap: 1rem;
+	--sform-gap-sm: 0.5rem;
+	--sform-padding: 0.625rem 0.875rem;
+	--sform-padding-sm: 0.5rem 0.75rem;
+
+	/* Typography */
+	--sform-font-size: 0.9375rem;
+	--sform-font-size-sm: 0.8125rem;
+	--sform-line-height: 1.5;
+
+	/* Borders */
+	--sform-radius: 0.375rem;
+	--sform-radius-lg: 0.5rem;
+	--sform-border-width: 1px;
+
+	/* Transitions */
+	--sform-transition: 150ms ease;
+
+	/* Shadows */
+	--sform-shadow-focus: 0 0 0 3px rgba(79, 70, 229, 0.15);
+	--sform-shadow-error: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* ===========================================
+   Form Layout
+   =========================================== */
+.sform-form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sform-gap);
+}
+
+/* ===========================================
+   Field Wrapper
+   =========================================== */
+.sform-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sform-gap-sm);
+}
+
+.sform-field-inline {
+	flex-direction: row;
+	align-items: center;
+}
+
+/* ===========================================
+   Labels
+   =========================================== */
+.sform-label {
+	font-size: var(--sform-font-size-sm);
+	font-weight: 500;
+	color: var(--sform-text);
+	line-height: var(--sform-line-height);
+}
+
+.sform-label-required::after {
+	content: ' *';
+	color: var(--sform-error);
+}
+
+/* ===========================================
+   Base Input Styles
+   =========================================== */
+.sform-input {
+	width: 100%;
+	padding: var(--sform-padding);
+	font-size: var(--sform-font-size);
+	line-height: var(--sform-line-height);
+	color: var(--sform-text);
+	background: var(--sform-bg);
+	border: var(--sform-border-width) solid var(--sform-border);
+	border-radius: var(--sform-radius);
+	transition:
+		border-color var(--sform-transition),
+		box-shadow var(--sform-transition);
+}
+
+.sform-input::placeholder {
+	color: var(--sform-text-placeholder);
+}
+
+.sform-input:focus {
+	outline: none;
+	border-color: var(--sform-border-focus);
+	box-shadow: var(--sform-shadow-focus);
+}
+
+.sform-input:disabled {
+	background: var(--sform-bg-muted);
+	color: var(--sform-text-muted);
+	cursor: not-allowed;
+}
+
+.sform-input:read-only {
+	background: var(--sform-bg-muted);
+}
+
+/* Error state */
+.sform-input.sform-field-error,
+.sform-input[aria-invalid='true'] {
+	border-color: var(--sform-error);
+}
+
+.sform-input.sform-field-error:focus,
+.sform-input[aria-invalid='true']:focus {
+	box-shadow: var(--sform-shadow-error);
+}
+
+/* ===========================================
+   Textarea
+   =========================================== */
+textarea.sform-input {
+	min-height: 100px;
+	resize: vertical;
+}
+
+/* ===========================================
+   Select
+   =========================================== */
+select.sform-input {
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	padding-right: 2.5rem;
+}
+
+/* ===========================================
+   Checkbox & Radio Base
+   =========================================== */
+.sform-checkbox,
+.sform-radio {
+	accent-color: var(--sform-primary);
+	cursor: pointer;
+}
+
+.sform-checkbox:disabled,
+.sform-radio:disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+/* Radio Group */
+.sform-radio-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sform-gap-sm);
+}
+
+.sform-radio-option {
+	display: flex;
+	align-items: center;
+	gap: var(--sform-gap-sm);
+	cursor: pointer;
+	font-size: var(--sform-font-size);
+	color: var(--sform-text);
+}
+
+.sform-radio-option:has(input:disabled) {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+/* Checkbox Group */
+.sform-checkbox-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sform-gap-sm);
+}
+
+.sform-checkbox-option {
+	display: flex;
+	align-items: center;
+	gap: var(--sform-gap-sm);
+	cursor: pointer;
+	font-size: var(--sform-font-size);
+	color: var(--sform-text);
+}
+
+/* ===========================================
+   Range Slider
+   =========================================== */
+.sform-range-wrapper {
+	display: flex;
+	align-items: center;
+	gap: var(--sform-gap);
+}
+
+.sform-range {
+	flex: 1;
+	height: 0.5rem;
+	appearance: none;
+	background: var(--sform-border);
+	border-radius: 9999px;
+	cursor: pointer;
+}
+
+.sform-range::-webkit-slider-thumb {
+	appearance: none;
+	width: 1.25rem;
+	height: 1.25rem;
+	background: var(--sform-primary);
+	border-radius: 50%;
+	cursor: grab;
+	transition: transform var(--sform-transition);
+}
+
+.sform-range::-webkit-slider-thumb:hover {
+	transform: scale(1.1);
+}
+
+.sform-range::-webkit-slider-thumb:active {
+	cursor: grabbing;
+}
+
+.sform-range::-moz-range-thumb {
+	width: 1.25rem;
+	height: 1.25rem;
+	background: var(--sform-primary);
+	border: none;
+	border-radius: 50%;
+	cursor: grab;
+}
+
+.sform-range:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.sform-range-value {
+	min-width: 3ch;
+	padding: var(--sform-padding-sm);
+	font-size: var(--sform-font-size-sm);
+	font-weight: 500;
+	text-align: center;
+	color: var(--sform-text);
+	background: var(--sform-bg-muted);
+	border-radius: var(--sform-radius);
+}
+
+/* ===========================================
+   Toggle Switch
+   =========================================== */
+.sform-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sform-gap-sm);
+	cursor: pointer;
+}
+
+.sform-toggle.disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.sform-toggle input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.sform-toggle-track {
+	position: relative;
+	width: 2.75rem;
+	height: 1.5rem;
+	background: var(--sform-border);
+	border-radius: 9999px;
+	transition: background-color var(--sform-transition);
+}
+
+.sform-toggle input:checked + .sform-toggle-track {
+	background: var(--sform-primary);
+}
+
+.sform-toggle input:focus-visible + .sform-toggle-track {
+	box-shadow: var(--sform-shadow-focus);
+}
+
+.sform-toggle-thumb {
+	position: absolute;
+	top: 0.125rem;
+	left: 0.125rem;
+	width: 1.25rem;
+	height: 1.25rem;
+	background: white;
+	border-radius: 50%;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+	transition: transform var(--sform-transition);
+}
+
+.sform-toggle input:checked + .sform-toggle-track .sform-toggle-thumb {
+	transform: translateX(1.25rem);
+}
+
+.sform-toggle-label {
+	font-size: var(--sform-font-size);
+	color: var(--sform-text);
+	user-select: none;
+}
+
+/* ===========================================
+   Toggle Options (Segmented Control)
+   =========================================== */
+.sform-toggle-options {
+	display: inline-flex;
+	background: var(--sform-bg-muted);
+	border-radius: var(--sform-radius-lg);
+	padding: 0.25rem;
+	gap: 0.25rem;
+}
+
+.sform-toggle-option {
+	padding: var(--sform-padding-sm);
+	font-size: var(--sform-font-size-sm);
+	font-weight: 500;
+	color: var(--sform-text-muted);
+	background: transparent;
+	border: none;
+	border-radius: var(--sform-radius);
+	cursor: pointer;
+	transition:
+		background-color var(--sform-transition),
+		color var(--sform-transition);
+}
+
+.sform-toggle-option:hover:not(:disabled):not(.selected) {
+	color: var(--sform-text);
+	background: rgba(0, 0, 0, 0.05);
+}
+
+.sform-toggle-option.selected {
+	color: var(--sform-primary);
+	background: var(--sform-bg);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sform-toggle-option:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* ===========================================
+   Password Input with Toggle
+   =========================================== */
+.sform-password-wrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.sform-password-wrapper .sform-input {
+	padding-right: 3rem;
+}
+
+.sform-password-toggle {
+	position: absolute;
+	right: 0.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	padding: 0;
+	color: var(--sform-text-muted);
+	background: transparent;
+	border: none;
+	border-radius: var(--sform-radius);
+	cursor: pointer;
+	transition: color var(--sform-transition);
+}
+
+.sform-password-toggle:hover {
+	color: var(--sform-text);
+}
+
+.sform-password-toggle:focus-visible {
+	outline: 2px solid var(--sform-primary);
+	outline-offset: 2px;
+}
+
+/* ===========================================
+   Masked Input
+   =========================================== */
+.sform-masked {
+	font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+	letter-spacing: 0.05em;
+}
+
+/* ===========================================
+   Validation Messages
+   =========================================== */
+.sform-messages {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.sform-messages p {
+	margin: 0;
+	font-size: var(--sform-font-size-sm);
+	color: var(--sform-error);
+	line-height: var(--sform-line-height);
+}
+
+/* ===========================================
+   Button
+   =========================================== */
+.sform-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--sform-gap-sm);
+	padding: var(--sform-padding);
+	font-size: var(--sform-font-size);
+	font-weight: 500;
+	color: white;
+	background: var(--sform-primary);
+	border: none;
+	border-radius: var(--sform-radius);
+	cursor: pointer;
+	transition:
+		background-color var(--sform-transition),
+		transform var(--sform-transition);
+}
+
+.sform-button:hover:not(:disabled) {
+	background: var(--sform-primary-hover);
+}
+
+.sform-button:active:not(:disabled) {
+	transform: scale(0.98);
+}
+
+.sform-button:focus-visible {
+	outline: 2px solid var(--sform-primary);
+	outline-offset: 2px;
+}
+
+.sform-button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* Button variants */
+.sform-button-secondary {
+	color: var(--sform-text);
+	background: var(--sform-bg-muted);
+	border: var(--sform-border-width) solid var(--sform-border);
+}
+
+.sform-button-secondary:hover:not(:disabled) {
+	background: var(--sform-border);
+}
+
+.sform-button-success {
+	background: var(--sform-success);
+}
+
+.sform-button-success:hover:not(:disabled) {
+	background: #059669;
+}
+
+/* ===========================================
+   Result Messages
+   =========================================== */
+.sform-result {
+	padding: 0.75rem 1rem;
+	font-size: var(--sform-font-size-sm);
+	border-radius: var(--sform-radius);
+}
+
+.sform-result-success {
+	color: #065f46;
+	background: var(--sform-success-bg);
+}
+
+.sform-result-error {
+	color: #991b1b;
+	background: var(--sform-error-bg);
+}
+
+.sform-result-warning {
+	color: #92400e;
+	background: var(--sform-warning-bg);
+}
+
+/* ===========================================
+   Utilities
+   =========================================== */
+.sform-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
