@@ -80,7 +80,8 @@
 	});
 
 	function handleInput() {
-		form.validate();
+		// Always include untouched to preserve issues on fields that were already validated
+		form.validate({ includeUntouched: true });
 	}
 
 	function handleSubmit() {
