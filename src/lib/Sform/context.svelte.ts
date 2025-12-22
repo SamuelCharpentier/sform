@@ -1,27 +1,26 @@
 import { getContext, setContext } from 'svelte';
 import { SvelteSet } from 'svelte/reactivity';
-import type { FieldState, SformContext, VisibilityMode } from './types.js';
+import type { FieldState, SformContext, ValidateOn } from './types.js';
 
 const SFORM_CONTEXT_KEY = Symbol('sform-context');
 
 export function createSformContext(
-	getForm: () => SformContext['form'],
-	getVisibility: () => VisibilityMode
+	getValidateOn: () => ValidateOn,
+	getFieldNames: () => string[],
+	triggerValidation: () => void
 ): SformContext {
 	const touched = new SvelteSet<string>();
 	const dirty = new SvelteSet<string>();
 	let submitted = $state(false);
 
 	const context: SformContext = {
-		get form() {
-			return getForm();
-		},
-		get visibility() {
-			return getVisibility();
+		get validateOn() {
+			return getValidateOn();
 		},
 		get submitted() {
 			return submitted;
 		},
+		triggerValidation,
 		getFieldState: (name: string): FieldState => ({
 			touched: touched.has(name),
 			dirty: dirty.has(name)
@@ -32,10 +31,10 @@ export function createSformContext(
 		markDirty: (name: string) => {
 			dirty.add(name);
 		},
-		shouldDisplayIssues: (name: string, fieldVisibility?: VisibilityMode) => {
-			const effectiveVisibility = fieldVisibility ?? getVisibility();
+		shouldDisplayIssues: (name: string, fieldValidateOn?: ValidateOn) => {
+			const effectiveValidateOn = fieldValidateOn ?? getValidateOn();
 
-			switch (effectiveVisibility) {
+			switch (effectiveValidateOn) {
 				case 'blur':
 					return touched.has(name);
 				case 'change':
@@ -51,10 +50,7 @@ export function createSformContext(
 		},
 		markAllFieldsDirty: () => {
 			// Get all field names from the form and mark them as touched and dirty
-			const form = getForm();
-			const fieldNames = Object.keys(form.fields).filter(
-				(key) => !['value', 'set', 'allIssues'].includes(key)
-			);
+			const fieldNames = getFieldNames();
 			for (const name of fieldNames) {
 				touched.add(name);
 				dirty.add(name);

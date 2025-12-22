@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { InputComponentProps } from '../types.js';
+	import type { BaseInputComponentProps } from '../types.js';
 	import { applyMask, MASK_PATTERNS, type MaskPattern, type MaskToken } from '../utils/mask.js';
 
-	interface MaskedInputProps extends InputComponentProps {
+	interface MaskedInputProps extends BaseInputComponentProps {
 		/** The mask pattern or a preset name */
 		mask: string | MaskPattern;
 		/** Custom token definitions */
@@ -13,10 +13,6 @@
 		showMaskPlaceholder?: boolean;
 		/** Whether to store the unmasked (raw) value. If true, stores '1234567890'. If false, stores '(123) 456-7890'. Default: true */
 		unmaskValue?: boolean;
-		/** Label for the input */
-		label?: string;
-		/** Label class */
-		labelClass?: string;
 	}
 
 	let {
@@ -34,12 +30,16 @@
 		maskPlaceholder = '_',
 		showMaskPlaceholder = false,
 		unmaskValue = true,
+		showIssues,
 		onblur,
 		oninput
 	}: MaskedInputProps = $props();
 
 	// Resolve mask pattern
 	const resolvedMask = $derived(mask in MASK_PATTERNS ? MASK_PATTERNS[mask as MaskPattern] : mask);
+
+	// Get aria-invalid from field, respecting showIssues
+	const ariaInvalid = $derived(showIssues ? field.as('text')['aria-invalid'] : undefined);
 
 	let inputElement: HTMLInputElement | undefined = $state();
 
@@ -207,6 +207,7 @@
 	{disabled}
 	{readonly}
 	{autocomplete}
+	aria-invalid={ariaInvalid}
 	bind:value={displayValue}
 	oninput={handleInput}
 	onpaste={handlePaste}

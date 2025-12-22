@@ -9,6 +9,7 @@
 		labelClass,
 		disabled,
 		options = [],
+		showIssues,
 		onblur,
 		oninput
 	}: RadioInputProps = $props();
@@ -17,6 +18,15 @@
 	const normalizedOptions = $derived(
 		options.map((opt): SelectOption => (typeof opt === 'string' ? { value: opt, label: opt } : opt))
 	);
+
+	// Helper to get field attrs with controlled aria-invalid
+	function getFieldAttrs(optionValue: string) {
+		const attrs = field.as('radio', optionValue);
+		return {
+			...attrs,
+			'aria-invalid': showIssues ? attrs['aria-invalid'] : undefined
+		};
+	}
 </script>
 
 <fieldset class="sform-radio-group {className ?? ''}" {disabled}>
@@ -24,7 +34,7 @@
 		<legend class={labelClass}>{label}</legend>
 	{/if}
 	{#each normalizedOptions as option}
-		{@const fieldAttrs = field.as('radio', option.value)}
+		{@const fieldAttrs = getFieldAttrs(option.value)}
 		{@const uniqueId = `${name}-${option.value}`}
 		<label class="sform-radio-option" class:disabled={option.disabled}>
 			<input

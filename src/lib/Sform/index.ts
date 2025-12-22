@@ -20,20 +20,24 @@ export {
 // Types
 export type {
 	// Sform-specific types
-	VisibilityMode,
+	ValidateOn,
 	FieldState,
 	SfieldClasses,
 	InputType,
 	SelectOption,
 	SformContext,
 	SformProps,
-	SfieldProps,
 	ButtonFormState,
 	ButtonInputProps,
 	RangeInputProps,
 	ToggleInputProps,
 	ToggleOption,
 	ToggleOptionsInputProps,
+	// Type-safe field types
+	SfieldTypeMap,
+	AllowedSfieldType,
+	TypedSfieldProps,
+	TypedBaseSfieldProps,
 	// Re-exported SvelteKit remote form types
 	RemoteForm,
 	RemoteFormField,

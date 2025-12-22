@@ -1,16 +1,20 @@
 export { Sform, Sfield, Sbutton } from './Sform/index.js';
 export type {
 	// Sform-specific types
-	VisibilityMode,
+	ValidateOn,
 	FieldState,
 	SfieldClasses,
 	InputType,
 	SelectOption,
 	SformContext,
 	SformProps,
-	SfieldProps,
 	ButtonFormState,
 	ButtonInputProps,
+	// Type-safe field types
+	SfieldTypeMap,
+	AllowedSfieldType,
+	TypedSfieldProps,
+	TypedBaseSfieldProps,
 	// Re-exported SvelteKit remote form types
 	RemoteForm,
 	RemoteFormField,

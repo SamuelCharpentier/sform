@@ -9,17 +9,18 @@
 		placeholder,
 		class: className,
 		labelClass,
-		min,
-		max,
-		step,
 		disabled,
 		readonly,
 		autocomplete,
+		showIssues,
 		onblur,
 		oninput
 	}: TextInputComponentProps = $props();
 
-	const fieldAttrs = $derived(field.as(type as 'text'));
+	const fieldAttrs = $derived({
+		...field.as(type as 'text'),
+		'aria-invalid': showIssues ? field.as(type as 'text')['aria-invalid'] : undefined
+	});
 </script>
 
 {#if type !== 'hidden'}
@@ -31,9 +32,6 @@
 		id={name}
 		class={className}
 		{placeholder}
-		{min}
-		{max}
-		{step}
 		{disabled}
 		{readonly}
 		{autocomplete}

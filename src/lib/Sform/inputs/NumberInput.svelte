@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { TextareaInputProps } from '../types.js';
+	import type { NumberInputComponentProps } from '../types.js';
 
 	let {
 		field,
@@ -8,31 +8,37 @@
 		placeholder,
 		class: className,
 		labelClass,
+		min,
+		max,
+		step,
 		disabled,
 		readonly,
 		autocomplete,
 		showIssues,
 		onblur,
 		oninput
-	}: TextareaInputProps = $props();
+	}: NumberInputComponentProps = $props();
 
 	const fieldAttrs = $derived({
-		...field.as('text'),
-		'aria-invalid': showIssues ? field.as('text')['aria-invalid'] : undefined
+		...field.as('number'),
+		'aria-invalid': showIssues ? field.as('number')['aria-invalid'] : undefined
 	});
 </script>
 
 {#if label}
 	<label class={labelClass} for={name}>{label}</label>
 {/if}
-<textarea
+<input
 	{...fieldAttrs}
 	id={name}
 	class={className}
 	{placeholder}
+	{min}
+	{max}
+	{step}
 	{disabled}
 	{readonly}
 	{autocomplete}
 	{onblur}
 	{oninput}
-></textarea>
+/>

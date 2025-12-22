@@ -13,11 +13,15 @@
 		disabled,
 		showValue = true,
 		formatValue = (v: number) => String(v),
+		showIssues,
 		onblur,
 		oninput
 	}: RangeInputProps = $props();
 
-	const fieldAttrs = $derived(field.as('range'));
+	const fieldAttrs = $derived({
+		...field.as('range'),
+		'aria-invalid': showIssues ? field.as('range')['aria-invalid'] : undefined
+	});
 
 	// Get current value for display
 	const currentValue = $derived.by(() => {

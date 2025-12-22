@@ -1,12 +1,13 @@
 <script lang="ts">
 	import type {
 		SfieldClasses,
-		SfieldProps,
 		RemoteFormField,
-		RemoteFormFieldValue
+		RemoteFormFieldValue,
+		TypedSfieldProps
 	} from './types.js';
 	import { getSformContext } from './context.svelte.js';
 	import TextInput from './inputs/TextInput.svelte';
+	import NumberInput from './inputs/NumberInput.svelte';
 	import TextareaInput from './inputs/TextareaInput.svelte';
 	import SelectInput from './inputs/SelectInput.svelte';
 	import CheckboxInput from './inputs/CheckboxInput.svelte';
@@ -18,32 +19,47 @@
 	import MaskedInput from './inputs/MaskedInput.svelte';
 	import PasswordInput from './inputs/PasswordInput.svelte';
 
-	let props: SfieldProps = $props();
+	/**
+	 * Sfield - Type-safe form field component.
+	 *
+	 * The `type` prop is constrained based on the field's value type:
+	 * - string fields: text, email, password, textarea, select, radio, masked, etc.
+	 * - number fields: number, range
+	 * - boolean fields: checkbox, toggle
+	 * - string[] fields: checkbox-group
+	 */
+	let props: TypedSfieldProps<RemoteFormFieldValue> = $props();
 
 	const context = getSformContext();
-	const field = $derived(context.form.fields[props.name] as RemoteFormField<RemoteFormFieldValue>);
+
+	// Field is directly passed as a prop
+	const field = $derived(props.field as RemoteFormField<RemoteFormFieldValue>);
+
+	// Derive name from the field - all field types include name in their .as() output
+	const name = $derived(field.as('text').name);
 
 	const classes: SfieldClasses = $derived(
 		typeof props.class === 'string' ? { wrapper: props.class } : (props.class ?? {})
 	);
 
-	const showIssues = $derived(context.shouldDisplayIssues(props.name, props.visibility));
+	const showIssues = $derived(context.shouldDisplayIssues(name, props.validateOn));
 	const issues = $derived(showIssues ? field.issues() : []);
 	const hasIssues = $derived(issues && issues instanceof Array && issues.length > 0);
 
 	function handleBlur() {
-		context.markTouched(props.name);
+		context.markTouched(name);
+		// Trigger validation with includeUntouched so blur mode shows issues
+		context.triggerValidation();
 	}
 
 	function handleInput() {
-		context.markDirty(props.name);
+		context.markDirty(name);
 	}
 
-	// Base input props shared by all input types (now includes label)
+	// Base input props shared by all input types (without type - added explicitly per component)
 	const baseInputProps = $derived({
 		field,
-		type: props.type,
-		name: props.name,
+		name,
 		label: props.label,
 		placeholder: props.placeholder,
 		class: hasIssues ? `${classes.input ?? ''} sform-field-error`.trim() : classes.input,
@@ -51,6 +67,7 @@
 		disabled: props.disabled,
 		readonly: props.readonly,
 		autocomplete: props.autocomplete,
+		showIssues,
 		onblur: handleBlur,
 		oninput: handleInput
 	});
@@ -77,47 +94,59 @@
 
 <div class={classes.wrapper}>
 	{#if isTextType}
-		<TextInput {...baseInputProps} />
+		<TextInput {...baseInputProps} type={props.type as import('./types.js').TextInputType} />
 	{:else if props.type === 'password'}
-		<PasswordInput {...baseInputProps} showToggle={props.showToggle} />
+		<PasswordInput
+			{...baseInputProps}
+			showToggle={'showToggle' in props ? props.showToggle : undefined}
+		/>
 	{:else if props.type === 'number'}
-		<TextInput {...baseInputProps} min={props.min} max={props.max} step={props.step} />
+		<NumberInput
+			{...baseInputProps}
+			min={'min' in props ? props.min : undefined}
+			max={'max' in props ? props.max : undefined}
+			step={'step' in props ? props.step : undefined}
+		/>
 	{:else if props.type === 'textarea'}
 		<TextareaInput {...baseInputProps} />
 	{:else if props.type === 'select'}
-		<SelectInput {...baseInputProps} options={props.options} />
+		<SelectInput {...baseInputProps} options={'options' in props ? props.options : []} />
 	{:else if props.type === 'checkbox'}
 		<CheckboxInput {...baseInputProps} />
 	{:else if props.type === 'checkbox-group'}
-		<CheckboxGroupInput {...baseInputProps} options={props.options} />
+		<CheckboxGroupInput {...baseInputProps} options={'options' in props ? props.options : []} />
 	{:else if props.type === 'radio'}
-		<RadioInput {...baseInputProps} options={props.options} />
+		<RadioInput {...baseInputProps} options={'options' in props ? props.options : []} />
 	{:else if props.type === 'range'}
 		<RangeInput
 			{...baseInputProps}
-			min={props.min}
-			max={props.max}
-			step={props.step}
-			showValue={props.showValue}
-			formatValue={props.formatValue}
+			min={'min' in props ? props.min : undefined}
+			max={'max' in props ? props.max : undefined}
+			step={'step' in props ? props.step : undefined}
+			showValue={'showValue' in props ? props.showValue : undefined}
+			formatValue={'formatValue' in props ? props.formatValue : undefined}
 		/>
 	{:else if props.type === 'toggle'}
 		<ToggleInput
 			{...baseInputProps}
-			onLabel={props.onLabel}
-			offLabel={props.offLabel}
-			checkedValue={props.checkedValue}
-			uncheckedValue={props.uncheckedValue}
+			onLabel={'onLabel' in props ? props.onLabel : undefined}
+			offLabel={'offLabel' in props ? props.offLabel : undefined}
+			checkedValue={'checkedValue' in props ? props.checkedValue : undefined}
+			uncheckedValue={'uncheckedValue' in props ? props.uncheckedValue : undefined}
 		/>
 	{:else if props.type === 'toggle-options'}
-		<ToggleOptionsInput {...baseInputProps} options={props.options} multiple={props.multiple} />
+		<ToggleOptionsInput
+			{...baseInputProps}
+			options={'options' in props ? props.options : []}
+			multiple={'multiple' in props ? props.multiple : undefined}
+		/>
 	{:else if props.type === 'masked'}
 		<MaskedInput
 			{...baseInputProps}
-			mask={props.mask}
-			maskPlaceholder={props.maskPlaceholder}
-			showMaskPlaceholder={props.showMaskPlaceholder}
-			unmaskValue={props.unmaskValue}
+			mask={'mask' in props ? props.mask : ''}
+			maskPlaceholder={'maskPlaceholder' in props ? props.maskPlaceholder : undefined}
+			showMaskPlaceholder={'showMaskPlaceholder' in props ? props.showMaskPlaceholder : undefined}
+			unmaskValue={'unmaskValue' in props ? props.unmaskValue : undefined}
 		/>
 	{/if}
 

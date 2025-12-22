@@ -8,12 +8,16 @@
 		class: className,
 		labelClass,
 		disabled,
+		showIssues,
 		onblur,
 		oninput,
 		options
 	}: SelectInputProps = $props();
 
-	const fieldAttrs = $derived(field.as('select'));
+	const fieldAttrs = $derived({
+		...field.as('select'),
+		'aria-invalid': showIssues ? field.as('select')['aria-invalid'] : undefined
+	});
 
 	const normalizedOptions: SelectOption[] = $derived(
 		options.map((opt) => (typeof opt === 'string' ? { value: opt, label: opt } : opt))

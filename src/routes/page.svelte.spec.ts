@@ -155,9 +155,7 @@ describe('/+page.svelte', () => {
 			await expect
 				.element(page.getByText('Preflight validation:', { exact: true }))
 				.toBeInTheDocument();
-			await expect
-				.element(page.getByText('Visibility modes:', { exact: true }))
-				.toBeInTheDocument();
+			await expect.element(page.getByText('Validate modes:', { exact: true })).toBeInTheDocument();
 			await expect.element(page.getByText('Password toggle:', { exact: true })).toBeInTheDocument();
 			await expect.element(page.getByText('Masked inputs:', { exact: true })).toBeInTheDocument();
 		});

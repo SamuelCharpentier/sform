@@ -2,6 +2,7 @@
 	import { Sform, Sfield, Sbutton, type ButtonFormState } from '$lib';
 	import '$lib/Sform/sform.css';
 	import { login } from './auth.remote';
+	import { loginSchema } from './auth.schema';
 	import { settings, contactInfo, survey } from './demo.remote';
 
 	const fieldClasses = {
@@ -10,6 +11,8 @@
 		input: 'sform-input',
 		messages: 'sform-messages'
 	};
+
+	const myLogin = login.for('myLoginForm');
 </script>
 
 <h1>Sform Library Demo</h1>
@@ -24,39 +27,55 @@
 	<h2>🔐 Login Form</h2>
 	<p class="description">Basic text and password inputs with visibility toggle.</p>
 
-	<Sform form={login} visibility="blur" class="sform-form">
-		<Sfield
-			name="username"
-			type="text"
-			label="Username"
-			placeholder="Enter username"
-			class={fieldClasses}
-		/>
-		<Sfield
-			name="_password"
-			type="password"
-			label="Password"
-			placeholder="Enter password"
-			class={fieldClasses}
-		/>
+	<Sform
+		form={myLogin}
+		schema={loginSchema}
+		enhance={async ({ form, submit, data }) => {
+			try {
+				await submit();
+				console.log('Successfully submitted!');
+				console.log('Form result:', myLogin.result);
+			} catch (error) {
+				console.log('Oh no! Something went wrong');
+			}
+		}}
+		validateOn="blur"
+		class="sform-form"
+	>
+		{#snippet children(fields)}
+			<Sfield
+				field={fields.username}
+				type="text"
+				label="Username"
+				placeholder="Enter username"
+				class={fieldClasses}
+			/>
+			<Sfield
+				field={fields._password}
+				type="password"
+				label="Password"
+				placeholder="Enter password"
+				class={fieldClasses}
+			/>
 
-		<Sbutton class="sform-button">
-			{#snippet defaultState(_state: ButtonFormState)}
-				Login
-			{/snippet}
-			{#snippet pendingState(_state: ButtonFormState)}
-				Logging in...
-			{/snippet}
-		</Sbutton>
+			<Sbutton form={login} class="sform-button">
+				{#snippet defaultState(_state: ButtonFormState)}
+					Login
+				{/snippet}
+				{#snippet pendingState(_state: ButtonFormState)}
+					Logging in...
+				{/snippet}
+			</Sbutton>
+		{/snippet}
 	</Sform>
 
-	{#if login.result}
+	{#if myLogin.result}
 		<div
 			class="sform-result"
-			class:sform-result-success={login.result.success}
-			class:sform-result-error={!login.result.success}
+			class:sform-result-success={myLogin.result.success}
+			class:sform-result-error={!myLogin.result.success}
 		>
-			{login.result.message}
+			{myLogin.result.message}
 		</div>
 	{/if}
 
@@ -70,52 +89,59 @@
 	<h2>⚙️ Settings Form</h2>
 	<p class="description">Range slider, toggle switch, and toggle options.</p>
 
-	<Sform form={settings} visibility="submit" class="sform-form">
-		<Sfield
-			name="volume"
-			type="range"
-			label="Volume"
-			min={0}
-			max={100}
-			step={5}
-			showValue
-			class={fieldClasses}
-		/>
+	<Sform form={settings} validateOn="submit" class="sform-form">
+		{#snippet children(fields)}
+			<Sfield
+				field={fields.volume}
+				type="range"
+				label="Volume"
+				min={0}
+				max={100}
+				step={5}
+				showValue
+				class={fieldClasses}
+			/>
 
-		<Sfield name="notifications" type="toggle" label="Enable Notifications" class={fieldClasses} />
+			<Sfield
+				field={fields.notifications}
+				type="toggle"
+				label="Enable Notifications"
+				class={fieldClasses}
+			/>
 
-		<Sfield
-			name="theme"
-			type="toggle-options"
-			label="Theme"
-			options={[
-				{ value: 'light', label: 'Light' },
-				{ value: 'dark', label: 'Dark' },
-				{ value: 'auto', label: 'Auto' }
-			]}
-			class={fieldClasses}
-		/>
+			<Sfield
+				field={fields.theme}
+				type="toggle-options"
+				label="Theme"
+				options={[
+					{ value: 'light', label: 'Light' },
+					{ value: 'dark', label: 'Dark' },
+					{ value: 'auto', label: 'Auto' }
+				]}
+				class={fieldClasses}
+			/>
 
-		<Sfield
-			name="priority"
-			type="select"
-			label="Priority Level"
-			options={[
-				{ value: 'low', label: 'Low' },
-				{ value: 'medium', label: 'Medium' },
-				{ value: 'high', label: 'High' }
-			]}
-			class={fieldClasses}
-		/>
+			<Sfield
+				field={fields.priority}
+				type="select"
+				label="Priority Level"
+				options={[
+					{ value: 'low', label: 'Low' },
+					{ value: 'medium', label: 'Medium' },
+					{ value: 'high', label: 'High' }
+				]}
+				class={fieldClasses}
+			/>
 
-		<Sbutton class="sform-button">
-			{#snippet defaultState(_state: ButtonFormState)}
-				Save Settings
-			{/snippet}
-			{#snippet pendingState(_state: ButtonFormState)}
-				Saving...
-			{/snippet}
-		</Sbutton>
+			<Sbutton form={settings} class="sform-button">
+				{#snippet defaultState(_state: ButtonFormState)}
+					Save Settings
+				{/snippet}
+				{#snippet pendingState(_state: ButtonFormState)}
+					Saving...
+				{/snippet}
+			</Sbutton>
+		{/snippet}
 	</Sform>
 
 	{#if settings.result}
@@ -128,43 +154,45 @@
 	<h2>📞 Contact Info Form</h2>
 	<p class="description">Masked inputs for phone, credit card, and SSN.</p>
 
-	<Sform form={contactInfo} visibility="blur" class="sform-form">
-		<Sfield
-			name="phone"
-			type="masked"
-			label="Phone Number"
-			mask="### ###-####"
-			class={fieldClasses}
-			placeholder="123 456-7890"
-			unmaskValue={true}
-		/>
+	<Sform form={contactInfo} validateOn="blur" class="sform-form">
+		{#snippet children(fields)}
+			<Sfield
+				field={fields.phone}
+				type="masked"
+				label="Phone Number"
+				mask="### ###-####"
+				class={fieldClasses}
+				placeholder="123 456-7890"
+				unmaskValue={true}
+			/>
 
-		<Sfield
-			name="creditCard"
-			type="masked"
-			label="Credit Card"
-			mask="#### #### #### ####"
-			class={fieldClasses}
-			placeholder="1234 5678 9012 3456"
-		/>
+			<Sfield
+				field={fields.creditCard}
+				type="masked"
+				label="Credit Card"
+				mask="#### #### #### ####"
+				class={fieldClasses}
+				placeholder="1234 5678 9012 3456"
+			/>
 
-		<Sfield
-			name="ssn"
-			type="masked"
-			label="SSN"
-			mask="###-##-####"
-			class={fieldClasses}
-			placeholder="123-45-6789"
-		/>
+			<Sfield
+				field={fields.ssn}
+				type="masked"
+				label="SSN"
+				mask="###-##-####"
+				class={fieldClasses}
+				placeholder="123-45-6789"
+			/>
 
-		<Sbutton class="sform-button">
-			{#snippet defaultState(_state: ButtonFormState)}
-				Save Contact Info
-			{/snippet}
-			{#snippet pendingState(_state: ButtonFormState)}
-				Saving...
-			{/snippet}
-		</Sbutton>
+			<Sbutton form={contactInfo} class="sform-button">
+				{#snippet defaultState(_state: ButtonFormState)}
+					Save Contact Info
+				{/snippet}
+				{#snippet pendingState(_state: ButtonFormState)}
+					Saving...
+				{/snippet}
+			</Sbutton>
+		{/snippet}
 	</Sform>
 
 	{#if contactInfo.result}
@@ -179,59 +207,66 @@
 	<h2>📝 Survey Form</h2>
 	<p class="description">Textarea, number input, checkbox, checkbox-group, and radio buttons.</p>
 
-	<Sform form={survey} visibility="change" class="sform-form">
-		<Sfield
-			name="feedback"
-			type="textarea"
-			label="Your Feedback"
-			placeholder="Tell us more..."
-			class={fieldClasses}
-		/>
+	<Sform form={survey} validateOn="change" class="sform-form">
+		{#snippet children(fields)}
+			<Sfield
+				field={fields.feedback}
+				type="textarea"
+				label="Your Feedback"
+				placeholder="Tell us more..."
+				class={fieldClasses}
+			/>
 
-		<Sfield
-			name="rating"
-			type="number"
-			label="Rating (1-10)"
-			min={1}
-			max={10}
-			class={fieldClasses}
-		/>
+			<Sfield
+				field={fields.rating}
+				type="number"
+				label="Rating (1-10)"
+				min={1}
+				max={10}
+				class={fieldClasses}
+			/>
 
-		<Sfield
-			name="interests"
-			type="checkbox-group"
-			label="Your Interests"
-			options={[
-				{ value: 'tech', label: 'Technology' },
-				{ value: 'sports', label: 'Sports' },
-				{ value: 'music', label: 'Music' },
-				{ value: 'travel', label: 'Travel' }
-			]}
-			class={fieldClasses}
-		/>
+			<Sfield
+				field={fields.interests}
+				type="checkbox-group"
+				label="Your Interests"
+				options={[
+					{ value: 'tech', label: 'Technology' },
+					{ value: 'sports', label: 'Sports' },
+					{ value: 'music', label: 'Music' },
+					{ value: 'travel', label: 'Travel' }
+				]}
+				class={fieldClasses}
+			/>
 
-		<Sfield name="subscribe" type="checkbox" label="Subscribe to newsletter" class={fieldClasses} />
+			<Sfield
+				field={fields.subscribe}
+				type="checkbox"
+				label="Subscribe to newsletter"
+				class={fieldClasses}
+			/>
 
-		<Sfield
-			name="contactMethod"
-			type="radio"
-			label="Preferred Contact Method"
-			options={[
-				{ value: 'email', label: 'Email' },
-				{ value: 'phone', label: 'Phone' },
-				{ value: 'none', label: 'Do not contact' }
-			]}
-			class={fieldClasses}
-		/>
+			<Sfield
+				field={fields.contactMethod}
+				type="radio"
+				label="Preferred Contact Method"
+				options={[
+					{ value: 'email', label: 'Email' },
+					{ value: 'phone', label: 'Phone' },
+					{ value: 'none', label: 'Do not contact' }
+				]}
+				class={fieldClasses}
+			/>
 
-		<Sbutton class="sform-button">
-			{#snippet defaultState(_state: ButtonFormState)}
-				Submit Survey
-			{/snippet}
-			{#snippet pendingState(_state: ButtonFormState)}
-				Submitting...
-			{/snippet}
-		</Sbutton>
+			<Sbutton form={survey} class="sform-button">
+				{#snippet defaultState(_state: ButtonFormState)}
+					Submit Survey
+				{/snippet}
+				{#snippet pendingState(_state: ButtonFormState)}
+					Submitting...
+				{/snippet}
+			</Sbutton>
+		{/snippet}
 	</Sform>
 
 	{#if survey.result}
@@ -243,9 +278,9 @@
 <section class="features">
 	<h2>✨ Features</h2>
 	<ul>
-		<li><strong>Type-safe:</strong> Discriminated union types for each input type</li>
+		<li><strong>Type-safe:</strong> Field-to-input type matching at compile time</li>
 		<li><strong>Preflight validation:</strong> All errors shown on submit, not one at a time</li>
-		<li><strong>Visibility modes:</strong> blur, dirty, submit, or always</li>
+		<li><strong>Validate modes:</strong> blur, change, or submit</li>
 		<li><strong>Password toggle:</strong> Eye icon to show/hide password</li>
 		<li><strong>Masked inputs:</strong> Phone, credit card, SSN formatting</li>
 		<li><strong>Range slider:</strong> With optional value display</li>

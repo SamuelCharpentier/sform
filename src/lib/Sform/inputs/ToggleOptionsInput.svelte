@@ -10,6 +10,7 @@
 		disabled,
 		options,
 		multiple = false,
+		showIssues,
 		onblur,
 		oninput
 	}: ToggleOptionsInputProps = $props();
@@ -19,35 +20,14 @@
 		options.map((opt) => (typeof opt === 'string' ? { value: opt, label: opt } : opt))
 	);
 
-	// Get current value(s)
-	const currentValue = $derived.by(() => {
-		const val = field.value();
-		if (multiple) {
-			return Array.isArray(val) ? val : val ? [val] : [];
-		}
-		return val;
-	});
-
-	function isSelected(optionValue: string): boolean {
-		const val = currentValue;
-		if (multiple) {
-			return (val as string[]).includes(optionValue);
-		}
-		return val === optionValue;
-	}
-
-	function handleSelect(optionValue: string) {
-		if (multiple) {
-			const current = currentValue as string[];
-			if (current.includes(optionValue)) {
-				field.set(current.filter((v) => v !== optionValue));
-			} else {
-				field.set([...current, optionValue]);
-			}
-		} else {
-			field.set(optionValue);
-		}
-		oninput?.();
+	// Helper to get field attrs with controlled aria-invalid
+	function getFieldAttrs(optionValue: string) {
+		const inputType = multiple ? 'checkbox' : 'radio';
+		const attrs = field.as(inputType, optionValue);
+		return {
+			...attrs,
+			'aria-invalid': showIssues ? attrs['aria-invalid'] : undefined
+		};
 	}
 </script>
 
@@ -61,24 +41,21 @@
 	aria-label={!label ? name : undefined}
 >
 	{#each normalizedOptions as option (option.value)}
-		{@const selected = isSelected(option.value)}
 		{@const optionDisabled = disabled || option.disabled}
-		<button
-			type="button"
-			class="sform-toggle-option"
-			class:selected
-			class:disabled={optionDisabled}
-			disabled={optionDisabled}
-			role={multiple ? 'checkbox' : 'radio'}
-			aria-checked={selected}
-			onclick={() => handleSelect(option.value)}
-			{onblur}
-		>
-			{option.label}
-		</button>
+		{@const fieldAttrs = getFieldAttrs(option.value)}
+		{@const inputId = `${name}-${option.value}`}
+		<label class="sform-toggle-option" class:disabled={optionDisabled} for={inputId}>
+			<input
+				{...fieldAttrs}
+				type={multiple ? 'checkbox' : 'radio'}
+				id={inputId}
+				disabled={optionDisabled}
+				{onblur}
+				{oninput}
+			/>
+			<span>{option.label}</span>
+		</label>
 	{/each}
-	<!-- Hidden input for form submission -->
-	<input type="hidden" {name} value={JSON.stringify(currentValue)} />
 </div>
 
 <style>
@@ -90,8 +67,10 @@
 	}
 
 	.sform-toggle-option {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		padding: 0.5rem 1rem;
-		border: none;
 		background: white;
 		cursor: pointer;
 		transition:
@@ -103,13 +82,26 @@
 		border-right: 1px solid #ccc;
 	}
 
-	.sform-toggle-option:hover:not(.disabled):not(.selected) {
+	.sform-toggle-option:hover:not(.disabled) {
 		background-color: #f5f5f5;
 	}
 
-	.sform-toggle-option.selected {
+	/* Hide the actual input but keep it functional */
+	.sform-toggle-option input {
+		position: absolute;
+		opacity: 0;
+		width: 0;
+		height: 0;
+	}
+
+	/* Style when checked */
+	.sform-toggle-option:has(input:checked) {
 		background-color: #2196f3;
 		color: white;
+	}
+
+	.sform-toggle-option:has(input:checked):hover {
+		background-color: #1976d2;
 	}
 
 	.sform-toggle-option.disabled {
@@ -117,7 +109,8 @@
 		cursor: not-allowed;
 	}
 
-	.sform-toggle-option:focus {
+	/* Focus styles */
+	.sform-toggle-option:has(input:focus-visible) {
 		outline: 2px solid #2196f3;
 		outline-offset: -2px;
 		z-index: 1;

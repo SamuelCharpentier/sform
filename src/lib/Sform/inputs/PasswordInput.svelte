@@ -12,13 +12,19 @@
 		readonly,
 		autocomplete,
 		showToggle = true,
+		showIssues,
 		onblur,
 		oninput
 	}: PasswordInputProps = $props();
 
 	let showPassword = $state(false);
 
-	const fieldAttrs = $derived(field.as(showPassword ? 'text' : 'password'));
+	const fieldAttrs = $derived({
+		...field.as(showPassword ? 'text' : 'password'),
+		'aria-invalid': showIssues
+			? field.as(showPassword ? 'text' : 'password')['aria-invalid']
+			: undefined
+	});
 
 	function toggleVisibility() {
 		showPassword = !showPassword;

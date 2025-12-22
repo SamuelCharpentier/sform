@@ -1,9 +1,18 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import type { ButtonFormState } from '../types.js';
-	import { getSformContext } from '../context.svelte.js';
+	import type { ButtonFormState, RemoteFormIssue } from '../types.js';
+
+	interface FormLike {
+		pending?: number;
+		result?: unknown;
+		fields: {
+			allIssues?: () => RemoteFormIssue[] | undefined;
+		};
+	}
 
 	interface Props {
+		/** The remote form - required for button state */
+		form: FormLike;
 		/** Button text (used if no snippets provided) */
 		label?: string;
 		/** Button type */
@@ -23,6 +32,7 @@
 	}
 
 	let {
+		form,
 		label = 'Submit',
 		buttonType = 'submit',
 		class: className,
@@ -33,10 +43,7 @@
 		errorState
 	}: Props = $props();
 
-	const context = getSformContext();
-
 	const formState: ButtonFormState = $derived.by(() => {
-		const form = context.form;
 		const pending = (form.pending ?? 0) !== 0;
 		const hasResult = form.result !== undefined;
 		const issues = form.fields.allIssues?.() ?? [];

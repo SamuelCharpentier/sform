@@ -9,12 +9,16 @@
 		labelClass,
 		disabled,
 		value,
+		showIssues,
 		onblur,
 		oninput
 	}: CheckboxRadioInputProps = $props();
 
 	// Single boolean checkbox - no value needed
-	const fieldAttrs = $derived(field.as('checkbox'));
+	const fieldAttrs = $derived({
+		...field.as('checkbox'),
+		'aria-invalid': showIssues ? field.as('checkbox')['aria-invalid'] : undefined
+	});
 </script>
 
 <label class="sform-checkbox {className ?? ''}" class:disabled>

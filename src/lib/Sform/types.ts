@@ -12,7 +12,9 @@ import type {
 	RemoteFormFields,
 	RemoteFormFieldValue,
 	RemoteFormInput,
-	RemoteFormIssue
+	RemoteFormIssue,
+	RemoteQuery,
+	RemoteQueryOverride
 } from '@sveltejs/kit';
 
 /**
@@ -27,12 +29,12 @@ export type {
 };
 
 /**
- * Validation visibility modes
- * - 'blur': Show issues after leaving field (default)
- * - 'change': Show issues on every keystroke
- * - 'submit': Show all issues only after submit
+ * When to trigger validation and show issues
+ * - 'blur': Validate and show issues after leaving field (default)
+ * - 'change': Validate and show issues on every keystroke
+ * - 'submit': Validate and show all issues only after submit
  */
-export type VisibilityMode = 'blur' | 'change' | 'submit';
+export type ValidateOn = 'blur' | 'change' | 'submit';
 
 /**
  * Field state tracking
@@ -57,6 +59,51 @@ export interface SfieldClasses {
 	/** Messages/errors container class */
 	messages?: string;
 }
+
+/**
+ * Maps Sfield input types to the value types they handle.
+ * Used for type-safe field-to-input matching.
+ */
+export interface SfieldTypeMap {
+	// String types
+	text: string;
+	email: string;
+	password: string;
+	tel: string;
+	url: string;
+	search: string;
+	date: string;
+	'datetime-local': string;
+	time: string;
+	month: string;
+	week: string;
+	color: string;
+	textarea: string;
+	hidden: string;
+	masked: string;
+	// Number types
+	number: number;
+	range: number;
+	// Boolean types
+	checkbox: boolean;
+	toggle: boolean;
+	// String (single selection)
+	select: string;
+	radio: string;
+	'toggle-options': string;
+	// String array types
+	'checkbox-group': string[];
+	// File types (less commonly used with remote forms)
+	file: File;
+}
+
+/**
+ * Given a field value type T, returns the Sfield types that can handle it.
+ * This is the inverse of SfieldTypeMap - we find which keys produce T.
+ */
+export type AllowedSfieldType<T> = {
+	[K in keyof SfieldTypeMap]: T extends SfieldTypeMap[K] ? K : never;
+}[keyof SfieldTypeMap];
 
 /**
  * Supported input types for Sfield
@@ -127,18 +174,19 @@ export type RemoteForm<
 > = SvelteKitRemoteForm<Input, Output>;
 
 /**
+ * A remote form instance - either a full RemoteForm or the result of .for(id).
+ * The .for(id) method returns Omit<RemoteForm, 'for'>, so this type accepts both.
+ */
+export type RemoteFormInstance<
+	Input extends RemoteFormInput | void = RemoteFormInput,
+	Output = unknown
+> = SvelteKitRemoteForm<Input, Output> | Omit<SvelteKitRemoteForm<Input, Output>, 'for'>;
+
+/**
  * Form context provided by Sform to children.
- * Uses a structural form type to accept any RemoteForm.
+ * Manages field state (touched, dirty, submitted) for validation display.
  */
 export interface SformContext {
-	/** The remote form object (structural type for any RemoteForm) */
-	form: {
-		fields: {
-			allIssues?: () => RemoteFormIssue[] | undefined;
-			[key: string]: unknown;
-		};
-		[key: string]: unknown;
-	};
 	/** Get field state */
 	getFieldState: (name: string) => FieldState;
 	/** Mark field as touched */
@@ -146,9 +194,11 @@ export interface SformContext {
 	/** Mark field as dirty */
 	markDirty: (name: string) => void;
 	/** Check if field should display issues */
-	shouldDisplayIssues: (name: string, fieldVisibility?: VisibilityMode) => boolean;
-	/** Form-level visibility mode */
-	visibility: VisibilityMode;
+	shouldDisplayIssues: (name: string, fieldValidateOn?: ValidateOn) => boolean;
+	/** Form-level validateOn mode */
+	validateOn: ValidateOn;
+	/** Trigger validation (called on blur/input based on mode) */
+	triggerValidation: () => void;
 	/** Whether form has been submitted */
 	submitted: boolean;
 	/** Mark form as submitted */
@@ -160,16 +210,40 @@ export interface SformContext {
 }
 
 /**
+ * Enhance callback options - typed based on form Input type.
+ * Matches SvelteKit's RemoteForm.enhance() callback signature exactly.
+ */
+export interface EnhanceCallbackOptions<Input extends RemoteFormInput> {
+	/** The HTML form element */
+	form: HTMLFormElement;
+	/** The typed form data */
+	data: Input;
+	/** Submit the form and optionally update queries */
+	submit: () => Promise<void> & {
+		updates: (...queries: Array<RemoteQuery<unknown> | RemoteQueryOverride>) => Promise<void>;
+	};
+}
+
+/**
+ * Enhance callback function type
+ */
+export type EnhanceCallback<Input extends RemoteFormInput> = (
+	opts: EnhanceCallbackOptions<Input>
+) => void | Promise<void>;
+
+/**
  * Props for Sform component.
  * Generic over the form's input and output types.
  */
 export interface SformProps<Input extends RemoteFormInput = RemoteFormInput, Output = unknown> {
-	/** Remote form object from form() API */
-	form: SvelteKitRemoteForm<Input, Output>;
+	/** Remote form object from form() API, or the result of form.for(id) */
+	form: SvelteKitRemoteForm<Input, Output> | Omit<SvelteKitRemoteForm<Input, Output>, 'for'>;
 	/** Preflight validation schema (Valibot, Zod, or any StandardSchema) */
 	schema?: StandardSchemaV1<Input, unknown>;
-	/** Default validation visibility mode */
-	visibility?: VisibilityMode;
+	/** Enhance callback for custom form submission handling */
+	enhance?: EnhanceCallback<Input>;
+	/** When to validate and show issues: 'blur' (default), 'change', or 'submit' */
+	validateOn?: ValidateOn;
 	/** Form element class */
 	class?: string;
 	/** Children content */
@@ -186,8 +260,8 @@ export interface BaseSfieldProps {
 	label?: string;
 	/** Placeholder text */
 	placeholder?: string;
-	/** Field-level visibility override */
-	visibility?: VisibilityMode;
+	/** Field-level validateOn override */
+	validateOn?: ValidateOn;
 	/** CSS classes for sub-elements */
 	class?: SfieldClasses | string;
 	/** Whether field is disabled */
@@ -343,14 +417,132 @@ export type SfieldProps =
 	| ToggleOptionsSfieldProps
 	| MaskedSfieldProps;
 
+// ============================================================================
+// TYPED SFIELD PROPS - For type-safe field-to-input matching
+// ============================================================================
+
 /**
- * Props for internal input components
+ * Base props for typed Sfield - includes the field prop instead of name lookup
  */
-export interface InputComponentProps {
+export interface TypedBaseSfieldProps<T extends RemoteFormFieldValue> {
+	/** The remote form field - passed directly for type safety */
+	field: RemoteFormField<T>;
+	/** Field label */
+	label?: string;
+	/** Placeholder text */
+	placeholder?: string;
+	/** Field-level validateOn override */
+	validateOn?: ValidateOn;
+	/** CSS classes for sub-elements */
+	class?: SfieldClasses | string;
+	/** Whether field is disabled */
+	disabled?: boolean;
+	/** Whether field is readonly */
+	readonly?: boolean;
+	/** Autocomplete attribute */
+	autocomplete?: HTMLInputAttributes['autocomplete'];
+}
+
+/**
+ * Extract the props type for a given Sfield type, replacing BaseSfieldProps with TypedBaseSfieldProps
+ */
+type TypedPropsForType<Type extends keyof SfieldTypeMap> = Type extends
+	| 'text'
+	| 'email'
+	| 'tel'
+	| 'url'
+	| 'search'
+	| 'date'
+	| 'datetime-local'
+	| 'time'
+	| 'month'
+	| 'week'
+	| 'color'
+	| 'hidden'
+	| 'file'
+	? TypedBaseSfieldProps<SfieldTypeMap[Type]> & { type: Type }
+	: Type extends 'password'
+		? TypedBaseSfieldProps<string> & { type: 'password'; showToggle?: boolean }
+		: Type extends 'number'
+			? TypedBaseSfieldProps<number> & {
+					type: 'number';
+					min?: number | string;
+					max?: number | string;
+					step?: number | string;
+				}
+			: Type extends 'textarea'
+				? TypedBaseSfieldProps<string> & { type: 'textarea' }
+				: Type extends 'select'
+					? TypedBaseSfieldProps<string> & { type: 'select'; options: SelectOption[] | string[] }
+					: Type extends 'checkbox'
+						? TypedBaseSfieldProps<boolean> & { type: 'checkbox' }
+						: Type extends 'checkbox-group'
+							? TypedBaseSfieldProps<string[]> & {
+									type: 'checkbox-group';
+									options: SelectOption[] | string[];
+								}
+							: Type extends 'radio'
+								? TypedBaseSfieldProps<string> & {
+										type: 'radio';
+										options: SelectOption[] | string[];
+									}
+								: Type extends 'range'
+									? TypedBaseSfieldProps<number> & {
+											type: 'range';
+											min?: number | string;
+											max?: number | string;
+											step?: number | string;
+											showValue?: boolean;
+											formatValue?: (value: number) => string;
+										}
+									: Type extends 'toggle'
+										? TypedBaseSfieldProps<boolean> & {
+												type: 'toggle';
+												onLabel?: string;
+												offLabel?: string;
+												checkedValue?: string;
+												uncheckedValue?: string;
+											}
+										: Type extends 'toggle-options'
+											? TypedBaseSfieldProps<string> & {
+													type: 'toggle-options';
+													options: ToggleOption[] | string[];
+													multiple?: boolean;
+												}
+											: Type extends 'masked'
+												? TypedBaseSfieldProps<string> & {
+														type: 'masked';
+														mask: string;
+														maskPlaceholder?: string;
+														showMaskPlaceholder?: boolean;
+														unmaskValue?: boolean;
+													}
+												: never;
+
+/**
+ * Typed Sfield props - constrains the 'type' based on the field's value type.
+ *
+ * @example
+ * ```typescript
+ * // If fields.name is RemoteFormField<string>, only string-compatible types are allowed
+ * <Sfield field={fields.name} name="name" type="text" /> // ✓ OK
+ * <Sfield field={fields.name} name="name" type="number" /> // ✗ Error: number not compatible with string
+ *
+ * // If fields.age is RemoteFormField<number>, only number-compatible types are allowed
+ * <Sfield field={fields.age} name="age" type="number" /> // ✓ OK
+ * <Sfield field={fields.age} name="age" type="text" /> // ✗ Error: text not compatible with number
+ * ```
+ */
+export type TypedSfieldProps<T extends RemoteFormFieldValue> = {
+	[K in AllowedSfieldType<T>]: TypedPropsForType<K>;
+}[AllowedSfieldType<T>];
+
+/**
+ * Base props for internal input components (without type - for components with fixed types)
+ */
+export interface BaseInputComponentProps {
 	/** Remote field from form */
 	field: RemoteFormField<RemoteFormFieldValue>;
-	/** Input type */
-	type: InputType;
 	/** Field name */
 	name: string;
 	/** Field label */
@@ -367,6 +559,8 @@ export interface InputComponentProps {
 	readonly?: boolean;
 	/** Autocomplete attribute */
 	autocomplete?: HTMLInputAttributes['autocomplete'];
+	/** Whether to show validation state (controls aria-invalid) */
+	showIssues?: boolean;
 	/** Blur handler */
 	onblur?: () => void;
 	/** Input handler */
@@ -374,9 +568,17 @@ export interface InputComponentProps {
 }
 
 /**
- * Props for numeric input components (number, range)
+ * Props for internal input components that need a dynamic type
  */
-export interface NumericInputComponentProps extends InputComponentProps {
+export interface InputComponentProps extends BaseInputComponentProps {
+	/** Input type */
+	type: InputType;
+}
+
+/**
+ * Props for numeric input components (number, range) - uses base props since type is fixed
+ */
+export interface NumericInputComponentProps extends BaseInputComponentProps {
 	/** Minimum value */
 	min?: number | string;
 	/** Maximum value */
@@ -386,19 +588,34 @@ export interface NumericInputComponentProps extends InputComponentProps {
 }
 
 /**
- * Props for text input component (includes number with min/max/step)
+ * Props for number input component
  */
-export interface TextInputComponentProps extends NumericInputComponentProps {}
+export interface NumberInputComponentProps extends BaseInputComponentProps {
+	/** Minimum value */
+	min?: number | string;
+	/** Maximum value */
+	max?: number | string;
+	/** Step value */
+	step?: number | string;
+}
+
+/**
+ * Props for text input component (text, email, tel, url, search, date, etc.)
+ */
+export interface TextInputComponentProps extends BaseInputComponentProps {
+	/** Input type - text-like types only */
+	type: TextInputType;
+}
 
 /**
  * Props for textarea input component
  */
-export interface TextareaInputProps extends InputComponentProps {}
+export type TextareaInputProps = BaseInputComponentProps;
 
 /**
  * Props for select input component
  */
-export interface SelectInputProps extends InputComponentProps {
+export interface SelectInputProps extends BaseInputComponentProps {
 	/** Options for select */
 	options: SelectOption[] | string[];
 }
@@ -406,7 +623,7 @@ export interface SelectInputProps extends InputComponentProps {
 /**
  * Props for checkbox input component (single yes/no)
  */
-export interface CheckboxRadioInputProps extends InputComponentProps {
+export interface CheckboxRadioInputProps extends BaseInputComponentProps {
 	/** Value for the input (unused for single checkbox) */
 	value?: string;
 }
@@ -414,7 +631,7 @@ export interface CheckboxRadioInputProps extends InputComponentProps {
 /**
  * Props for checkbox group input component
  */
-export interface CheckboxGroupInputProps extends InputComponentProps {
+export interface CheckboxGroupInputProps extends BaseInputComponentProps {
 	/** Options for the checkbox group */
 	options: SelectOption[] | string[];
 }
@@ -422,7 +639,7 @@ export interface CheckboxGroupInputProps extends InputComponentProps {
 /**
  * Props for radio input component
  */
-export interface RadioInputProps extends InputComponentProps {
+export interface RadioInputProps extends BaseInputComponentProps {
 	/** Options for the radio group */
 	options: SelectOption[] | string[];
 }
@@ -478,7 +695,7 @@ export interface RangeInputProps extends NumericInputComponentProps {
 /**
  * Props for password input component
  */
-export interface PasswordInputProps extends InputComponentProps {
+export interface PasswordInputProps extends BaseInputComponentProps {
 	/** Whether to show the password visibility toggle */
 	showToggle?: boolean;
 }
@@ -486,7 +703,7 @@ export interface PasswordInputProps extends InputComponentProps {
 /**
  * Props for toggle input component
  */
-export interface ToggleInputProps extends InputComponentProps {
+export interface ToggleInputProps extends BaseInputComponentProps {
 	/** Label when toggle is on */
 	onLabel?: string;
 	/** Label when toggle is off */
@@ -509,7 +726,7 @@ export interface ToggleOption {
 /**
  * Props for toggle options (button group) component
  */
-export interface ToggleOptionsInputProps extends InputComponentProps {
+export interface ToggleOptionsInputProps extends BaseInputComponentProps {
 	/** Options to display as toggle buttons */
 	options: ToggleOption[] | string[];
 	/** Allow multiple selections */

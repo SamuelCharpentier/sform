@@ -6,7 +6,7 @@ A type-safe form library for **Svelte 5** with **SvelteKit remote functions**.
 
 - ✅ **Type-safe** - Discriminated union types for each input type
 - ✅ **Preflight validation** - All errors shown on submit, not one at a time
-- ✅ **Visibility modes** - `blur`, `dirty`, `submit`, or `always`
+- ✅ **Validate modes** - `blur`, `change`, or `submit`
 - ✅ **Password toggle** - Eye icon to show/hide password
 - ✅ **Masked inputs** - Phone, credit card, SSN formatting
 - ✅ **Range slider** - With optional value display
@@ -68,7 +68,7 @@ export const login = form(loginSchema, async ({ username, _password }) => {
 	import { login } from './auth.remote.ts';
 </script>
 
-<Sform form={login} visibility="blur">
+<Sform form={login} validateOn="blur">
 	<Sfield name="username" type="text" label="Username" />
 	<Sfield name="_password" type="password" label="Password" />
 
@@ -83,22 +83,22 @@ export const login = form(loginSchema, async ({ username, _password }) => {
 Wrapper component that provides form context to all child fields.
 
 ```svelte
-<Sform form={remoteForm} visibility="blur" class="my-form">
+<Sform form={remoteForm} validateOn="blur" class="my-form">
 	<!-- Sfield components here -->
 </Sform>
 ```
 
-| Prop         | Type                            | Default     | Description                          |
-| ------------ | ------------------------------- | ----------- | ------------------------------------ |
-| `form`       | `RemoteForm`                    | required    | Remote form object from `form()` API |
-| `visibility` | `'blur' \| 'dirty' \| 'submit'` | `'blur'`    | When to show validation errors       |
-| `class`      | `string`                        | `undefined` | CSS class for form element           |
+| Prop         | Type                             | Default     | Description                          |
+| ------------ | -------------------------------- | ----------- | ------------------------------------ |
+| `form`       | `RemoteForm`                     | required    | Remote form object from `form()` API |
+| `validateOn` | `'blur' \| 'change' \| 'submit'` | `'blur'`    | When to validate and show errors     |
+| `class`      | `string`                         | `undefined` | CSS class for form element           |
 
-**Visibility Modes:**
+**Validate Modes:**
 
-- `blur` - Show errors after leaving field (default)
-- `dirty` - Show errors as soon as value changes
-- `submit` - Show all errors only after submit attempt
+- `blur` - Validate and show errors after leaving field (default)
+- `change` - Validate and show errors as soon as value changes
+- `submit` - Validate and show all errors only after submit attempt
 
 ### `<Sfield>`
 
@@ -114,7 +114,7 @@ Smart field component with type-safe props based on input type.
 | `placeholder` | `string`                  | `undefined` | Placeholder text               |
 | `disabled`    | `boolean`                 | `false`     | Disable the field              |
 | `readonly`    | `boolean`                 | `false`     | Make field readonly            |
-| `visibility`  | `VisibilityMode`          | inherited   | Override form visibility       |
+| `validateOn`  | `ValidateOn`              | inherited   | Override form validateOn       |
 | `class`       | `SfieldClasses \| string` | `undefined` | CSS classes                    |
 
 #### Text Inputs
