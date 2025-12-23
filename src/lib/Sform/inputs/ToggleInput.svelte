@@ -12,15 +12,11 @@
 		offLabel = 'Off',
 		checkedValue = 'true',
 		uncheckedValue = 'false',
-		showIssues,
 		onblur,
 		oninput
 	}: ToggleInputProps = $props();
 
-	const fieldAttrs = $derived({
-		...field.as('checkbox', checkedValue),
-		'aria-invalid': showIssues ? field.as('checkbox', checkedValue)['aria-invalid'] : undefined
-	});
+	const fieldAttrs = $derived(field.as('checkbox', checkedValue));
 
 	const isChecked = $derived.by(() => {
 		const val = field.value();

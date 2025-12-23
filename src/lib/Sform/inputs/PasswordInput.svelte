@@ -14,7 +14,8 @@
 		showToggle = true,
 		showIssues,
 		onblur,
-		oninput
+		oninput,
+		showToggleIcon
 	}: PasswordInputProps = $props();
 
 	let showPassword = $state(false);
@@ -56,7 +57,9 @@
 			tabindex={-1}
 			{disabled}
 		>
-			{#if showPassword}
+			{#if showToggleIcon !== undefined}
+				{@render showToggleIcon(showPassword)}
+			{:else if showPassword}
 				<!-- Eye closed icon (password visible) -->
 				<svg
 					xmlns="http://www.w3.org/2000/svg"

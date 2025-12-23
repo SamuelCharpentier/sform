@@ -56,17 +56,38 @@
 		context.markDirty(name);
 	}
 
-	// Base input props shared by all input types (without type - added explicitly per component)
-	const baseInputProps = $derived({
+	// Props that Sfield manages internally - these are set by Sfield, not passed from parent
+	const internalPropKeys = [
+		'field',
+		'name',
+		'showIssues',
+		'onblur',
+		'oninput',
+		'labelClass',
+		'class'
+	];
+	// Props that are Sfield-specific and not passed to components
+	const sfieldOnlyPropKeys = ['validateOn', 'hint', 'type'];
+
+	// Passthrough props: everything from parent except internal and sfield-only props
+	// This allows new component props to automatically flow through without updating Sfield
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const passthroughProps = $derived((): any => {
+		const result: Record<string, unknown> = {};
+		for (const [key, value] of Object.entries(props)) {
+			if (!internalPropKeys.includes(key) && !sfieldOnlyPropKeys.includes(key)) {
+				result[key] = value;
+			}
+		}
+		return result;
+	});
+
+	// Internal props that Sfield computes/manages
+	const internalProps = $derived({
 		field,
 		name,
-		label: props.label,
-		placeholder: props.placeholder,
 		class: hasIssues ? `${classes.input ?? ''} sform-field-error`.trim() : classes.input,
 		labelClass: classes.label,
-		disabled: props.disabled,
-		readonly: props.readonly,
-		autocomplete: props.autocomplete,
 		showIssues,
 		onblur: handleBlur,
 		oninput: handleInput
@@ -94,60 +115,43 @@
 
 <div class={classes.wrapper}>
 	{#if isTextType}
-		<TextInput {...baseInputProps} type={props.type as import('./types.js').TextInputType} />
+		<TextInput
+			{...passthroughProps()}
+			{...internalProps}
+			type={props.type as import('./types.js').TextInputType}
+		/>
 	{:else if props.type === 'password'}
-		<PasswordInput
-			{...baseInputProps}
-			showToggle={'showToggle' in props ? props.showToggle : undefined}
-		/>
+		<PasswordInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'number'}
-		<NumberInput
-			{...baseInputProps}
-			min={'min' in props ? props.min : undefined}
-			max={'max' in props ? props.max : undefined}
-			step={'step' in props ? props.step : undefined}
-		/>
+		<NumberInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'textarea'}
-		<TextareaInput {...baseInputProps} />
+		<TextareaInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'select'}
-		<SelectInput {...baseInputProps} options={'options' in props ? props.options : []} />
+		<SelectInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'checkbox'}
-		<CheckboxInput {...baseInputProps} />
+		<CheckboxInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'checkbox-group'}
-		<CheckboxGroupInput {...baseInputProps} options={'options' in props ? props.options : []} />
+		<CheckboxGroupInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'radio'}
-		<RadioInput {...baseInputProps} options={'options' in props ? props.options : []} />
+		<RadioInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'range'}
-		<RangeInput
-			{...baseInputProps}
-			min={'min' in props ? props.min : undefined}
-			max={'max' in props ? props.max : undefined}
-			step={'step' in props ? props.step : undefined}
-			showValue={'showValue' in props ? props.showValue : undefined}
-			formatValue={'formatValue' in props ? props.formatValue : undefined}
-		/>
+		<RangeInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'toggle'}
-		<ToggleInput
-			{...baseInputProps}
-			onLabel={'onLabel' in props ? props.onLabel : undefined}
-			offLabel={'offLabel' in props ? props.offLabel : undefined}
-			checkedValue={'checkedValue' in props ? props.checkedValue : undefined}
-			uncheckedValue={'uncheckedValue' in props ? props.uncheckedValue : undefined}
-		/>
+		<ToggleInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'toggle-options'}
-		<ToggleOptionsInput
-			{...baseInputProps}
-			options={'options' in props ? props.options : []}
-			multiple={'multiple' in props ? props.multiple : undefined}
-		/>
+		<ToggleOptionsInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'masked'}
-		<MaskedInput
-			{...baseInputProps}
-			mask={'mask' in props ? props.mask : ''}
-			maskPlaceholder={'maskPlaceholder' in props ? props.maskPlaceholder : undefined}
-			showMaskPlaceholder={'showMaskPlaceholder' in props ? props.showMaskPlaceholder : undefined}
-			unmaskValue={'unmaskValue' in props ? props.unmaskValue : undefined}
-		/>
+		<MaskedInput {...passthroughProps()} {...internalProps} />
+	{/if}
+
+	{#if props.hint}
+		<div class="sform-hint">
+			{#if typeof props.hint === 'string'}
+				{props.hint}
+			{:else}
+				{@render props.hint()}
+			{/if}
+		</div>
 	{/if}
 
 	{#if hasIssues}

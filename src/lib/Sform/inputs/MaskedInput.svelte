@@ -1,19 +1,6 @@
 <script lang="ts">
-	import type { BaseInputComponentProps } from '../types.js';
+	import type { MaskedInputProps } from '../types.js';
 	import { applyMask, MASK_PATTERNS, type MaskPattern, type MaskToken } from '../utils/mask.js';
-
-	interface MaskedInputProps extends BaseInputComponentProps {
-		/** The mask pattern or a preset name */
-		mask: string | MaskPattern;
-		/** Custom token definitions */
-		tokens?: Record<string, MaskToken>;
-		/** Placeholder character for unfilled positions */
-		maskPlaceholder?: string;
-		/** Whether to show the full mask with placeholders */
-		showMaskPlaceholder?: boolean;
-		/** Whether to store the unmasked (raw) value. If true, stores '1234567890'. If false, stores '(123) 456-7890'. Default: true */
-		unmaskValue?: boolean;
-	}
 
 	let {
 		field,
@@ -31,6 +18,11 @@
 		showMaskPlaceholder = false,
 		unmaskValue = true,
 		showIssues,
+		prefixIcon,
+		prefix,
+		suffix,
+		suffixIcon,
+		wrapperClass,
 		onblur,
 		oninput
 	}: MaskedInputProps = $props();
@@ -198,21 +190,43 @@
 <!-- Hidden input holds the actual value for form submission -->
 <input type="hidden" {name} value={field.value() ?? ''} />
 <!-- Visible input shows masked display value but doesn't submit (no name) -->
-<input
-	bind:this={inputElement}
-	type="text"
-	id={name}
-	class={className}
-	{placeholder}
-	{disabled}
-	{readonly}
-	{autocomplete}
-	aria-invalid={ariaInvalid}
-	bind:value={displayValue}
-	oninput={handleInput}
-	onpaste={handlePaste}
-	onchange={handleChange}
-	onkeydown={handleKeyDown}
-	{onblur}
-	data-mask-complete={maskComplete}
-/>
+<div class="sform-input-wrapper {wrapperClass ?? ''}">
+	{#if prefixIcon}
+		<div class="sform-prefix-icon" onclick={() => inputElement?.focus()} role="presentation">
+			{@render prefixIcon()}
+		</div>
+	{/if}
+	{#if prefix}
+		<div class="sform-prefix" onclick={() => inputElement?.focus()} role="presentation">
+			{@render prefix()}
+		</div>
+	{/if}
+	<input
+		bind:this={inputElement}
+		type="text"
+		id={name}
+		class={className}
+		{placeholder}
+		{disabled}
+		{readonly}
+		{autocomplete}
+		aria-invalid={ariaInvalid}
+		bind:value={displayValue}
+		oninput={handleInput}
+		onpaste={handlePaste}
+		onchange={handleChange}
+		onkeydown={handleKeyDown}
+		{onblur}
+		data-mask-complete={maskComplete}
+	/>
+	{#if suffix}
+		<div class="sform-suffix" onclick={() => inputElement?.focus()} role="presentation">
+			{@render suffix()}
+		</div>
+	{/if}
+	{#if suffixIcon}
+		<div class="sform-suffix-icon" onclick={() => inputElement?.focus()} role="presentation">
+			{@render suffixIcon()}
+		</div>
+	{/if}
+</div>

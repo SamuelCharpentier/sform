@@ -39,7 +39,6 @@
 				console.log('Oh no! Something went wrong');
 			}
 		}}
-		validateOn="blur"
 		class="sform-form"
 	>
 		{#snippet children(fields)}
@@ -49,14 +48,33 @@
 				label="Username"
 				placeholder="Enter username"
 				class={fieldClasses}
-			/>
+			>
+				{#snippet prefixIcon()}
+					😅
+				{/snippet}
+				{#snippet prefix()}
+					@
+				{/snippet}
+				{#snippet hint()}
+					Try using admin to simulate a login.
+				{/snippet}
+			</Sfield>
 			<Sfield
 				field={fields._password}
 				type="password"
 				label="Password"
 				placeholder="Enter password"
 				class={fieldClasses}
-			/>
+				hint="Try using password123 to simulate a login."
+			>
+				{#snippet showToggleIcon(passwordShown)}
+					{#if passwordShown}
+						🙈
+					{:else}
+						👁️
+					{/if}
+				{/snippet}
+			</Sfield>
 
 			<Sbutton form={login} class="sform-button">
 				{#snippet defaultState(_state: ButtonFormState)}

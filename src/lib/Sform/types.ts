@@ -6,6 +6,7 @@
 import type { Snippet } from 'svelte';
 import type { HTMLInputAttributes } from 'svelte/elements';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
+import type { MaskPattern, MaskToken } from './utils/mask.js';
 import type {
 	RemoteForm as SvelteKitRemoteForm,
 	RemoteFormField,
@@ -422,102 +423,114 @@ export type SfieldProps =
 // ============================================================================
 
 /**
- * Base props for typed Sfield - includes the field prop instead of name lookup
+ * Props that Sfield manages internally and should NOT be passed from parent.
+ * These are set by Sfield itself based on context and internal state.
  */
-export interface TypedBaseSfieldProps<T extends RemoteFormFieldValue> {
+type SfieldInternalProps = 'field' | 'name' | 'showIssues' | 'onblur' | 'oninput' | 'labelClass';
+
+/**
+ * Props that Sfield adds on top of component props.
+ * - field: The typed remote form field
+ * - validateOn: Override for when validation triggers
+ * - class: Can be string or SfieldClasses object
+ * - hint: Help text shown below input
+ */
+interface SfieldExtraProps<T extends RemoteFormFieldValue> {
 	/** The remote form field - passed directly for type safety */
 	field: RemoteFormField<T>;
-	/** Field label */
-	label?: string;
-	/** Placeholder text */
-	placeholder?: string;
 	/** Field-level validateOn override */
 	validateOn?: ValidateOn;
-	/** CSS classes for sub-elements */
+	/** CSS classes for sub-elements (wrapper, label, input, messages) */
 	class?: SfieldClasses | string;
-	/** Whether field is disabled */
-	disabled?: boolean;
-	/** Whether field is readonly */
-	readonly?: boolean;
-	/** Autocomplete attribute */
-	autocomplete?: HTMLInputAttributes['autocomplete'];
+	/** Hint text displayed below the input, above validation messages */
+	hint?: string | Snippet;
 }
 
 /**
- * Extract the props type for a given Sfield type, replacing BaseSfieldProps with TypedBaseSfieldProps
+ * Helper type: Create Sfield props from component props
+ * Omits internal props and adds Sfield-specific extras
  */
-type TypedPropsForType<Type extends keyof SfieldTypeMap> = Type extends
-	| 'text'
-	| 'email'
-	| 'tel'
-	| 'url'
-	| 'search'
-	| 'date'
-	| 'datetime-local'
-	| 'time'
-	| 'month'
-	| 'week'
-	| 'color'
-	| 'hidden'
-	| 'file'
-	? TypedBaseSfieldProps<SfieldTypeMap[Type]> & { type: Type }
-	: Type extends 'password'
-		? TypedBaseSfieldProps<string> & { type: 'password'; showToggle?: boolean }
-		: Type extends 'number'
-			? TypedBaseSfieldProps<number> & {
-					type: 'number';
-					min?: number | string;
-					max?: number | string;
-					step?: number | string;
-				}
-			: Type extends 'textarea'
-				? TypedBaseSfieldProps<string> & { type: 'textarea' }
-				: Type extends 'select'
-					? TypedBaseSfieldProps<string> & { type: 'select'; options: SelectOption[] | string[] }
-					: Type extends 'checkbox'
-						? TypedBaseSfieldProps<boolean> & { type: 'checkbox' }
-						: Type extends 'checkbox-group'
-							? TypedBaseSfieldProps<string[]> & {
-									type: 'checkbox-group';
-									options: SelectOption[] | string[];
-								}
-							: Type extends 'radio'
-								? TypedBaseSfieldProps<string> & {
-										type: 'radio';
-										options: SelectOption[] | string[];
-									}
-								: Type extends 'range'
-									? TypedBaseSfieldProps<number> & {
-											type: 'range';
-											min?: number | string;
-											max?: number | string;
-											step?: number | string;
-											showValue?: boolean;
-											formatValue?: (value: number) => string;
-										}
-									: Type extends 'toggle'
-										? TypedBaseSfieldProps<boolean> & {
-												type: 'toggle';
-												onLabel?: string;
-												offLabel?: string;
-												checkedValue?: string;
-												uncheckedValue?: string;
-											}
-										: Type extends 'toggle-options'
-											? TypedBaseSfieldProps<string> & {
-													type: 'toggle-options';
-													options: ToggleOption[] | string[];
-													multiple?: boolean;
-												}
-											: Type extends 'masked'
-												? TypedBaseSfieldProps<string> & {
-														type: 'masked';
-														mask: string;
-														maskPlaceholder?: string;
-														showMaskPlaceholder?: boolean;
-														unmaskValue?: boolean;
-													}
-												: never;
+type SfieldPropsFrom<
+	ComponentProps,
+	T extends RemoteFormFieldValue,
+	TypeValue extends string
+> = Omit<ComponentProps, SfieldInternalProps | 'class'> & SfieldExtraProps<T> & { type: TypeValue };
+
+// ============================================================================
+// SFIELD TYPE PROPS - Derived from component props (single source of truth)
+// ============================================================================
+
+/** Props for text-like inputs (text, email, tel, url, search, date, etc.) */
+export type SfieldTextProps = SfieldPropsFrom<TextInputComponentProps, string, TextInputType>;
+
+/** Props for password input */
+export type SfieldPasswordProps = SfieldPropsFrom<PasswordInputProps, string, 'password'>;
+
+/** Props for number input */
+export type SfieldNumberProps = SfieldPropsFrom<NumberInputComponentProps, number, 'number'>;
+
+/** Props for textarea input */
+export type SfieldTextareaProps = SfieldPropsFrom<TextareaInputProps, string, 'textarea'>;
+
+/** Props for select input */
+export type SfieldSelectProps = SfieldPropsFrom<SelectInputProps, string, 'select'>;
+
+/** Props for checkbox input */
+export type SfieldCheckboxProps = SfieldPropsFrom<CheckboxRadioInputProps, boolean, 'checkbox'>;
+
+/** Props for checkbox-group input */
+export type SfieldCheckboxGroupProps = SfieldPropsFrom<
+	CheckboxGroupInputProps,
+	string[],
+	'checkbox-group'
+>;
+
+/** Props for radio input */
+export type SfieldRadioProps = SfieldPropsFrom<RadioInputProps, string, 'radio'>;
+
+/** Props for range input */
+export type SfieldRangeProps = SfieldPropsFrom<RangeInputProps, number, 'range'>;
+
+/** Props for toggle input */
+export type SfieldToggleProps = SfieldPropsFrom<ToggleInputProps, boolean, 'toggle'>;
+
+/** Props for toggle-options input */
+export type SfieldToggleOptionsProps = SfieldPropsFrom<
+	ToggleOptionsInputProps,
+	string,
+	'toggle-options'
+>;
+
+/** Props for masked input */
+export type SfieldMaskedProps = SfieldPropsFrom<MaskedInputProps, string, 'masked'>;
+
+// ============================================================================
+// SFIELD PROPS UNION - Discriminated union of all Sfield types
+// ============================================================================
+
+/** All possible Sfield props as a discriminated union */
+type AllSfieldProps =
+	| SfieldTextProps
+	| SfieldPasswordProps
+	| SfieldNumberProps
+	| SfieldTextareaProps
+	| SfieldSelectProps
+	| SfieldCheckboxProps
+	| SfieldCheckboxGroupProps
+	| SfieldRadioProps
+	| SfieldRangeProps
+	| SfieldToggleProps
+	| SfieldToggleOptionsProps
+	| SfieldMaskedProps;
+
+/**
+ * Extract props that match a specific field value type.
+ * This ensures type="number" is only valid for number fields, etc.
+ */
+type PropsForFieldType<T extends RemoteFormFieldValue> = Extract<
+	AllSfieldProps,
+	{ field: RemoteFormField<T> }
+>;
 
 /**
  * Typed Sfield props - constrains the 'type' based on the field's value type.
@@ -525,17 +538,28 @@ type TypedPropsForType<Type extends keyof SfieldTypeMap> = Type extends
  * @example
  * ```typescript
  * // If fields.name is RemoteFormField<string>, only string-compatible types are allowed
- * <Sfield field={fields.name} name="name" type="text" /> // ✓ OK
- * <Sfield field={fields.name} name="name" type="number" /> // ✗ Error: number not compatible with string
+ * <Sfield field={fields.name} type="text" /> // ✓ OK
+ * <Sfield field={fields.name} type="number" /> // ✗ Error: number not compatible with string
  *
  * // If fields.age is RemoteFormField<number>, only number-compatible types are allowed
- * <Sfield field={fields.age} name="age" type="number" /> // ✓ OK
- * <Sfield field={fields.age} name="age" type="text" /> // ✗ Error: text not compatible with number
+ * <Sfield field={fields.age} type="number" /> // ✓ OK
+ * <Sfield field={fields.age} type="text" /> // ✗ Error: text not compatible with number
  * ```
  */
-export type TypedSfieldProps<T extends RemoteFormFieldValue> = {
-	[K in AllowedSfieldType<T>]: TypedPropsForType<K>;
-}[AllowedSfieldType<T>];
+export type TypedSfieldProps<T extends RemoteFormFieldValue> = PropsForFieldType<T>;
+
+/**
+ * Base props shared by all Sfield types (for reference/extension)
+ * @deprecated Sfield props are now derived from component props. Use the individual Sfield*Props types.
+ */
+export type SfieldBaseProps<T extends RemoteFormFieldValue> = SfieldExtraProps<T> &
+	Omit<BaseInputComponentProps, SfieldInternalProps | 'class'>;
+
+/**
+ * Legacy type alias for backwards compatibility
+ * @deprecated Use SfieldBaseProps instead
+ */
+export type TypedBaseSfieldProps<T extends RemoteFormFieldValue> = SfieldBaseProps<T>;
 
 /**
  * Base props for internal input components (without type - for components with fixed types)
@@ -568,6 +592,22 @@ export interface BaseInputComponentProps {
 }
 
 /**
+ * Props for prefix/suffix support on input components
+ */
+export interface InputAffixProps {
+	/** Icon rendered before the input (inside wrapper) */
+	prefixIcon?: Snippet;
+	/** Text/content rendered before the input (inside wrapper, acts as label) */
+	prefix?: Snippet;
+	/** Text/content rendered after the input (inside wrapper, acts as label) */
+	suffix?: Snippet;
+	/** Icon rendered after the input (inside wrapper) */
+	suffixIcon?: Snippet;
+	/** Class for the input wrapper (contains prefix, input, suffix) */
+	wrapperClass?: string;
+}
+
+/**
  * Props for internal input components that need a dynamic type
  */
 export interface InputComponentProps extends BaseInputComponentProps {
@@ -590,7 +630,7 @@ export interface NumericInputComponentProps extends BaseInputComponentProps {
 /**
  * Props for number input component
  */
-export interface NumberInputComponentProps extends BaseInputComponentProps {
+export interface NumberInputComponentProps extends BaseInputComponentProps, InputAffixProps {
 	/** Minimum value */
 	min?: number | string;
 	/** Maximum value */
@@ -602,7 +642,7 @@ export interface NumberInputComponentProps extends BaseInputComponentProps {
 /**
  * Props for text input component (text, email, tel, url, search, date, etc.)
  */
-export interface TextInputComponentProps extends BaseInputComponentProps {
+export interface TextInputComponentProps extends BaseInputComponentProps, InputAffixProps {
 	/** Input type - text-like types only */
 	type: TextInputType;
 }
@@ -610,7 +650,7 @@ export interface TextInputComponentProps extends BaseInputComponentProps {
 /**
  * Props for textarea input component
  */
-export type TextareaInputProps = BaseInputComponentProps;
+export interface TextareaInputProps extends BaseInputComponentProps, InputAffixProps {}
 
 /**
  * Props for select input component
@@ -698,6 +738,7 @@ export interface RangeInputProps extends NumericInputComponentProps {
 export interface PasswordInputProps extends BaseInputComponentProps {
 	/** Whether to show the password visibility toggle */
 	showToggle?: boolean;
+	showToggleIcon?: Snippet<[boolean]>;
 }
 
 /**
@@ -731,4 +772,20 @@ export interface ToggleOptionsInputProps extends BaseInputComponentProps {
 	options: ToggleOption[] | string[];
 	/** Allow multiple selections */
 	multiple?: boolean;
+}
+
+/**
+ * Props for masked input component
+ */
+export interface MaskedInputProps extends BaseInputComponentProps, InputAffixProps {
+	/** The mask pattern or a preset name */
+	mask: string | MaskPattern;
+	/** Custom token definitions */
+	tokens?: Record<string, MaskToken>;
+	/** Placeholder character for unfilled positions */
+	maskPlaceholder?: string;
+	/** Whether to show the full mask with placeholders */
+	showMaskPlaceholder?: boolean;
+	/** Whether to store the unmasked (raw) value. If true, stores '1234567890'. If false, stores '(123) 456-7890'. Default: true */
+	unmaskValue?: boolean;
 }

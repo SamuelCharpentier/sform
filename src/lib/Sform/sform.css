@@ -138,11 +138,99 @@
 }
 
 /* ===========================================
+   Input Wrapper (Prefix/Suffix)
+   =========================================== */
+.sform-input-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 0;
+	border: var(--sform-border-width) solid var(--sform-border);
+	border-radius: var(--sform-radius);
+	background-color: var(--sform-bg);
+	transition:
+		border-color var(--sform-transition),
+		box-shadow var(--sform-transition);
+}
+
+.sform-input-wrapper:focus-within {
+	border-color: var(--sform-border-focus);
+	box-shadow: var(--sform-shadow-focus);
+	outline: none;
+}
+
+.sform-input-wrapper:has(.sform-input[aria-invalid='true']) {
+	border-color: var(--sform-error);
+}
+
+.sform-input-wrapper:has(.sform-input[aria-invalid='true']):focus-within {
+	box-shadow: var(--sform-shadow-error);
+}
+
+.sform-input-wrapper .sform-input {
+	flex: 1;
+	min-width: 0;
+	border: none;
+	background: transparent;
+	box-shadow: none;
+}
+
+.sform-input-wrapper .sform-input:focus {
+	outline: none;
+	box-shadow: none;
+}
+
+.sform-prefix-icon,
+.sform-suffix-icon,
+.sform-prefix,
+.sform-suffix {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--sform-text-muted);
+	cursor: pointer;
+	user-select: none;
+}
+
+.sform-prefix-icon,
+.sform-suffix-icon {
+	padding: 0 0.5rem;
+}
+
+.sform-prefix,
+.sform-suffix {
+	padding: 0 0.75rem;
+	font-size: var(--sform-font-size-sm);
+	white-space: nowrap;
+}
+
+.sform-prefix-icon,
+.sform-prefix {
+	border-right: var(--sform-border-width) solid var(--sform-border);
+}
+
+.sform-suffix-icon,
+.sform-suffix {
+	border-left: var(--sform-border-width) solid var(--sform-border);
+}
+
+/* ===========================================
    Textarea
    =========================================== */
 textarea.sform-input {
 	min-height: 100px;
 	resize: vertical;
+}
+
+.sform-textarea-wrapper {
+	align-items: stretch;
+}
+
+.sform-textarea-wrapper .sform-prefix-icon,
+.sform-textarea-wrapper .sform-suffix-icon,
+.sform-textarea-wrapper .sform-prefix,
+.sform-textarea-wrapper .sform-suffix {
+	align-self: flex-start;
+	padding-top: 0.625rem;
 }
 
 /* ===========================================
@@ -416,6 +504,15 @@ select.sform-input {
 .sform-masked {
 	font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 	letter-spacing: 0.05em;
+}
+
+/* ===========================================
+   Hint Text
+   =========================================== */
+.sform-hint {
+	font-size: var(--sform-font-size-sm);
+	color: var(--sform-text-muted);
+	line-height: var(--sform-line-height);
 }
 
 /* ===========================================
