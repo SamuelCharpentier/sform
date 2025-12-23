@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import { form } from '$app/server';
+import { customAmountSchema } from './customAmount.schema';
 
 /**
  * User Settings Demo Form
@@ -66,4 +67,10 @@ export const survey = form(surveySchema, async (data) => {
 	console.log('📝 Survey Form Submitted:', data);
 	await new Promise((resolve) => setTimeout(resolve, 300));
 	return { success: true, message: 'Thank you for your feedback!' };
+});
+
+export const customAmount = form(customAmountSchema, async (data) => {
+	console.log('📝 Custom Amount Form Submitted:', data);
+	await new Promise((resolve) => setTimeout(resolve, 300));
+	return { success: true, message: 'Amount submitted!' };
 });

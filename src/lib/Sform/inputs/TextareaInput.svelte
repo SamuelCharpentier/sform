@@ -12,10 +12,8 @@
 		readonly,
 		autocomplete,
 		showIssues,
-		prefixIcon,
 		prefix,
 		suffix,
-		suffixIcon,
 		wrapperClass,
 		onblur,
 		oninput
@@ -33,14 +31,9 @@
 	<label class={labelClass} for={name}>{label}</label>
 {/if}
 <div class="sform-input-wrapper sform-textarea-wrapper {wrapperClass ?? ''}">
-	{#if prefixIcon}
-		<div class="sform-prefix-icon" onclick={() => textareaElement?.focus()} role="presentation">
-			{@render prefixIcon()}
-		</div>
-	{/if}
 	{#if prefix}
 		<div class="sform-prefix" onclick={() => textareaElement?.focus()} role="presentation">
-			{@render prefix()}
+			{#if typeof prefix === 'function'}{@render prefix()}{:else}{prefix}{/if}
 		</div>
 	{/if}
 	<textarea
@@ -57,12 +50,7 @@
 	></textarea>
 	{#if suffix}
 		<div class="sform-suffix" onclick={() => textareaElement?.focus()} role="presentation">
-			{@render suffix()}
-		</div>
-	{/if}
-	{#if suffixIcon}
-		<div class="sform-suffix-icon" onclick={() => textareaElement?.focus()} role="presentation">
-			{@render suffixIcon()}
+			{#if typeof suffix === 'function'}{@render suffix()}{:else}{suffix}{/if}
 		</div>
 	{/if}
 </div>

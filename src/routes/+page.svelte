@@ -3,7 +3,8 @@
 	import '$lib/Sform/sform.css';
 	import { login } from './auth.remote';
 	import { loginSchema } from './auth.schema';
-	import { settings, contactInfo, survey } from './demo.remote';
+	import { settings, contactInfo, survey, customAmount } from './demo.remote';
+	import { customAmountSchema } from './customAmount.schema';
 
 	const fieldClasses = {
 		wrapper: 'sform-field',
@@ -49,11 +50,8 @@
 				placeholder="Enter username"
 				class={fieldClasses}
 			>
-				{#snippet prefixIcon()}
-					😅
-				{/snippet}
 				{#snippet prefix()}
-					@
+					😅 | @
 				{/snippet}
 				{#snippet hint()}
 					Try using admin to simulate a login.
@@ -102,10 +100,47 @@
 	</div>
 </section>
 
+<!-- Custom Amount Form -->
+<section class="demo">
+	<h2>💰 Custom Amount Form</h2>
+	<p class="description">Number input with decimal limits and no spinner controls.</p>
+
+	<Sform form={customAmount} schema={customAmountSchema} validateOn="blur" class="sform-form">
+		{#snippet children(fields)}
+			<Sfield
+				field={fields.amount}
+				type="number"
+				label="Custom Amount"
+				placeholder="Enter amount"
+				class={fieldClasses}
+				maxDecimals={2}
+				showControls={false}
+				suffix="$"
+				align="end"
+			/>
+			<Sbutton form={customAmount} class="sform-button">
+				{#snippet defaultState(_state: ButtonFormState)}
+					Submit Amount
+				{/snippet}
+				{#snippet pendingState(_state: ButtonFormState)}
+					Submitting...
+				{/snippet}
+			</Sbutton>
+		{/snippet}
+	</Sform>
+
+	{#if customAmount.result}
+		<div class="sform-result sform-result-success">Amount submitted! Check console for data.</div>
+	{/if}
+</section>
+
 <!-- Settings Form -->
 <section class="demo">
 	<h2>⚙️ Settings Form</h2>
 	<p class="description">Range slider, toggle switch, and toggle options.</p>
+	<p class="description">
+		This form will only validate on submit and on input after initial validation failiure.
+	</p>
 
 	<Sform form={settings} validateOn="submit" class="sform-form">
 		{#snippet children(fields)}
@@ -115,14 +150,12 @@
 				label="Volume"
 				min={0}
 				max={100}
-				step={5}
-				showValue
 				class={fieldClasses}
 			/>
 
 			<Sfield
 				field={fields.notifications}
-				type="toggle"
+				type="checkbox"
 				label="Enable Notifications"
 				class={fieldClasses}
 			/>
@@ -309,11 +342,25 @@
 </section>
 
 <style>
+	:global(body) {
+		background: #f9f9f9;
+		font-family: system-ui, sans-serif;
+		padding: 2rem;
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		align-items: center;
+	}
 	h1 {
 		color: #ff3e00;
 		margin-bottom: 0.5rem;
 	}
 
+	.sform-result {
+		margin-top: 1rem;
+		padding: 1rem;
+		border-radius: 4px;
+	}
 	.intro {
 		color: #666;
 		margin-bottom: 2rem;

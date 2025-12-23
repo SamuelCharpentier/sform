@@ -595,14 +595,10 @@ export interface BaseInputComponentProps {
  * Props for prefix/suffix support on input components
  */
 export interface InputAffixProps {
-	/** Icon rendered before the input (inside wrapper) */
-	prefixIcon?: Snippet;
-	/** Text/content rendered before the input (inside wrapper, acts as label) */
-	prefix?: Snippet;
-	/** Text/content rendered after the input (inside wrapper, acts as label) */
-	suffix?: Snippet;
-	/** Icon rendered after the input (inside wrapper) */
-	suffixIcon?: Snippet;
+	/** Text/content rendered before the input (inside wrapper) */
+	prefix?: Snippet | string;
+	/** Text/content rendered after the input (inside wrapper) */
+	suffix?: Snippet | string;
 	/** Class for the input wrapper (contains prefix, input, suffix) */
 	wrapperClass?: string;
 }
@@ -637,6 +633,12 @@ export interface NumberInputComponentProps extends BaseInputComponentProps, Inpu
 	max?: number | string;
 	/** Step value */
 	step?: number | string;
+	/** Show spinner controls (default: true) */
+	showControls?: boolean;
+	/** Text alignment - adapts to text direction (default: 'start') */
+	align?: 'start' | 'end';
+	/** Maximum decimal places allowed (0 = integers only, undefined = no limit) */
+	maxDecimals?: number;
 }
 
 /**

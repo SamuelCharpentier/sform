@@ -18,10 +18,8 @@
 		showMaskPlaceholder = false,
 		unmaskValue = true,
 		showIssues,
-		prefixIcon,
 		prefix,
 		suffix,
-		suffixIcon,
 		wrapperClass,
 		onblur,
 		oninput
@@ -191,14 +189,9 @@
 <input type="hidden" {name} value={field.value() ?? ''} />
 <!-- Visible input shows masked display value but doesn't submit (no name) -->
 <div class="sform-input-wrapper {wrapperClass ?? ''}">
-	{#if prefixIcon}
-		<div class="sform-prefix-icon" onclick={() => inputElement?.focus()} role="presentation">
-			{@render prefixIcon()}
-		</div>
-	{/if}
 	{#if prefix}
 		<div class="sform-prefix" onclick={() => inputElement?.focus()} role="presentation">
-			{@render prefix()}
+			{#if typeof prefix === 'function'}{@render prefix()}{:else}{prefix}{/if}
 		</div>
 	{/if}
 	<input
@@ -221,12 +214,7 @@
 	/>
 	{#if suffix}
 		<div class="sform-suffix" onclick={() => inputElement?.focus()} role="presentation">
-			{@render suffix()}
-		</div>
-	{/if}
-	{#if suffixIcon}
-		<div class="sform-suffix-icon" onclick={() => inputElement?.focus()} role="presentation">
-			{@render suffixIcon()}
+			{#if typeof suffix === 'function'}{@render suffix()}{:else}{suffix}{/if}
 		</div>
 	{/if}
 </div>

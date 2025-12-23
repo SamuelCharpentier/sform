@@ -93,7 +93,6 @@
    Base Input Styles
    =========================================== */
 .sform-input {
-	width: 100%;
 	padding: var(--sform-padding);
 	font-size: var(--sform-font-size);
 	line-height: var(--sform-line-height);
