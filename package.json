@@ -1,6 +1,19 @@
 {
-	"name": "sform",
+	"name": "@samuel-charpentier/sform",
 	"version": "0.0.1",
+	"description": "A Svelte 5 form library for SvelteKit remote forms",
+	"keywords": [
+		"svelte",
+		"forms",
+		"sveltekit"
+	],
+	"author": "Samuel Charpentier",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/SamuelCharpentier/sform.git"
+	},
+	"homepage": "https://github.com/SamuelCharpentier/sform#readme",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
@@ -59,9 +72,6 @@
 		"vitest": "^4.0.15",
 		"vitest-browser-svelte": "^2.0.1"
 	},
-	"keywords": [
-		"svelte"
-	],
 	"dependencies": {
 		"valibot": "^1.2.0"
 	}

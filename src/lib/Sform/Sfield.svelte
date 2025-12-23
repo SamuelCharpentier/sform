@@ -38,6 +38,11 @@
 	// Derive name from the field - all field types include name in their .as() output
 	const name = $derived(field.as('text').name);
 
+	// Register this field with the context on mount
+	$effect(() => {
+		context.registerField(name);
+	});
+
 	const classes: SfieldClasses = $derived(
 		typeof props.class === 'string' ? { wrapper: props.class } : (props.class ?? {})
 	);

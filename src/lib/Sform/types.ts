@@ -208,6 +208,10 @@ export interface SformContext {
 	markAllFieldsDirty: () => void;
 	/** Reset all field states (touched, dirty, submitted) */
 	resetFieldStates: () => void;
+	/** Register a field name (called by Sfield on mount) */
+	registerField: (name: string) => void;
+	/** Programmatically submit the form */
+	submitForm: () => void;
 }
 
 /**

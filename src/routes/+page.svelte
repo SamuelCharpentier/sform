@@ -51,7 +51,7 @@
 				class={fieldClasses}
 			>
 				{#snippet prefix()}
-					😅 | @
+					@
 				{/snippet}
 				{#snippet hint()}
 					Try using admin to simulate a login.
@@ -74,7 +74,11 @@
 				{/snippet}
 			</Sfield>
 
-			<Sbutton form={login} class="sform-button">
+			<Sbutton
+				form={myLogin}
+				class="sform-button"
+				onsubmit={() => console.log('Submitting login...')}
+			>
 				{#snippet defaultState(_state: ButtonFormState)}
 					Login
 				{/snippet}

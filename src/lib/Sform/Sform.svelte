@@ -53,7 +53,15 @@
 		form.validate({ includeUntouched: true });
 	};
 
-	const context = createSformContext(() => validateOn, getFieldNames, triggerValidation);
+	const context = createSformContext(
+		() => validateOn,
+		getFieldNames,
+		triggerValidation,
+		() => {
+			// Use setTimeout to ensure we're outside the current event loop
+			setTimeout(() => formElement?.requestSubmit(), 0);
+		}
+	);
 
 	// Apply preflight schema if provided
 	const formWithSchema = $derived(schema ? form.preflight(schema) : form);
@@ -88,9 +96,12 @@
 		context.markSubmitted();
 		context.markAllFieldsDirty();
 	}
+
+	let formElement: HTMLFormElement | undefined = $state();
 </script>
 
 <form
+	bind:this={formElement}
 	{...formProps as unknown as HTMLFormAttributes}
 	class={className}
 	novalidate

@@ -7,10 +7,12 @@ const SFORM_CONTEXT_KEY = Symbol('sform-context');
 export function createSformContext(
 	getValidateOn: () => ValidateOn,
 	getFieldNames: () => string[],
-	triggerValidation: () => void
+	triggerValidation: () => void,
+	submitForm: () => void
 ): SformContext {
 	const touched = new SvelteSet<string>();
 	const dirty = new SvelteSet<string>();
+	const registeredFields = new SvelteSet<string>();
 	let submitted = $state(false);
 
 	const context: SformContext = {
@@ -49,18 +51,22 @@ export function createSformContext(
 			submitted = true;
 		},
 		markAllFieldsDirty: () => {
-			// Get all field names from the form and mark them as touched and dirty
-			const fieldNames = getFieldNames();
+			// Use registered fields from Sfield components
+			const fieldNames = [...registeredFields];
 			for (const name of fieldNames) {
 				touched.add(name);
 				dirty.add(name);
 			}
 		},
+		registerField: (name: string) => {
+			registeredFields.add(name);
+		},
 		resetFieldStates: () => {
 			touched.clear();
 			dirty.clear();
 			submitted = false;
-		}
+		},
+		submitForm
 	};
 
 	setContext(SFORM_CONTEXT_KEY, context);
