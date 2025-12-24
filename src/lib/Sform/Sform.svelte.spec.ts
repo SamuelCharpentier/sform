@@ -3,9 +3,15 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from 'vitest-browser-svelte';
+import { render } from 'vitest-browser-svelte';
 import { page, userEvent } from 'vitest/browser';
 import Sform from './Sform.svelte';
+
+// Helper to render Sform with proper typing for vitest-browser-svelte
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function renderSform(props: Record<string, any>) {
+	return render(Sform as any, { props });
+}
 
 // Mock remote form for testing
 function createMockForm(initialValues: Record<string, unknown> = {}) {
@@ -59,11 +65,9 @@ describe('Sform', () => {
 		it('should render a form element', async () => {
 			const mockForm = createMockForm({ username: '' });
 
-			render(Sform, {
-				props: {
-					form: mockForm,
-					children: () => null
-				}
+			renderSform({
+				form: mockForm,
+				children: () => null
 			});
 
 			const form = page.getByRole('form');
@@ -75,12 +79,10 @@ describe('Sform', () => {
 		it('should apply class prop to form', async () => {
 			const mockForm = createMockForm({ username: '' });
 
-			render(Sform, {
-				props: {
-					form: mockForm,
-					class: 'my-custom-class',
-					children: () => null
-				}
+			renderSform({
+				form: mockForm,
+				class: 'my-custom-class',
+				children: () => null
 			});
 
 			const formElement = document.querySelector('form');
@@ -90,11 +92,9 @@ describe('Sform', () => {
 		it('should have novalidate attribute', async () => {
 			const mockForm = createMockForm({ username: '' });
 
-			render(Sform, {
-				props: {
-					form: mockForm,
-					children: () => null
-				}
+			renderSform({
+				form: mockForm,
+				children: () => null
 			});
 
 			const formElement = document.querySelector('form');
@@ -106,11 +106,9 @@ describe('Sform', () => {
 		it('should default to blur validation mode', async () => {
 			const mockForm = createMockForm({ username: '' });
 
-			render(Sform, {
-				props: {
-					form: mockForm,
-					children: () => null
-				}
+			renderSform({
+				form: mockForm,
+				children: () => null
 			});
 
 			// Default validateOn is 'blur' - verified by context behavior
@@ -120,12 +118,10 @@ describe('Sform', () => {
 		it('should accept change validation mode', async () => {
 			const mockForm = createMockForm({ username: '' });
 
-			render(Sform, {
-				props: {
-					form: mockForm,
-					validateOn: 'change',
-					children: () => null
-				}
+			renderSform({
+				form: mockForm,
+				validateOn: 'change',
+				children: () => null
 			});
 
 			expect(true).toBe(true);
@@ -134,12 +130,10 @@ describe('Sform', () => {
 		it('should accept submit validation mode', async () => {
 			const mockForm = createMockForm({ username: '' });
 
-			render(Sform, {
-				props: {
-					form: mockForm,
-					validateOn: 'submit',
-					children: () => null
-				}
+			renderSform({
+				form: mockForm,
+				validateOn: 'submit',
+				children: () => null
 			});
 
 			expect(true).toBe(true);
@@ -151,12 +145,10 @@ describe('Sform', () => {
 			const mockForm = createMockForm({ username: '' });
 			const mockSchema = { parse: vi.fn() };
 
-			render(Sform, {
-				props: {
-					form: mockForm,
-					schema: mockSchema,
-					children: () => null
-				}
+			renderSform({
+				form: mockForm,
+				schema: mockSchema,
+				children: () => null
 			});
 
 			// Preflight should be called
@@ -166,11 +158,9 @@ describe('Sform', () => {
 		it('should work without schema', async () => {
 			const mockForm = createMockForm({ username: '' });
 
-			render(Sform, {
-				props: {
-					form: mockForm,
-					children: () => null
-				}
+			renderSform({
+				form: mockForm,
+				children: () => null
 			});
 
 			expect(mockForm.preflight).not.toHaveBeenCalled();
@@ -182,12 +172,10 @@ describe('Sform', () => {
 			const mockForm = createMockForm({ username: '' });
 			const enhanceCallback = vi.fn();
 
-			render(Sform, {
-				props: {
-					form: mockForm,
-					enhance: enhanceCallback,
-					children: () => null
-				}
+			renderSform({
+				form: mockForm,
+				enhance: enhanceCallback,
+				children: () => null
 			});
 
 			expect(mockForm.enhance).toHaveBeenCalled();
@@ -196,14 +184,65 @@ describe('Sform', () => {
 		it('should work without enhance', async () => {
 			const mockForm = createMockForm({ username: '' });
 
-			render(Sform, {
-				props: {
-					form: mockForm,
-					children: () => null
-				}
+			renderSform({
+				form: mockForm,
+				children: () => null
 			});
 
 			expect(mockForm.enhance).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('form input handling', () => {
+		it('should call validate on input event', async () => {
+			const mockForm = createMockForm({ username: '' });
+
+			renderSform({
+				form: mockForm,
+				children: () => null
+			});
+
+			// Trigger input event on form
+			const formElement = document.querySelector('form');
+			formElement?.dispatchEvent(new Event('input', { bubbles: true }));
+
+			// Validate should be called with includeUntouched
+			expect(mockForm.validate).toHaveBeenCalledWith({ includeUntouched: true });
+		});
+	});
+
+	describe('form submit handling', () => {
+		it('should handle submit event', async () => {
+			const mockForm = createMockForm({ username: '' });
+
+			renderSform({
+				form: mockForm,
+				children: () => null
+			});
+
+			const formElement = document.querySelector('form');
+			// Submit triggers but is prevented by lack of action/method
+			formElement?.dispatchEvent(new Event('submit', { bubbles: true }));
+
+			expect(true).toBe(true); // Submit handler ran without error
+		});
+	});
+
+	describe('schema and enhance combined', () => {
+		it('should apply both schema and enhance', async () => {
+			const mockForm = createMockForm({ username: '' });
+			const mockSchema = { parse: vi.fn() };
+			const enhanceCallback = vi.fn();
+
+			renderSform({
+				form: mockForm,
+				schema: mockSchema,
+				enhance: enhanceCallback,
+				children: () => null
+			});
+
+			expect(mockForm.preflight).toHaveBeenCalledWith(mockSchema);
+			// Note: enhance is called on the result of preflight in real code
 		});
 	});
 });

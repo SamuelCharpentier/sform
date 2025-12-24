@@ -9,6 +9,9 @@ node_modules
 /build
 /dist
 
+# Test coverage
+/coverage
+
 # OS
 .DS_Store
 Thumbs.db
@@ -22,3 +25,7 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Lock files (optional - keep one based on your package manager)
+# bun.lock
+# package-lock.json
