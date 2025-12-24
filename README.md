@@ -23,7 +23,7 @@ A type-safe form library for **Svelte 5** with **SvelteKit remote functions**.
 ## Installation
 
 ```bash
-npm install
+npm install @samuel-charpentier/sform
 ```
 
 Enable remote functions in `svelte.config.js`:
@@ -64,7 +64,7 @@ export const login = form(loginSchema, async ({ username, _password }) => {
 
 ```svelte
 <script lang="ts">
-	import { Sform, Sfield, Sbutton } from '$lib';
+	import { Sform, Sfield, Sbutton } from '@samuel-charpentier/sform';
 	import { login } from './auth.remote.ts';
 </script>
 
@@ -123,10 +123,15 @@ Smart field component with type-safe props based on input type.
 <Sfield name="email" type="email" label="Email" placeholder="you@example.com" />
 <Sfield name="search" type="search" label="Search" />
 <Sfield name="phone" type="tel" label="Phone" />
-<Sfield name="website" type="url" label="Website" />
+<Sfield name="website" type="url" label="Website" prefix="https://" />
 ```
 
 Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime-local`, `time`, `month`, `week`, `color`, `file`, `hidden`
+
+| Prop     | Type                | Default     | Description          |
+| -------- | ------------------- | ----------- | -------------------- |
+| `prefix` | `string \| Snippet` | `undefined` | Content before input |
+| `suffix` | `string \| Snippet` | `undefined` | Content after input  |
 
 #### Password Input
 
@@ -143,13 +148,20 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 
 ```svelte
 <Sfield name="age" type="number" label="Age" min={0} max={150} step={1} />
+<Sfield name="price" type="number" label="Price" prefix="$" suffix="USD" align="end" />
+<Sfield name="quantity" type="number" label="Qty" showControls={false} maxDecimals={0} />
 ```
 
-| Prop   | Type               | Default     | Description    |
-| ------ | ------------------ | ----------- | -------------- |
-| `min`  | `number \| string` | `undefined` | Minimum value  |
-| `max`  | `number \| string` | `undefined` | Maximum value  |
-| `step` | `number \| string` | `undefined` | Step increment |
+| Prop           | Type                | Default     | Description                            |
+| -------------- | ------------------- | ----------- | -------------------------------------- |
+| `min`          | `number \| string`  | `undefined` | Minimum value                          |
+| `max`          | `number \| string`  | `undefined` | Maximum value                          |
+| `step`         | `number \| string`  | `undefined` | Step increment                         |
+| `prefix`       | `string \| Snippet` | `undefined` | Content before input (e.g., "$")       |
+| `suffix`       | `string \| Snippet` | `undefined` | Content after input (e.g., "USD")      |
+| `showControls` | `boolean`           | `true`      | Show spinner controls                  |
+| `align`        | `'start' \| 'end'`  | `'start'`   | Text alignment                         |
+| `maxDecimals`  | `number`            | `undefined` | Max decimal places (0 = integers only) |
 
 #### Textarea
 
@@ -257,12 +269,14 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 <Sfield name="ssn" type="masked" label="SSN" mask="###-##-####" />
 ```
 
-| Prop                  | Type      | Default  | Description                      |
-| --------------------- | --------- | -------- | -------------------------------- |
-| `mask`                | `string`  | required | Mask pattern                     |
-| `maskPlaceholder`     | `string`  | `'_'`    | Placeholder character            |
-| `showMaskPlaceholder` | `boolean` | `false`  | Show full mask with placeholders |
-| `storeRaw`            | `boolean` | `true`   | Store unmasked value             |
+| Prop                  | Type                | Default     | Description                      |
+| --------------------- | ------------------- | ----------- | -------------------------------- |
+| `mask`                | `string`            | required    | Mask pattern                     |
+| `maskPlaceholder`     | `string`            | `'_'`       | Placeholder character            |
+| `showMaskPlaceholder` | `boolean`           | `false`     | Show full mask with placeholders |
+| `unmaskValue`         | `boolean`           | `true`      | Store unmasked value             |
+| `prefix`              | `string \| Snippet` | `undefined` | Content before input             |
+| `suffix`              | `string \| Snippet` | `undefined` | Content after input              |
 
 **Mask Tokens:**
 
@@ -295,16 +309,17 @@ Stateful submit button that reacts to form state.
 </Sbutton>
 ```
 
-| Prop           | Type                              | Default     | Description           |
-| -------------- | --------------------------------- | ----------- | --------------------- |
-| `label`        | `string`                          | `'Submit'`  | Button text           |
-| `buttonType`   | `'submit' \| 'reset' \| 'button'` | `'submit'`  | Button type           |
-| `class`        | `string`                          | `undefined` | CSS class             |
-| `disabled`     | `boolean`                         | `false`     | Disable button        |
-| `defaultState` | `Snippet`                         | `undefined` | Default state snippet |
-| `pendingState` | `Snippet`                         | `undefined` | Pending state snippet |
-| `successState` | `Snippet`                         | `undefined` | Success state snippet |
-| `errorState`   | `Snippet`                         | `undefined` | Error state snippet   |
+| Prop           | Type                              | Default     | Description                       |
+| -------------- | --------------------------------- | ----------- | --------------------------------- |
+| `label`        | `string`                          | `'Submit'`  | Button text                       |
+| `buttonType`   | `'submit' \| 'reset' \| 'button'` | `'submit'`  | Button type                       |
+| `class`        | `string`                          | `undefined` | CSS class                         |
+| `disabled`     | `boolean`                         | `false`     | Disable button                    |
+| `onsubmit`     | `() => void \| Promise<void>`     | `undefined` | Callback before validation/submit |
+| `defaultState` | `Snippet`                         | `undefined` | Default state snippet             |
+| `pendingState` | `Snippet`                         | `undefined` | Pending state snippet             |
+| `successState` | `Snippet`                         | `undefined` | Success state snippet             |
+| `errorState`   | `Snippet`                         | `undefined` | Error state snippet               |
 
 ## Styling
 
@@ -395,11 +410,3 @@ npm run package
 ## License
 
 MIT
-
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
-
-To publish your library to [npm](https://www.npmjs.com):
-
-```sh
-npm publish
-```
