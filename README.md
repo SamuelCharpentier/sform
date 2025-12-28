@@ -2,6 +2,26 @@
 
 A type-safe form library for **Svelte 5** with **SvelteKit remote functions**.
 
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+  - [Create a Remote Form](#1-create-a-remote-form)
+  - [Create Your Form Component](#2-create-your-form-component)
+- [Components](#components)
+  - [`<Sform>`](#sform)
+  - [`<Sfield>`](#sfield)
+  - [`<Sbutton>`](#sbutton)
+  - [`<SIssues>`](#sissues)
+  - [`<SResult>`](#sresult)
+- [Styling](#styling)
+- [Validation](#validation)
+- [Type Safety](#type-safety)
+- [Development](#development)
+- [License](#license)
+
 ## Features
 
 - ✅ **Type-safe** - Discriminated union types for each input type
