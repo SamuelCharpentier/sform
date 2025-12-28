@@ -148,11 +148,12 @@ Smart field component with type-safe props based on input type.
 | `field`       | `RemoteFormField`         | required    | Field from `fields` snippet parameter |
 | `type`        | `InputType`               | required    | Input type                            |
 | `label`       | `string`                  | `undefined` | Field label                           |
-| `placeholder` | `string`                  | `undefined` | Placeholder text                      |
+| `placeholder` | `string`                  | `undefined` | Placeholder text (text/password/etc)  |
 | `disabled`    | `boolean`                 | `false`     | Disable the field                     |
 | `readonly`    | `boolean`                 | `false`     | Make field readonly                   |
 | `validateOn`  | `ValidateOn`              | inherited   | Override form validateOn              |
 | `class`       | `SfieldClasses \| string` | `undefined` | CSS classes                           |
+| `hint`        | `string \| Snippet`       | `undefined` | Help text shown below the field       |
 
 #### Text Inputs
 
@@ -175,11 +176,23 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 ```svelte
 <Sfield field={fields._password} type="password" label="Password" />
 <Sfield field={fields._password} type="password" label="Password" showToggle={false} />
+<Sfield field={fields._password} type="password" label="Password">
+	{#snippet showToggleIcon(passwordShown)}
+		{#if passwordShown}
+			🙈
+		{:else}
+			👁️
+		{/if}
+	{/snippet}
+</Sfield>
 ```
 
-| Prop         | Type      | Default | Description                        |
-| ------------ | --------- | ------- | ---------------------------------- |
-| `showToggle` | `boolean` | `true`  | Show eye icon to toggle visibility |
+| Prop             | Type                                | Default     | Description                        |
+| ---------------- | ----------------------------------- | ----------- | ---------------------------------- |
+| `showToggle`     | `boolean`                           | `true`      | Show eye icon to toggle visibility |
+| `showToggleIcon` | `Snippet<[passwordShown: boolean]>` | `undefined` | Custom toggle icon snippet         |
+| `prefix`         | `string \| Snippet`                 | `undefined` | Content before input               |
+| `suffix`         | `string \| Snippet`                 | `undefined` | Content after input                |
 
 #### Number Input
 
@@ -199,12 +212,20 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 | `showControls` | `boolean`           | `true`      | Show spinner controls                  |
 | `align`        | `'start' \| 'end'`  | `'start'`   | Text alignment                         |
 | `maxDecimals`  | `number`            | `undefined` | Max decimal places (0 = integers only) |
+| `autocomplete` | `string`            | `undefined` | HTML autocomplete attribute            |
 
 #### Textarea
 
 ```svelte
 <Sfield field={fields.bio} type="textarea" label="Bio" placeholder="Tell us about yourself" />
+<Sfield field={fields.notes} type="textarea" label="Notes" prefix="📝" suffix="(max 500 chars)" />
 ```
+
+| Prop           | Type                | Default     | Description                 |
+| -------------- | ------------------- | ----------- | --------------------------- |
+| `prefix`       | `string \| Snippet` | `undefined` | Content before input        |
+| `suffix`       | `string \| Snippet` | `undefined` | Content after input         |
+| `autocomplete` | `string`            | `undefined` | HTML autocomplete attribute |
 
 #### Select
 
@@ -254,6 +275,15 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 
 ```svelte
 <Sfield field={fields.volume} type="range" label="Volume" min={0} max={100} step={5} showValue />
+<Sfield
+	field={fields.brightness}
+	type="range"
+	label="Brightness"
+	min={0}
+	max={100}
+	formatValue={(v) => `${v}%`}
+	showValue
+/>
 ```
 
 | Prop          | Type                        | Default     | Description            |
@@ -291,6 +321,18 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 		{ value: 'auto', label: 'Auto' }
 	]}
 />
+<!-- Multiple selection -->
+<Sfield
+	field={fields.features}
+	type="toggle-options"
+	label="Features"
+	multiple={true}
+	options={[
+		{ value: 'push', label: 'Push Notifications' },
+		{ value: 'email', label: 'Email' },
+		{ value: 'sms', label: 'SMS' }
+	]}
+/>
 ```
 
 | Prop       | Type                         | Default  | Description               |
@@ -304,16 +346,25 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 <Sfield field={fields.phone} type="masked" label="Phone" mask="(###) ###-####" />
 <Sfield field={fields.creditCard} type="masked" label="Credit Card" mask="#### #### #### ####" />
 <Sfield field={fields.ssn} type="masked" label="SSN" mask="###-##-####" />
+<!-- Custom tokens -->
+<Sfield
+	field={fields.code}
+	type="masked"
+	label="Code"
+	mask="AAAA-99-LL"
+	tokens={{ A: /[A-Z]/, L: /[a-z]/ }}
+/>
 ```
 
-| Prop                  | Type                | Default     | Description                      |
-| --------------------- | ------------------- | ----------- | -------------------------------- |
-| `mask`                | `string`            | required    | Mask pattern                     |
-| `maskPlaceholder`     | `string`            | `'_'`       | Placeholder character            |
-| `showMaskPlaceholder` | `boolean`           | `false`     | Show full mask with placeholders |
-| `unmaskValue`         | `boolean`           | `true`      | Store unmasked value             |
-| `prefix`              | `string \| Snippet` | `undefined` | Content before input             |
-| `suffix`              | `string \| Snippet` | `undefined` | Content after input              |
+| Prop                  | Type                     | Default     | Description                      |
+| --------------------- | ------------------------ | ----------- | -------------------------------- |
+| `mask`                | `string`                 | required    | Mask pattern                     |
+| `tokens`              | `Record<string, RegExp>` | `undefined` | Custom token definitions         |
+| `maskPlaceholder`     | `string`                 | `'_'`       | Placeholder character            |
+| `showMaskPlaceholder` | `boolean`                | `false`     | Show full mask with placeholders |
+| `unmaskValue`         | `boolean`                | `true`      | Store unmasked value             |
+| `prefix`              | `string \| Snippet`      | `undefined` | Content before input             |
+| `suffix`              | `string \| Snippet`      | `undefined` | Content after input              |
 
 **Mask Tokens:**
 
