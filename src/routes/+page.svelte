@@ -358,12 +358,6 @@
 		color: #ff3e00;
 		margin-bottom: 0.5rem;
 	}
-
-	.sform-result {
-		margin-top: 1rem;
-		padding: 1rem;
-		border-radius: 4px;
-	}
 	.intro {
 		color: #666;
 		margin-bottom: 2rem;
