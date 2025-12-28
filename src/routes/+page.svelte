@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { Sform, Sfield, Sbutton, type ButtonFormState } from '$lib';
+	import { Sform, Sfield, Sbutton, SResult } from '$lib';
 	import '$lib/Sform/sform.css';
 	import { login } from './auth.remote';
 	import { loginSchema } from './auth.schema';
 	import { settings, contactInfo, survey, customAmount } from './demo.remote';
 	import { customAmountSchema } from './customAmount.schema';
+	import SIssues from '$lib/Sform/SIssues.svelte';
 
 	const fieldClasses = {
 		wrapper: 'sform-field',
@@ -79,25 +80,29 @@
 				class="sform-button"
 				onsubmit={() => console.log('Submitting login...')}
 			>
-				{#snippet defaultState(_state: ButtonFormState)}
-					Login
-				{/snippet}
-				{#snippet pendingState(_state: ButtonFormState)}
-					Logging in...
+				{#snippet children(state)}
+					{#if state.state === 'pending'}
+						Logging in...
+					{:else if state.state === 'success'}
+						{state.result.message}
+					{:else}
+						Login
+					{/if}
 				{/snippet}
 			</Sbutton>
+			<SIssues
+				message="There's an issue"
+				class="sform-result sform-result-error"
+				showMessageIf="hasAnyIssue"
+			/>
 		{/snippet}
 	</Sform>
 
-	{#if myLogin.result}
-		<div
-			class="sform-result"
-			class:sform-result-success={myLogin.result.success}
-			class:sform-result-error={!myLogin.result.success}
-		>
-			{myLogin.result.message}
-		</div>
-	{/if}
+	<SResult form={myLogin} class="sform-result sform-result-success">
+		{#snippet children(result)}
+			{result.message}
+		{/snippet}
+	</SResult>
 
 	<div class="hint">
 		<strong>Try:</strong> <code>admin</code> / <code>password123</code>
@@ -123,19 +128,18 @@
 				align="end"
 			/>
 			<Sbutton form={customAmount} class="sform-button">
-				{#snippet defaultState(_state: ButtonFormState)}
-					Submit Amount
-				{/snippet}
-				{#snippet pendingState(_state: ButtonFormState)}
-					Submitting...
+				{#snippet children(state)}
+					{#if state.state === 'pending'}Submitting...{:else}Submit Amount{/if}
 				{/snippet}
 			</Sbutton>
 		{/snippet}
 	</Sform>
 
-	{#if customAmount.result}
-		<div class="sform-result sform-result-success">Amount submitted! Check console for data.</div>
-	{/if}
+	<SResult form={customAmount} class="sform-result sform-result-success">
+		{#snippet children(_result)}
+			Amount submitted! Check console for data.
+		{/snippet}
+	</SResult>
 </section>
 
 <!-- Settings Form -->
@@ -189,19 +193,18 @@
 			/>
 
 			<Sbutton form={settings} class="sform-button">
-				{#snippet defaultState(_state: ButtonFormState)}
-					Save Settings
-				{/snippet}
-				{#snippet pendingState(_state: ButtonFormState)}
-					Saving...
+				{#snippet children(state)}
+					{#if state.state === 'pending'}Saving...{:else}Save Settings{/if}
 				{/snippet}
 			</Sbutton>
 		{/snippet}
 	</Sform>
 
-	{#if settings.result}
-		<div class="sform-result sform-result-success">Settings saved! Check console for data.</div>
-	{/if}
+	<SResult form={settings} class="sform-result sform-result-success">
+		{#snippet children(_result)}
+			Settings saved! Check console for data.
+		{/snippet}
+	</SResult>
 </section>
 
 <!-- Contact Info Form -->
@@ -240,21 +243,18 @@
 			/>
 
 			<Sbutton form={contactInfo} class="sform-button">
-				{#snippet defaultState(_state: ButtonFormState)}
-					Save Contact Info
-				{/snippet}
-				{#snippet pendingState(_state: ButtonFormState)}
-					Saving...
+				{#snippet children(state)}
+					{#if state.state === 'pending'}Saving...{:else}Save Contact Info{/if}
 				{/snippet}
 			</Sbutton>
 		{/snippet}
 	</Sform>
 
-	{#if contactInfo.result}
-		<div class="sform-result sform-result-success">
+	<SResult form={contactInfo} class="sform-result sform-result-success">
+		{#snippet children(_result)}
 			Contact info saved! Check console for unmasked data.
-		</div>
-	{/if}
+		{/snippet}
+	</SResult>
 </section>
 
 <!-- Survey Form -->
@@ -314,19 +314,18 @@
 			/>
 
 			<Sbutton form={survey} class="sform-button">
-				{#snippet defaultState(_state: ButtonFormState)}
-					Submit Survey
-				{/snippet}
-				{#snippet pendingState(_state: ButtonFormState)}
-					Submitting...
+				{#snippet children(state)}
+					{#if state.state === 'pending'}Submitting...{:else}Submit Survey{/if}
 				{/snippet}
 			</Sbutton>
 		{/snippet}
 	</Sform>
 
-	{#if survey.result}
-		<div class="sform-result sform-result-success">Survey submitted! Check console for data.</div>
-	{/if}
+	<SResult form={survey} class="sform-result sform-result-success">
+		{#snippet children(_result)}
+			Survey submitted! Check console for data.
+		{/snippet}
+	</SResult>
 </section>
 
 <!-- Features Section -->
@@ -427,5 +426,10 @@
 
 	.features li {
 		margin-bottom: 0.5rem;
+	}
+
+	:global(.sform-issues-list) {
+		list-style: none;
+		padding-inline-start: 0;
 	}
 </style>

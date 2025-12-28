@@ -10,6 +10,7 @@
 	import PasswordInput from './PasswordInput.svelte';
 	import MaskedInput from './MaskedInput.svelte';
 	import CheckboxGroupInput from './CheckboxGroupInput.svelte';
+	import HiddenInput from './HiddenInput.svelte';
 	import type {
 		TextInputComponentProps,
 		NumberInputComponentProps,
@@ -21,7 +22,8 @@
 		ToggleInputProps,
 		PasswordInputProps,
 		MaskedInputProps,
-		CheckboxGroupInputProps
+		CheckboxGroupInputProps,
+		HiddenInputProps
 	} from '../types.js';
 
 	type TextInputWrapperProps = { component: 'TextInput' } & TextInputComponentProps;
@@ -37,6 +39,7 @@
 	type CheckboxGroupInputWrapperProps = {
 		component: 'CheckboxGroupInput';
 	} & CheckboxGroupInputProps;
+	type HiddenInputWrapperProps = { component: 'HiddenInput' } & HiddenInputProps;
 
 	type Props =
 		| TextInputWrapperProps
@@ -49,7 +52,8 @@
 		| ToggleInputWrapperProps
 		| PasswordInputWrapperProps
 		| MaskedInputWrapperProps
-		| CheckboxGroupInputWrapperProps;
+		| CheckboxGroupInputWrapperProps
+		| HiddenInputWrapperProps;
 
 	let { component, ...rest }: Props = $props();
 </script>
@@ -77,5 +81,7 @@
 		<MaskedInput {...rest as MaskedInputProps} />
 	{:else if component === 'CheckboxGroupInput'}
 		<CheckboxGroupInput {...rest as CheckboxGroupInputProps} />
+	{:else if component === 'HiddenInput'}
+		<HiddenInput {...rest as HiddenInputProps} />
 	{/if}
 </div>

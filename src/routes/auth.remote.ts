@@ -1,4 +1,5 @@
 import { form } from '$app/server';
+import { invalid } from '@sveltejs/kit';
 import { loginSchema } from './auth.schema';
 
 export const login = form(loginSchema, async ({ username, _password, id }) => {
@@ -8,6 +9,5 @@ export const login = form(loginSchema, async ({ username, _password, id }) => {
 	if (username === 'admin' && _password === 'password123') {
 		return { success: true, message: 'Welcome back!' };
 	}
-
-	return { success: false, message: 'Invalid credentials' };
+	invalid('Invalid credentials');
 });

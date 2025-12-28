@@ -4,6 +4,8 @@ export { default as Sfield } from './Sfield.svelte';
 
 // Standalone components (not routed through Sfield)
 export { default as Sbutton } from './inputs/ButtonInput.svelte';
+export { default as SIssues } from './SIssues.svelte';
+export { default as SResult } from './SResult.svelte';
 
 // Utilities
 export {
@@ -27,8 +29,10 @@ export type {
 	SelectOption,
 	SformContext,
 	SformProps,
+	ButtonState,
 	ButtonFormState,
 	ButtonInputProps,
+	SIssuesProps,
 	InputAffixProps,
 	RangeInputProps,
 	ToggleInputProps,

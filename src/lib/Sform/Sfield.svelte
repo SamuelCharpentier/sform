@@ -18,6 +18,7 @@
 	import ToggleOptionsInput from './inputs/ToggleOptionsInput.svelte';
 	import MaskedInput from './inputs/MaskedInput.svelte';
 	import PasswordInput from './inputs/PasswordInput.svelte';
+	import HiddenInput from './inputs/HiddenInput.svelte';
 
 	/**
 	 * Sfield - Type-safe form field component.
@@ -41,6 +42,10 @@
 	// Register this field with the context on mount
 	$effect(() => {
 		context.registerField(name);
+		// Register for issue display tracking (all types except hidden display their issues)
+		if (props.type !== 'hidden') {
+			context.registerFieldWithIssueDisplay(name);
+		}
 	});
 
 	const classes: SfieldClasses = $derived(
@@ -112,7 +117,6 @@
 			'month',
 			'week',
 			'color',
-			'hidden',
 			'file'
 		].includes(props.type)
 	);
@@ -147,6 +151,8 @@
 		<ToggleOptionsInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'masked'}
 		<MaskedInput {...passthroughProps()} {...internalProps} />
+	{:else if props.type === 'hidden'}
+		<HiddenInput {...passthroughProps()} {...internalProps} />
 	{/if}
 
 	{#if props.hint}

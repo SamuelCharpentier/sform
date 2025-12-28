@@ -2,13 +2,14 @@
 	import ButtonInput from './ButtonInput.svelte';
 	import { createSformContext } from '../context.svelte.js';
 	import type { Snippet } from 'svelte';
-	import type { ButtonFormState, RemoteFormIssue } from '../types.js';
+	import type { ButtonState, RemoteFormIssue } from '../types.js';
 
 	interface FormLike {
 		pending?: number;
 		result?: unknown;
 		fields: {
 			allIssues?: () => RemoteFormIssue[] | undefined;
+			[key: string]: unknown;
 		};
 	}
 
@@ -19,45 +20,22 @@
 		class?: string;
 		disabled?: boolean;
 		onsubmit?: () => void | Promise<void>;
-		defaultState?: Snippet<[ButtonFormState]>;
-		pendingState?: Snippet<[ButtonFormState]>;
-		successState?: Snippet<[ButtonFormState]>;
-		errorState?: Snippet<[ButtonFormState]>;
+		children?: Snippet<[ButtonState]>;
 	}
 
-	let {
-		form,
-		label,
-		buttonType,
-		class: className,
-		disabled,
-		onsubmit,
-		defaultState,
-		pendingState,
-		successState,
-		errorState
-	}: Props = $props();
+	let { form, label, buttonType, class: className, disabled, onsubmit, children }: Props = $props();
 
 	// Create and set context for ButtonInput (createSformContext calls setContext internally)
+	// Pass form getter for state derivation
 	createSformContext(
 		() => 'blur',
 		() => [],
 		() => {},
-		() => {}
+		() => {},
+		() => form
 	);
 </script>
 
 <div data-testid="button-wrapper">
-	<ButtonInput
-		{form}
-		{label}
-		{buttonType}
-		class={className}
-		{disabled}
-		{onsubmit}
-		{defaultState}
-		{pendingState}
-		{successState}
-		{errorState}
-	/>
+	<ButtonInput {form} {label} {buttonType} class={className} {disabled} {onsubmit} {children} />
 </div>

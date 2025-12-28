@@ -148,8 +148,7 @@ export type TextInputType =
 	| 'month'
 	| 'week'
 	| 'color'
-	| 'file'
-	| 'hidden';
+	| 'file';
 
 /** Numeric input types */
 export type NumericInputType = 'number';
@@ -184,6 +183,18 @@ export type RemoteFormInstance<
 > = SvelteKitRemoteForm<Input, Output> | Omit<SvelteKitRemoteForm<Input, Output>, 'for'>;
 
 /**
+ * Form state for buttons and state-aware components.
+ * State is derived from context - no result means default or pending,
+ * result with no issues means success, issues (via invalid()) means hasIssues.
+ * @template T - The type of the form result (defaults to unknown)
+ */
+export type ButtonState<T = unknown> =
+	| { state: 'default'; pending: false; success: false; hasIssues: false; result: undefined }
+	| { state: 'pending'; pending: true; success: false; hasIssues: false; result: undefined }
+	| { state: 'success'; pending: false; success: true; hasIssues: false; result: T }
+	| { state: 'hasIssues'; pending: false; success: false; hasIssues: true; result: undefined };
+
+/**
  * Form context provided by Sform to children.
  * Manages field state (touched, dirty, submitted) for validation display.
  */
@@ -210,8 +221,14 @@ export interface SformContext {
 	resetFieldStates: () => void;
 	/** Register a field name (called by Sfield on mount) */
 	registerField: (name: string) => void;
+	/** Register a field that displays its own issues (all except hidden) */
+	registerFieldWithIssueDisplay: (name: string) => void;
 	/** Programmatically submit the form */
 	submitForm: () => void;
+	/** Get the current form state (for buttons and state-aware components) */
+	getFormState: <T = unknown>() => ButtonState<T>;
+	/** Get issues that are not displayed by any Sfield component */
+	getUnhandledIssues: () => RemoteFormIssue[];
 }
 
 /**
@@ -508,6 +525,9 @@ export type SfieldToggleOptionsProps = SfieldPropsFrom<
 /** Props for masked input */
 export type SfieldMaskedProps = SfieldPropsFrom<MaskedInputProps, string, 'masked'>;
 
+/** Props for hidden input */
+export type SfieldHiddenProps = SfieldPropsFrom<HiddenInputProps, string, 'hidden'>;
+
 // ============================================================================
 // SFIELD PROPS UNION - Discriminated union of all Sfield types
 // ============================================================================
@@ -525,7 +545,8 @@ type AllSfieldProps =
 	| SfieldRangeProps
 	| SfieldToggleProps
 	| SfieldToggleOptionsProps
-	| SfieldMaskedProps;
+	| SfieldMaskedProps
+	| SfieldHiddenProps;
 
 /**
  * Extract props that match a specific field value type.
@@ -691,7 +712,19 @@ export interface RadioInputProps extends BaseInputComponentProps {
 }
 
 /**
- * Form state for button snippets
+ * Props for hidden input component
+ */
+export interface HiddenInputProps {
+	/** Remote field from form */
+	field: RemoteFormField<RemoteFormFieldValue>;
+	/** Field name */
+	name: string;
+	/** The value for the hidden field - required for hidden inputs */
+	value?: string;
+}
+
+/**
+ * @deprecated Use ButtonState instead
  */
 export interface ButtonFormState {
 	/** Whether form is submitting */
@@ -705,10 +738,26 @@ export interface ButtonFormState {
 }
 
 /**
- * Props for button input component
+ * Minimal form shape for Sbutton type inference.
+ * Allows the button to infer the result type T from the form.
  */
-export interface ButtonInputProps {
-	/** Button text (used if no snippets provided) */
+export interface ButtonFormLike<T = unknown> {
+	result?: T;
+	pending?: number;
+	fields: {
+		allIssues?: () => RemoteFormIssue[] | undefined;
+		[key: string]: unknown;
+	};
+}
+
+/**
+ * Props for button input component
+ * @template T - The type of the form result (inferred from form prop)
+ */
+export interface ButtonInputProps<T = unknown> {
+	/** The remote form - used to infer the result type T */
+	form: ButtonFormLike<T>;
+	/** Button text (used if no children snippet provided) */
 	label?: string;
 	/** Button type */
 	buttonType?: 'submit' | 'reset' | 'button';
@@ -716,16 +765,22 @@ export interface ButtonInputProps {
 	class?: string;
 	/** Whether button is disabled */
 	disabled?: boolean;
-	/** Snippet for default state */
-	defaultState?: Snippet;
-	/** Snippet for pending state */
-	pendingState?: Snippet;
-	/** Snippet for success state */
-	successState?: Snippet;
-	/** Snippet for error/issues state */
-	errorState?: Snippet;
-	/** Access to form state for custom rendering */
-	formState?: ButtonFormState;
+	/** Children snippet receives ButtonState<T> for custom rendering with typed result */
+	children?: Snippet<[ButtonState<T>]>;
+	/** Callback that runs before validation/submission (can be async) */
+	onsubmit?: () => void | Promise<void>;
+}
+
+/**
+ * Props for SIssues component
+ */
+export interface SIssuesProps {
+	/** General message shown when there are any issues */
+	message?: string | Snippet;
+	/** CSS class for the wrapper */
+	class?: string;
+	/** CSS class for the issues list */
+	listClass?: string;
 }
 
 /**

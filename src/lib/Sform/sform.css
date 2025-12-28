@@ -600,6 +600,7 @@ select.sform-input {
 .sform-result-success {
 	color: #065f46;
 	background: var(--sform-success-bg);
+	margin-block-start: 1rem;
 }
 
 .sform-result-error {
@@ -610,6 +611,19 @@ select.sform-input {
 .sform-result-warning {
 	color: #92400e;
 	background: var(--sform-warning-bg);
+}
+
+/* ===========================================
+   Issues List
+   =========================================== */
+
+.sform-issues-message {
+	font-weight: bold;
+	margin-bottom: 0.25rem;
+}
+.sform-issues-list {
+	margin: 0;
+	padding-inline-start: 1.25rem;
 }
 
 /* ===========================================

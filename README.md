@@ -69,10 +69,12 @@ export const login = form(loginSchema, async ({ username, _password }) => {
 </script>
 
 <Sform form={login} validateOn="blur">
-	<Sfield name="username" type="text" label="Username" />
-	<Sfield name="_password" type="password" label="Password" />
+	{#snippet children(fields)}
+		<Sfield field={fields.username} type="text" label="Username" />
+		<Sfield field={fields._password} type="password" label="Password" />
 
-	<Sbutton label="Login" />
+		<Sbutton form={login} label="Login" />
+	{/snippet}
 </Sform>
 ```
 
@@ -84,7 +86,9 @@ Wrapper component that provides form context to all child fields.
 
 ```svelte
 <Sform form={remoteForm} validateOn="blur" class="my-form">
-	<!-- Sfield components here -->
+	{#snippet children(fields)}
+		<!-- Sfield components here -->
+	{/snippet}
 </Sform>
 ```
 
@@ -106,27 +110,27 @@ Smart field component with type-safe props based on input type.
 
 #### Common Props (all types)
 
-| Prop          | Type                      | Default     | Description                    |
-| ------------- | ------------------------- | ----------- | ------------------------------ |
-| `name`        | `string`                  | required    | Field name (must match schema) |
-| `type`        | `InputType`               | required    | Input type                     |
-| `label`       | `string`                  | `undefined` | Field label                    |
-| `placeholder` | `string`                  | `undefined` | Placeholder text               |
-| `disabled`    | `boolean`                 | `false`     | Disable the field              |
-| `readonly`    | `boolean`                 | `false`     | Make field readonly            |
-| `validateOn`  | `ValidateOn`              | inherited   | Override form validateOn       |
-| `class`       | `SfieldClasses \| string` | `undefined` | CSS classes                    |
+| Prop          | Type                      | Default     | Description                           |
+| ------------- | ------------------------- | ----------- | ------------------------------------- |
+| `field`       | `RemoteFormField`         | required    | Field from `fields` snippet parameter |
+| `type`        | `InputType`               | required    | Input type                            |
+| `label`       | `string`                  | `undefined` | Field label                           |
+| `placeholder` | `string`                  | `undefined` | Placeholder text                      |
+| `disabled`    | `boolean`                 | `false`     | Disable the field                     |
+| `readonly`    | `boolean`                 | `false`     | Make field readonly                   |
+| `validateOn`  | `ValidateOn`              | inherited   | Override form validateOn              |
+| `class`       | `SfieldClasses \| string` | `undefined` | CSS classes                           |
 
 #### Text Inputs
 
 ```svelte
-<Sfield name="email" type="email" label="Email" placeholder="you@example.com" />
-<Sfield name="search" type="search" label="Search" />
-<Sfield name="phone" type="tel" label="Phone" />
-<Sfield name="website" type="url" label="Website" prefix="https://" />
+<Sfield field={fields.email} type="email" label="Email" placeholder="you@example.com" />
+<Sfield field={fields.search} type="search" label="Search" />
+<Sfield field={fields.phone} type="tel" label="Phone" />
+<Sfield field={fields.website} type="url" label="Website" prefix="https://" />
 ```
 
-Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime-local`, `time`, `month`, `week`, `color`, `file`, `hidden`
+Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime-local`, `time`, `month`, `week`, `color`, `file`
 
 | Prop     | Type                | Default     | Description          |
 | -------- | ------------------- | ----------- | -------------------- |
@@ -136,8 +140,8 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 #### Password Input
 
 ```svelte
-<Sfield name="_password" type="password" label="Password" />
-<Sfield name="_password" type="password" label="Password" showToggle={false} />
+<Sfield field={fields._password} type="password" label="Password" />
+<Sfield field={fields._password} type="password" label="Password" showToggle={false} />
 ```
 
 | Prop         | Type      | Default | Description                        |
@@ -147,9 +151,9 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 #### Number Input
 
 ```svelte
-<Sfield name="age" type="number" label="Age" min={0} max={150} step={1} />
-<Sfield name="price" type="number" label="Price" prefix="$" suffix="USD" align="end" />
-<Sfield name="quantity" type="number" label="Qty" showControls={false} maxDecimals={0} />
+<Sfield field={fields.age} type="number" label="Age" min={0} max={150} step={1} />
+<Sfield field={fields.price} type="number" label="Price" prefix="$" suffix="USD" align="end" />
+<Sfield field={fields.quantity} type="number" label="Qty" showControls={false} maxDecimals={0} />
 ```
 
 | Prop           | Type                | Default     | Description                            |
@@ -166,14 +170,14 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 #### Textarea
 
 ```svelte
-<Sfield name="bio" type="textarea" label="Bio" placeholder="Tell us about yourself" />
+<Sfield field={fields.bio} type="textarea" label="Bio" placeholder="Tell us about yourself" />
 ```
 
 #### Select
 
 ```svelte
 <Sfield
-	name="country"
+	field={fields.country}
 	type="select"
 	label="Country"
 	options={[
@@ -191,14 +195,14 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 #### Checkbox
 
 ```svelte
-<Sfield name="subscribe" type="checkbox" label="Subscribe to newsletter" />
+<Sfield field={fields.subscribe} type="checkbox" label="Subscribe to newsletter" />
 ```
 
 #### Radio
 
 ```svelte
 <Sfield
-	name="plan"
+	field={fields.plan}
 	type="radio"
 	label="Plan"
 	options={[
@@ -216,7 +220,7 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 #### Range
 
 ```svelte
-<Sfield name="volume" type="range" label="Volume" min={0} max={100} step={5} showValue />
+<Sfield field={fields.volume} type="range" label="Volume" min={0} max={100} step={5} showValue />
 ```
 
 | Prop          | Type                        | Default     | Description            |
@@ -230,8 +234,8 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 #### Toggle
 
 ```svelte
-<Sfield name="notifications" type="toggle" label="Enable Notifications" />
-<Sfield name="darkMode" type="toggle" label="Theme" onLabel="Dark" offLabel="Light" />
+<Sfield field={fields.notifications} type="toggle" label="Enable Notifications" />
+<Sfield field={fields.darkMode} type="toggle" label="Theme" onLabel="Dark" offLabel="Light" />
 ```
 
 | Prop             | Type     | Default     | Description          |
@@ -245,7 +249,7 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 
 ```svelte
 <Sfield
-	name="theme"
+	field={fields.theme}
 	type="toggle-options"
 	label="Theme"
 	options={[
@@ -264,9 +268,9 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 #### Masked Input
 
 ```svelte
-<Sfield name="phone" type="masked" label="Phone" mask="(###) ###-####" />
-<Sfield name="creditCard" type="masked" label="Credit Card" mask="#### #### #### ####" />
-<Sfield name="ssn" type="masked" label="SSN" mask="###-##-####" />
+<Sfield field={fields.phone} type="masked" label="Phone" mask="(###) ###-####" />
+<Sfield field={fields.creditCard} type="masked" label="Credit Card" mask="#### #### #### ####" />
+<Sfield field={fields.ssn} type="masked" label="SSN" mask="###-##-####" />
 ```
 
 | Prop                  | Type                | Default     | Description                      |
@@ -285,41 +289,158 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 - `A` - Alphabetic uppercase
 - `*` - Alphanumeric
 
-### `<Sbutton>`
-
-Stateful submit button that reacts to form state.
+#### Hidden Input
 
 ```svelte
-<Sbutton label="Submit" class="my-button" />
+<Sfield field={fields.token} type="hidden" value={authToken} />
+<Sfield field={fields.userId} type="hidden" value="12345" />
+```
 
-<!-- With custom state snippets -->
-<Sbutton class="submit-btn">
-	{#snippet defaultState(state)}
-		Submit Form
-	{/snippet}
-	{#snippet pendingState(state)}
-		Submitting...
-	{/snippet}
-	{#snippet successState(state)}
-		✓ Success!
-	{/snippet}
-	{#snippet errorState(state)}
-		Fix Errors
+| Prop    | Type     | Default | Description                                      |
+| ------- | -------- | ------- | ------------------------------------------------ |
+| `value` | `string` | `''`    | The value for the hidden field (can be reactive) |
+
+Hidden inputs are useful for including data in form submissions without displaying it to the user. The `value` prop is reactive, so you can update it programmatically:
+
+```svelte
+<script lang="ts">
+	let token = $state(initialToken);
+
+	async function refreshToken() {
+		token = await getNewToken();
+	}
+</script>
+
+<Sfield field={fields.token} type="hidden" value={token} />
+```
+
+### `<Sbutton>`
+
+Stateful submit button that reacts to form state. Pass the `form` prop to enable typed result access.
+
+```svelte
+<Sbutton form={myForm} label="Submit" class="my-button" />
+
+<!-- With custom state rendering -->
+<Sbutton form={myForm} class="submit-btn">
+	{#snippet children(state)}
+		{#if state.state === 'pending'}
+			Submitting...
+		{:else if state.state === 'success'}
+			✓ {state.result.message}
+		{:else if state.state === 'hasIssues'}
+			Fix Errors
+		{:else}
+			Submit Form
+		{/if}
 	{/snippet}
 </Sbutton>
 ```
 
-| Prop           | Type                              | Default     | Description                       |
-| -------------- | --------------------------------- | ----------- | --------------------------------- |
-| `label`        | `string`                          | `'Submit'`  | Button text                       |
-| `buttonType`   | `'submit' \| 'reset' \| 'button'` | `'submit'`  | Button type                       |
-| `class`        | `string`                          | `undefined` | CSS class                         |
-| `disabled`     | `boolean`                         | `false`     | Disable button                    |
-| `onsubmit`     | `() => void \| Promise<void>`     | `undefined` | Callback before validation/submit |
-| `defaultState` | `Snippet`                         | `undefined` | Default state snippet             |
-| `pendingState` | `Snippet`                         | `undefined` | Pending state snippet             |
-| `successState` | `Snippet`                         | `undefined` | Success state snippet             |
-| `errorState`   | `Snippet`                         | `undefined` | Error state snippet               |
+The `state` parameter is a discriminated union of type `ButtonState<T>` where `T` is inferred from the form's result type:
+
+```typescript
+type ButtonState<T = unknown> =
+	| { state: 'default'; pending: false; success: false; hasIssues: false; result: undefined }
+	| { state: 'pending'; pending: true; success: false; hasIssues: false; result: undefined }
+	| { state: 'success'; pending: false; success: true; hasIssues: false; result: T }
+	| { state: 'hasIssues'; pending: false; success: false; hasIssues: true; result: undefined };
+```
+
+#### Typed Result Access
+
+The result type is automatically inferred from the `form` prop. When your remote function returns a typed result, you can access it directly:
+
+```svelte
+<script lang="ts">
+	import { login } from './auth.remote'; // Returns { success: boolean; message: string }
+</script>
+
+<Sbutton form={login} class="submit-btn">
+	{#snippet children(state)}
+		{#if state.state === 'success'}
+			{state.result.message} <!-- TypeScript knows this is string -->
+		{:else if state.state === 'pending'}
+			Logging in...
+		{:else}
+			Login
+		{/if}
+	{/snippet}
+</Sbutton>
+```
+
+| Prop         | Type                              | Default     | Description                       |
+| ------------ | --------------------------------- | ----------- | --------------------------------- |
+| `form`       | `RemoteForm`                      | required    | Remote form for type inference    |
+| `label`      | `string`                          | `'Submit'`  | Button text (when no children)    |
+| `buttonType` | `'submit' \| 'reset' \| 'button'` | `'submit'`  | Button type                       |
+| `class`      | `string`                          | `undefined` | CSS class                         |
+| `disabled`   | `boolean`                         | `false`     | Disable button                    |
+| `children`   | `Snippet<[ButtonState<T>]>`       | `undefined` | Custom content with typed state   |
+| `onsubmit`   | `() => void \| Promise<void>`     | `undefined` | Callback before validation/submit |
+
+### `<SIssues>`
+
+Displays form-level issues and issues not shown by any Sfield component (e.g., hidden field issues or programmatic validation via `invalid()`).
+
+```svelte
+<SIssues message="There are some issues with your form:" />
+
+<!-- With custom message snippet -->
+<SIssues>
+	{#snippet message()}
+		<strong>⚠️ Please fix the following issues:</strong>
+	{/snippet}
+</SIssues>
+```
+
+| Prop        | Type                | Default               | Description                       |
+| ----------- | ------------------- | --------------------- | --------------------------------- |
+| `message`   | `string \| Snippet` | `undefined`           | General message shown when issues |
+| `class`     | `string`            | `'sform-issues'`      | CSS class for wrapper             |
+| `listClass` | `string`            | `'sform-issues-list'` | CSS class for issues list         |
+
+The component filters issues to only show:
+
+- Form-level issues (from `invalid("message")`)
+- Field issues for hidden inputs (no Sfield displays them)
+- Issues for fields without a corresponding Sfield
+
+### `<SResult>`
+
+Displays form result with typed access. Only renders when the form has a result. Pass the `form` prop to enable typed result access in the children snippet.
+
+```svelte
+<SResult form={myLogin} class="sform-result sform-result-success">
+	{#snippet children(result)}
+		{result.message}
+	{/snippet}
+</SResult>
+```
+
+The `result` parameter is typed based on your remote function's return type:
+
+```svelte
+<script lang="ts">
+	import { login } from './auth.remote'; // Returns { success: boolean; message: string }
+</script>
+
+<SResult form={login} class="success-message">
+	{#snippet children(result)}
+		<!-- TypeScript knows result is { success: boolean; message: string } -->
+		<h2>Welcome!</h2>
+		<p>{result.message}</p>
+	{/snippet}
+</SResult>
+```
+
+| Prop       | Type           | Default     | Description                    |
+| ---------- | -------------- | ----------- | ------------------------------ |
+| `form`     | `RemoteForm`   | required    | Remote form for type inference |
+| `children` | `Snippet<[T]>` | required    | Content with typed result      |
+| `class`    | `string`       | `undefined` | CSS class for wrapper          |
+
+The component only renders when `form.result !== undefined`, so the `result` parameter in the children snippet is guaranteed to be defined.
 
 ## Styling
 
@@ -337,11 +458,11 @@ Sfield adds these classes automatically:
 
 ```svelte
 <!-- String class applies to wrapper -->
-<Sfield name="email" type="email" class="my-field" />
+<Sfield field={fields.email} type="email" class="my-field" />
 
 <!-- Object for granular control -->
 <Sfield
-	name="email"
+	field={fields.email}
 	type="email"
 	class={{
 		wrapper: 'field-wrapper',
@@ -379,16 +500,16 @@ Sform uses TypeScript discriminated unions to provide type-safe props for each i
 
 ```typescript
 // ✅ TypeScript knows 'showToggle' is only valid for password type
-<Sfield name="_password" type="password" showToggle={false} />
+<Sfield field={fields._password} type="password" showToggle={false} />
 
 // ✅ TypeScript knows 'options' is required for select type
-<Sfield name="country" type="select" options={countries} />
+<Sfield field={fields.country} type="select" options={countries} />
 
 // ✅ TypeScript knows 'min', 'max', 'step' are valid for number type
-<Sfield name="age" type="number" min={0} max={150} />
+<Sfield field={fields.age} type="number" min={0} max={150} />
 
 // ❌ TypeScript error: 'showToggle' doesn't exist on text type
-<Sfield name="username" type="text" showToggle />
+<Sfield field={fields.username} type="text" showToggle />
 ```
 
 ## Development

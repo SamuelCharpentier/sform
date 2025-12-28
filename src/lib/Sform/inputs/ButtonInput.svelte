@@ -1,20 +1,25 @@
-<script lang="ts">
+<script lang="ts" generics="T = unknown">
 	import type { Snippet } from 'svelte';
-	import type { ButtonFormState, RemoteFormIssue } from '../types.js';
+	import type { ButtonState, RemoteFormIssue } from '../types.js';
 	import { getSformContext } from '../context.svelte.js';
 
-	interface FormLike {
+	/**
+	 * Minimal form shape needed for type inference.
+	 * This allows the component to infer T from the form's result type.
+	 */
+	interface FormLike<Output> {
+		result?: Output;
 		pending?: number;
-		result?: unknown;
 		fields: {
 			allIssues?: () => RemoteFormIssue[] | undefined;
+			[key: string]: unknown;
 		};
 	}
 
 	interface Props {
-		/** The remote form - required for button state */
-		form: FormLike;
-		/** Button text (used if no snippets provided) */
+		/** The remote form - used to infer the result type T */
+		form: FormLike<T>;
+		/** Button text (used if no children snippet provided) */
 		label?: string;
 		/** Button type */
 		buttonType?: 'submit' | 'reset' | 'button';
@@ -22,55 +27,37 @@
 		class?: string;
 		/** Whether button is disabled */
 		disabled?: boolean;
+		/** Children snippet receives ButtonState<T> for custom rendering with typed result */
+		children?: Snippet<[ButtonState<T>]>;
 		/** Callback that runs before validation/submission (can be async) */
 		onsubmit?: () => void | Promise<void>;
-		/** Snippet for default state */
-		defaultState?: Snippet<[ButtonFormState]>;
-		/** Snippet for pending state */
-		pendingState?: Snippet<[ButtonFormState]>;
-		/** Snippet for success state */
-		successState?: Snippet<[ButtonFormState]>;
-		/** Snippet for error/issues state */
-		errorState?: Snippet<[ButtonFormState]>;
 	}
 
 	let {
-		form,
 		label = 'Submit',
 		buttonType = 'submit',
 		class: className,
 		disabled = false,
-		onsubmit,
-		defaultState,
-		pendingState,
-		successState,
-		errorState
+		children,
+		onsubmit
 	}: Props = $props();
 
-	// Get Sform context to trigger validation display
+	// Get Sform context for form state and actions
 	const sformContext = getSformContext();
 
-	const formState: ButtonFormState = $derived.by(() => {
-		const pending = (form.pending ?? 0) !== 0;
-		const hasResult = form.result !== undefined;
-		const issues = form.fields.allIssues?.() ?? [];
-		const hasIssues = issues.length > 0;
-
-		return {
-			pending,
-			success: hasResult && !hasIssues && !pending,
-			hasIssues,
-			result: form.result
-		};
-	});
+	// Get form state from context with the generic type
+	const formState = $derived.by(sformContext.getFormState<T>);
 
 	const isDisabled = $derived(disabled || formState.pending);
 
 	async function handleClick(event: MouseEvent) {
-		if (buttonType !== 'submit' || !onsubmit) return;
+		if (buttonType !== 'submit') return;
 
 		event.preventDefault();
-		await onsubmit();
+
+		if (onsubmit) {
+			await onsubmit();
+		}
 
 		// Mark form as submitted and all fields dirty so issues display when server responds
 		sformContext.markSubmitted();
@@ -82,14 +69,8 @@
 </script>
 
 <button type={buttonType} class={className} disabled={isDisabled} onclick={handleClick}>
-	{#if formState.pending && pendingState}
-		{@render pendingState(formState)}
-	{:else if formState.success && successState}
-		{@render successState(formState)}
-	{:else if formState.hasIssues && errorState}
-		{@render errorState(formState)}
-	{:else if defaultState}
-		{@render defaultState(formState)}
+	{#if children}
+		{@render children(formState)}
 	{:else}
 		{label}
 	{/if}

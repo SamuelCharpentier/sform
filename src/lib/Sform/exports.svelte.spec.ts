@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { Sform, Sfield, Sbutton } from '$lib/index.js';
+import { Sform, Sfield, Sbutton, SIssues, SResult } from '$lib/index.js';
 import { applyMask, unmask, MASK_PATTERNS, DEFAULT_TOKENS } from './utils/mask.js';
 
 describe('Library exports', () => {
@@ -17,6 +17,14 @@ describe('Library exports', () => {
 
 	it('should export Sbutton component', () => {
 		expect(Sbutton).toBeDefined();
+	});
+
+	it('should export SIssues component', () => {
+		expect(SIssues).toBeDefined();
+	});
+
+	it('should export SResult component', () => {
+		expect(SResult).toBeDefined();
 	});
 });
 

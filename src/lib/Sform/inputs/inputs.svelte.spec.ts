@@ -17,10 +17,10 @@ function createMockField(
 		value: () => value,
 		set: vi.fn(),
 		issues: () => issues,
-		as: (type: string) => ({
+		as: (type: string, hiddenValue?: string) => ({
 			name: 'testField',
 			type,
-			value,
+			value: type === 'hidden' ? hiddenValue : value,
 			'aria-invalid': issues.length > 0
 		})
 	} as unknown as RemoteFormField<RemoteFormFieldValue>;
@@ -101,19 +101,6 @@ describe('TextInput', () => {
 
 			const suffix = page.getByText('%');
 			await expect.element(suffix).toBeVisible();
-		});
-
-		it('should hide input when type is hidden', async () => {
-			renderInput({
-					component: 'TextInput',
-					field: createMockField(),
-					type: 'hidden',
-					name: 'testField',
-					showIssues: false
-				});
-
-			const wrapper = document.querySelector('.sform-input-wrapper');
-			expect(wrapper).toBeNull();
 		});
 
 		it('should set disabled attribute', async () => {
@@ -799,4 +786,91 @@ describe('CheckboxGroupInput', () => {
 	});
 });
 
+describe('HiddenInput', () => {
+	describe('rendering', () => {
+		it('should render hidden input', async () => {
+			renderInput({
+				component: 'HiddenInput',
+				field: createMockField(),
+				name: 'testField',
+				value: 'secret-token'
+			});
 
+			const input = document.querySelector('input[type="hidden"]');
+			expect(input).not.toBeNull();
+		});
+
+		it('should set the value attribute from value prop', async () => {
+			renderInput({
+				component: 'HiddenInput',
+				field: createMockField(),
+				name: 'testField',
+				value: 'my-token-value'
+			});
+
+			const input = document.querySelector('input[type="hidden"]') as HTMLInputElement;
+			expect(input?.value).toBe('my-token-value');
+		});
+
+		it('should set the id attribute from name prop', async () => {
+			renderInput({
+				component: 'HiddenInput',
+				field: createMockField(),
+				name: 'hiddenTokenField',
+				value: 'token'
+			});
+
+			const input = document.querySelector('input[type="hidden"]');
+			expect(input?.id).toBe('hiddenTokenField');
+		});
+
+		it('should set the name attribute from field.as()', async () => {
+			renderInput({
+				component: 'HiddenInput',
+				field: createMockField(),
+				name: 'testField',
+				value: 'test'
+			});
+
+			const input = document.querySelector('input[type="hidden"]');
+			expect(input?.getAttribute('name')).toBe('testField');
+		});
+
+		it('should not be visible in the DOM', async () => {
+			renderInput({
+				component: 'HiddenInput',
+				field: createMockField(),
+				name: 'testField',
+				value: 'hidden-value'
+			});
+
+			const input = document.querySelector('input[type="hidden"]') as HTMLInputElement;
+			// Hidden inputs have no visible rendering
+			expect(input.offsetWidth).toBe(0);
+			expect(input.offsetHeight).toBe(0);
+		});
+
+		it('should handle empty value', async () => {
+			renderInput({
+				component: 'HiddenInput',
+				field: createMockField(),
+				name: 'testField',
+				value: ''
+			});
+
+			const input = document.querySelector('input[type="hidden"]') as HTMLInputElement;
+			expect(input?.value).toBe('');
+		});
+
+		it('should handle undefined value by defaulting to empty string', async () => {
+			renderInput({
+				component: 'HiddenInput',
+				field: createMockField(),
+				name: 'testField'
+			});
+
+			const input = document.querySelector('input[type="hidden"]') as HTMLInputElement;
+			expect(input?.value).toBe('');
+		});
+	});
+});

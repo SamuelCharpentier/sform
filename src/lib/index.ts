@@ -1,4 +1,4 @@
-export { Sform, Sfield, Sbutton } from './Sform/index.js';
+export { Sform, Sfield, Sbutton, SIssues, SResult } from './Sform/index.js';
 export type {
 	// Sform-specific types
 	ValidateOn,

@@ -60,7 +60,8 @@
 		() => {
 			// Use setTimeout to ensure we're outside the current event loop
 			setTimeout(() => formElement?.requestSubmit(), 0);
-		}
+		},
+		() => form
 	);
 
 	// Apply preflight schema if provided
