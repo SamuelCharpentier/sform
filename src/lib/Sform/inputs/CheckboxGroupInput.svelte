@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { CheckboxGroupInputProps, SelectOption } from '../types.js';
+	import Fieldset from '../utils/Fieldset.svelte';
 
 	let {
 		field,
@@ -29,10 +30,7 @@
 	}
 </script>
 
-<fieldset class="sform-checkbox-group {className ?? ''}" {disabled}>
-	{#if label}
-		<legend class={labelClass}>{label}</legend>
-	{/if}
+<Fieldset {label} {labelClass} {className} {disabled}>
 	{#each normalizedOptions as option}
 		{@const fieldAttrs = getFieldAttrs(option.value)}
 		{@const uniqueId = `${name}-${option.value}`}
@@ -48,20 +46,9 @@
 			<span class="sform-checkbox-label">{option.label}</span>
 		</label>
 	{/each}
-</fieldset>
+</Fieldset>
 
 <style>
-	.sform-checkbox-group {
-		border: none;
-		padding: 0;
-		margin: 0;
-	}
-
-	.sform-checkbox-group legend {
-		padding: 0;
-		margin-bottom: 0.5rem;
-	}
-
 	.sform-checkbox-option {
 		display: flex;
 		align-items: center;

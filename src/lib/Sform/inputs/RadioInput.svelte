@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { RadioInputProps, SelectOption } from '../types.js';
+	import Fieldset from '../utils/Fieldset.svelte';
 
 	let {
 		field,
@@ -29,10 +30,7 @@
 	}
 </script>
 
-<fieldset class="sform-radio-group {className ?? ''}" {disabled}>
-	{#if label}
-		<legend class={labelClass}>{label}</legend>
-	{/if}
+<Fieldset {label} {labelClass} {className} {disabled}>
 	{#each normalizedOptions as option}
 		{@const fieldAttrs = getFieldAttrs(option.value)}
 		{@const uniqueId = `${name}-${option.value}`}
@@ -48,7 +46,7 @@
 			<span class="sform-radio-label">{option.label}</span>
 		</label>
 	{/each}
-</fieldset>
+</Fieldset>
 
 <style>
 	.sform-radio-group {

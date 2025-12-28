@@ -850,3 +850,14 @@ export interface MaskedInputProps extends BaseInputComponentProps, InputAffixPro
 	/** Whether to store the unmasked (raw) value. If true, stores '1234567890'. If false, stores '(123) 456-7890'. Default: true */
 	unmaskValue?: boolean;
 }
+
+/**
+ * Props for Fieldset utils component
+ */
+export type FieldsetProps = {
+	label?: string;
+	labelClass?: string;
+	className?: string;
+	disabled?: boolean;
+	children: Snippet;
+};
