@@ -606,8 +606,6 @@ export interface BaseInputComponentProps {
 	disabled?: boolean;
 	/** Whether input is readonly */
 	readonly?: boolean;
-	/** Autocomplete attribute */
-	autocomplete?: HTMLInputAttributes['autocomplete'];
 	/** Whether to show validation state (controls aria-invalid) */
 	showIssues?: boolean;
 	/** Blur handler */
@@ -664,6 +662,8 @@ export interface NumberInputComponentProps extends BaseInputComponentProps, Inpu
 	align?: 'start' | 'end';
 	/** Maximum decimal places allowed (0 = integers only, undefined = no limit) */
 	maxDecimals?: number;
+	/** Autocomplete attribute */
+	autocomplete?: HTMLInputAttributes['autocomplete'];
 }
 
 /**
@@ -672,12 +672,17 @@ export interface NumberInputComponentProps extends BaseInputComponentProps, Inpu
 export interface TextInputComponentProps extends BaseInputComponentProps, InputAffixProps {
 	/** Input type - text-like types only */
 	type: TextInputType;
+	/** Autocomplete attribute */
+	autocomplete?: HTMLInputAttributes['autocomplete'];
 }
 
 /**
  * Props for textarea input component
  */
-export interface TextareaInputProps extends BaseInputComponentProps, InputAffixProps {}
+export interface TextareaInputProps extends BaseInputComponentProps, InputAffixProps {
+	/** Autocomplete attribute */
+	autocomplete?: HTMLInputAttributes['autocomplete'];
+}
 
 /**
  * Props for select input component
@@ -685,6 +690,8 @@ export interface TextareaInputProps extends BaseInputComponentProps, InputAffixP
 export interface SelectInputProps extends BaseInputComponentProps {
 	/** Options for select */
 	options: SelectOption[] | string[];
+	/** Autocomplete attribute */
+	autocomplete?: HTMLInputAttributes['autocomplete'];
 }
 
 /**
@@ -791,6 +798,8 @@ export interface RangeInputProps extends NumericInputComponentProps {
 	showValue?: boolean;
 	/** Format function for value display */
 	formatValue?: (value: number) => string;
+	/** Autocomplete attribute */
+	autocomplete?: HTMLInputAttributes['autocomplete'];
 }
 
 /**
@@ -800,6 +809,8 @@ export interface PasswordInputProps extends BaseInputComponentProps {
 	/** Whether to show the password visibility toggle */
 	showToggle?: boolean;
 	showToggleIcon?: Snippet<[boolean]>;
+	/** Autocomplete attribute */
+	autocomplete?: HTMLInputAttributes['autocomplete'];
 }
 
 /**
@@ -849,6 +860,8 @@ export interface MaskedInputProps extends BaseInputComponentProps, InputAffixPro
 	showMaskPlaceholder?: boolean;
 	/** Whether to store the unmasked (raw) value. If true, stores '1234567890'. If false, stores '(123) 456-7890'. Default: true */
 	unmaskValue?: boolean;
+	/** Autocomplete attribute */
+	autocomplete?: HTMLInputAttributes['autocomplete'];
 }
 
 /**

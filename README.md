@@ -193,6 +193,7 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 | `showToggleIcon` | `Snippet<[passwordShown: boolean]>` | `undefined` | Custom toggle icon snippet         |
 | `prefix`         | `string \| Snippet`                 | `undefined` | Content before input               |
 | `suffix`         | `string \| Snippet`                 | `undefined` | Content after input                |
+| `autocomplete`   | `string`                            | `undefined` | HTML autocomplete attribute        |
 
 #### Number Input
 
@@ -221,11 +222,10 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 <Sfield field={fields.notes} type="textarea" label="Notes" prefix="📝" suffix="(max 500 chars)" />
 ```
 
-| Prop           | Type                | Default     | Description                 |
-| -------------- | ------------------- | ----------- | --------------------------- |
-| `prefix`       | `string \| Snippet` | `undefined` | Content before input        |
-| `suffix`       | `string \| Snippet` | `undefined` | Content after input         |
-| `autocomplete` | `string`            | `undefined` | HTML autocomplete attribute |
+| Prop     | Type                | Default     | Description          |
+| -------- | ------------------- | ----------- | -------------------- |
+| `prefix` | `string \| Snippet` | `undefined` | Content before input |
+| `suffix` | `string \| Snippet` | `undefined` | Content after input  |
 
 #### Select
 
@@ -242,9 +242,10 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 />
 ```
 
-| Prop      | Type                         | Default  | Description    |
-| --------- | ---------------------------- | -------- | -------------- |
-| `options` | `SelectOption[] \| string[]` | required | Select options |
+| Prop           | Type                         | Default     | Description                 |
+| -------------- | ---------------------------- | ----------- | --------------------------- |
+| `options`      | `SelectOption[] \| string[]` | required    | Select options              |
+| `autocomplete` | `string`                     | `undefined` | HTML autocomplete attribute |
 
 #### Checkbox
 
@@ -286,13 +287,14 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 />
 ```
 
-| Prop          | Type                        | Default     | Description            |
-| ------------- | --------------------------- | ----------- | ---------------------- |
-| `min`         | `number \| string`          | `0`         | Minimum value          |
-| `max`         | `number \| string`          | `100`       | Maximum value          |
-| `step`        | `number \| string`          | `1`         | Step increment         |
-| `showValue`   | `boolean`                   | `false`     | Show current value     |
-| `formatValue` | `(value: number) => string` | `undefined` | Format displayed value |
+| Prop           | Type                        | Default     | Description                 |
+| -------------- | --------------------------- | ----------- | --------------------------- |
+| `min`          | `number \| string`          | `0`         | Minimum value               |
+| `max`          | `number \| string`          | `100`       | Maximum value               |
+| `step`         | `number \| string`          | `1`         | Step increment              |
+| `showValue`    | `boolean`                   | `false`     | Show current value          |
+| `formatValue`  | `(value: number) => string` | `undefined` | Format displayed value      |
+| `autocomplete` | `string`                    | `undefined` | HTML autocomplete attribute |
 
 #### Toggle
 
@@ -365,6 +367,7 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 | `unmaskValue`         | `boolean`                | `true`      | Store unmasked value             |
 | `prefix`              | `string \| Snippet`      | `undefined` | Content before input             |
 | `suffix`              | `string \| Snippet`      | `undefined` | Content after input              |
+| `autocomplete`        | `string`                 | `undefined` | HTML autocomplete attribute      |
 
 **Mask Tokens:**
 
