@@ -125,11 +125,12 @@ Wrapper component that provides form context to all child fields.
 </Sform>
 ```
 
-| Prop         | Type                             | Default     | Description                          |
-| ------------ | -------------------------------- | ----------- | ------------------------------------ |
-| `form`       | `RemoteForm`                     | required    | Remote form object from `form()` API |
-| `validateOn` | `'blur' \| 'change' \| 'submit'` | `'blur'`    | When to validate and show errors     |
-| `class`      | `string`                         | `undefined` | CSS class for form element           |
+| Prop            | Type                             | Default     | Description                                       |
+| --------------- | -------------------------------- | ----------- | ------------------------------------------------- |
+| `form`          | `RemoteForm`                     | required    | Remote form object from `form()` API              |
+| `validateOn`    | `'blur' \| 'change' \| 'submit'` | `'blur'`    | When to validate and show errors                  |
+| `class`         | `string`                         | `undefined` | CSS class for form element                        |
+| `preflightOnly` | `boolean`                        | `false`     | If true, client side validation is preflight only |
 
 **Validate Modes:**
 
