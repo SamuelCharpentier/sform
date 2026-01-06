@@ -6,6 +6,7 @@
 		TypedSfieldProps
 	} from './types.js';
 	import { getSformContext } from './context.svelte.js';
+	import { tick } from 'svelte';
 	import TextInput from './inputs/TextInput.svelte';
 	import NumberInput from './inputs/NumberInput.svelte';
 	import TextareaInput from './inputs/TextareaInput.svelte';
@@ -56,8 +57,15 @@
 	const issues = $derived(showIssues ? field.issues() : []);
 	const hasIssues = $derived(issues && issues instanceof Array && issues.length > 0);
 
-	function handleBlur() {
+	async function handleBlur() {
 		context.markTouched(name);
+		// Wait a tick - if submission started, pending will be > 0 by then
+		// This prevents stale data validation when blur fires during Enter submission
+		await tick();
+		const formState = context.getFormState();
+		if (formState.pending) {
+			return;
+		}
 		// Trigger validation with includeUntouched so blur mode shows issues
 		context.triggerValidation();
 	}

@@ -57,10 +57,7 @@
 		() => validateOn,
 		getFieldNames,
 		triggerValidation,
-		() => {
-			// Use setTimeout to ensure we're outside the current event loop
-			setTimeout(() => formElement?.requestSubmit(), 0);
-		},
+		() => formElement?.requestSubmit(),
 		() => form
 	);
 
@@ -89,7 +86,6 @@
 	});
 
 	function handleInput() {
-		// Always include untouched to preserve issues on fields that were already validated
 		form.validate({ includeUntouched: true });
 	}
 
