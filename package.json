@@ -1,6 +1,6 @@
 {
 	"name": "@samuel-charpentier/sform",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"description": "A Svelte 5 form library for SvelteKit remote forms",
 	"keywords": [
 		"svelte",
