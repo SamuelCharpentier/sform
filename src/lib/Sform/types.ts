@@ -55,6 +55,8 @@ export interface SfieldClasses {
 	wrapper?: string;
 	/** Label element class */
 	label?: string;
+	/** Input wrapper class (contains prefix, input, suffix for affix-enabled inputs) */
+	inputWrapper?: string;
 	/** Input element class */
 	input?: string;
 	/** Hint element class */

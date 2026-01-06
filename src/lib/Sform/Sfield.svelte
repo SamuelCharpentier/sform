@@ -6,7 +6,6 @@
 		TypedSfieldProps
 	} from './types.js';
 	import { getSformContext } from './context.svelte.js';
-	import { tick } from 'svelte';
 	import TextInput from './inputs/TextInput.svelte';
 	import NumberInput from './inputs/NumberInput.svelte';
 	import TextareaInput from './inputs/TextareaInput.svelte';
@@ -59,14 +58,6 @@
 
 	async function handleBlur() {
 		context.markTouched(name);
-		// Wait a tick - if submission started, pending will be > 0 by then
-		// This prevents stale data validation when blur fires during Enter submission
-		await tick();
-		const formState = context.getFormState();
-		if (formState.pending) {
-			return;
-		}
-		// Trigger validation with includeUntouched so blur mode shows issues
 		context.triggerValidation();
 	}
 
@@ -106,6 +97,7 @@
 		name,
 		class: hasIssues ? `${classes.input ?? ''} sform-field-error`.trim() : classes.input,
 		labelClass: classes.label,
+		wrapperClass: classes.inputWrapper,
 		showIssues,
 		onblur: handleBlur,
 		oninput: handleInput
