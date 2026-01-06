@@ -18,10 +18,9 @@
 			}, 500);
 		});
 	}
-
 </script>
 
-<Sform form={subscribeForm} schema={subscribeFormSchema}>
+<Sform form={subscribeForm} schema={subscribeFormSchema} preflightOnly={true}>
 	{#snippet children(fields)}
 		<Sfield
 			field={fields.first_name}

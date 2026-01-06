@@ -17,6 +17,7 @@
 		enhance,
 		validateOn = 'blur',
 		class: className,
+		preflightOnly = false,
 		children
 	}: {
 		/** Remote form object from form() API, or the result of form.for(id) */
@@ -27,6 +28,8 @@
 		enhance?: EnhanceCallback<Input>;
 		/** When to validate and show issues: 'blur' (default), 'change', or 'submit' */
 		validateOn?: ValidateOn;
+		/** If true, only run preflight validation (no submission) */
+		preflightOnly?: boolean;
 		/** Form element class */
 		class?: string;
 		/**
@@ -50,7 +53,7 @@
 
 	// Trigger validation including untouched fields (for blur mode)
 	const triggerValidation = () => {
-		form.validate({ includeUntouched: true });
+		form.validate({ includeUntouched: true, preflightOnly });
 	};
 
 	const context = createSformContext(
@@ -86,7 +89,7 @@
 	});
 
 	function handleInput() {
-		form.validate({ includeUntouched: true });
+		triggerValidation();
 	}
 
 	function handleSubmit() {
