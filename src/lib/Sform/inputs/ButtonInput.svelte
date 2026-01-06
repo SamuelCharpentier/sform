@@ -55,6 +55,10 @@
 
 		event.preventDefault();
 
+		// Focus the button to trigger blur on any focused input before submission
+		// This ensures blur validation runs with valid form data, not stale data
+		buttonElement.focus();
+
 		if (onsubmit) {
 			await onsubmit();
 		}
@@ -66,9 +70,16 @@
 		// Submit the form via context
 		sformContext.submitForm();
 	}
+	let buttonElement: HTMLButtonElement;
 </script>
 
-<button type={buttonType} class={className} disabled={isDisabled} onclick={handleClick}>
+<button
+	bind:this={buttonElement}
+	type={buttonType}
+	class={className}
+	disabled={isDisabled}
+	onclick={handleClick}
+>
 	{#if children}
 		{@render children(formState)}
 	{:else}
