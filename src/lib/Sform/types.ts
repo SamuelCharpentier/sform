@@ -57,8 +57,12 @@ export interface SfieldClasses {
 	label?: string;
 	/** Input element class */
 	input?: string;
-	/** Messages/errors container class */
-	messages?: string;
+	/** Hint element class */
+	hint?: string;
+	/** Issues container class */
+	issues?: string;
+	/** Individual issue element class */
+	issue?: string;
 }
 
 /**

@@ -164,7 +164,7 @@
 	{/if}
 
 	{#if props.hint}
-		<div class="sform-hint">
+		<div class={classes.hint}>
 			{#if typeof props.hint === 'string'}
 				{props.hint}
 			{:else}
@@ -174,9 +174,9 @@
 	{/if}
 
 	{#if hasIssues}
-		<div class={classes.messages}>
+		<div class={classes.issues}>
 			{#each issues as issue, i (i)}
-				<p>{issue.message}</p>
+				<p class={classes.issue}>{issue.message}</p>
 			{/each}
 		</div>
 	{/if}
