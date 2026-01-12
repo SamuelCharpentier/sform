@@ -8,7 +8,7 @@ export type {
 	SelectOption,
 	SformContext,
 	SformProps,
-	ButtonFormState,
+	ButtonState,
 	ButtonInputProps,
 	InputAffixProps,
 	// Type-safe field types
