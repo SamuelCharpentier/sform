@@ -1,5 +1,5 @@
 <script lang="ts" generics="T = unknown">
-	import type { Snippet } from 'svelte';
+	import { tick, type Snippet } from 'svelte';
 	import type { ButtonState, RemoteFormIssue } from '../types.js';
 	import { getSformContext } from '../context.svelte.js';
 
@@ -58,6 +58,8 @@
 		// Focus the button to trigger blur on any focused input before submission
 		// This ensures blur validation runs with valid form data, not stale data
 		buttonElement.focus();
+
+		await tick();
 
 		if (onsubmit) {
 			await onsubmit();
