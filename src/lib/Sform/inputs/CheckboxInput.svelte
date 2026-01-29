@@ -24,7 +24,11 @@
 <label class="sform-checkbox {className ?? ''}" class:disabled>
 	<input {...fieldAttrs} type="checkbox" id={name} {disabled} {onblur} {oninput} />
 	{#if label}
-		<span class={labelClass}>{label}</span>
+		{#if typeof label === 'function'}
+			{@render label()}
+		{:else}
+			<span class={labelClass}>{label}</span>
+		{/if}
 	{/if}
 </label>
 

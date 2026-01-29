@@ -25,7 +25,11 @@
 </script>
 
 {#if label}
-	<span id="{name}-label" class={labelClass}>{label}</span>
+	{#if typeof label === 'function'}
+		{@render label()}
+	{:else}
+		<span id="{name}-label" class={labelClass}>{label}</span>
+	{/if}
 {/if}
 <label class="sform-toggle {className ?? ''}" class:disabled>
 	<input

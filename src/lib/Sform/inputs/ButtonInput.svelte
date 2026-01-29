@@ -20,15 +20,13 @@
 		/** The remote form - used to infer the result type T */
 		form: FormLike<T>;
 		/** Button text (used if no children snippet provided) */
-		label?: string;
+		label?: string | Snippet<[ButtonState<T>]>;
 		/** Button type */
 		buttonType?: 'submit' | 'reset' | 'button';
 		/** Button class */
 		class?: string;
 		/** Whether button is disabled */
 		disabled?: boolean;
-		/** Children snippet receives ButtonState<T> for custom rendering with typed result */
-		children?: Snippet<[ButtonState<T>]>;
 		/** Callback that runs before validation/submission (can be async) */
 		onsubmit?: () => void | Promise<void>;
 	}
@@ -38,7 +36,6 @@
 		buttonType = 'submit',
 		class: className,
 		disabled = false,
-		children,
 		onsubmit
 	}: Props = $props();
 
@@ -82,8 +79,8 @@
 	disabled={isDisabled}
 	onclick={handleClick}
 >
-	{#if children}
-		{@render children(formState)}
+	{#if typeof label === 'function'}
+		{@render label(formState)}
 	{:else}
 		{label}
 	{/if}

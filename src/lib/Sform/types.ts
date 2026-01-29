@@ -164,7 +164,7 @@ export type NumericInputType = 'number';
  */
 export interface SelectOption {
 	value: string;
-	label: string;
+	label: string | Snippet<[SelectOption]>;
 	disabled?: boolean;
 }
 
@@ -285,7 +285,7 @@ export interface BaseSfieldProps {
 	/** Field name - corresponds to form.fields[name] */
 	name: string;
 	/** Field label */
-	label?: string;
+	label?: string | Snippet;
 	/** Placeholder text */
 	placeholder?: string;
 	/** Field-level validateOn override */
@@ -393,9 +393,9 @@ export interface RangeSfieldProps extends BaseSfieldProps {
 export interface ToggleSfieldProps extends BaseSfieldProps {
 	type: 'toggle';
 	/** Label when toggle is on */
-	onLabel?: string;
+	onLabel?: string | Snippet;
 	/** Label when toggle is off */
-	offLabel?: string;
+	offLabel?: string | Snippet;
 	/** Value when checked */
 	checkedValue?: string;
 	/** Value when unchecked */
@@ -601,7 +601,7 @@ export interface BaseInputComponentProps {
 	/** Field name */
 	name: string;
 	/** Field label */
-	label?: string;
+	label?: string | Snippet;
 	/** Placeholder text */
 	placeholder?: string;
 	/** Input class */
@@ -771,7 +771,7 @@ export interface ButtonInputProps<T = unknown> {
 	/** The remote form - used to infer the result type T */
 	form: ButtonFormLike<T>;
 	/** Button text (used if no children snippet provided) */
-	label?: string;
+	label?: string | Snippet;
 	/** Button type */
 	buttonType?: 'submit' | 'reset' | 'button';
 	/** Button class */
@@ -824,9 +824,9 @@ export interface PasswordInputProps extends BaseInputComponentProps {
  */
 export interface ToggleInputProps extends BaseInputComponentProps {
 	/** Label when toggle is on */
-	onLabel?: string;
+	onLabel?: string | Snippet;
 	/** Label when toggle is off */
-	offLabel?: string;
+	offLabel?: string | Snippet;
 	/** Value when checked */
 	checkedValue?: string;
 	/** Value when unchecked */
@@ -838,7 +838,7 @@ export interface ToggleInputProps extends BaseInputComponentProps {
  */
 export interface ToggleOption {
 	value: string;
-	label: string;
+	label: string | Snippet;
 	disabled?: boolean;
 }
 
@@ -874,9 +874,10 @@ export interface MaskedInputProps extends BaseInputComponentProps, InputAffixPro
  * Props for Fieldset utils component
  */
 export type FieldsetProps = {
-	label?: string;
+	label?: string | Snippet;
 	labelClass?: string;
 	className?: string;
 	disabled?: boolean;
 	children: Snippet;
+	type: 'radio' | 'checkbox';
 };
