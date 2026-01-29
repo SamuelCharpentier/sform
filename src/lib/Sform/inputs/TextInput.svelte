@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { TextInputComponentProps } from '../types.js';
+	import TopLabel from './TopLabel.svelte';
 
 	let {
 		field,
@@ -28,9 +29,7 @@
 	let inputElement: HTMLInputElement | undefined = $state();
 </script>
 
-{#if label}
-	<label class={labelClass} for={name}>{label}</label>
-{/if}
+<TopLabel {label} {labelClass} {name} />
 <div class="sform-input-wrapper {wrapperClass ?? ''}">
 	{#if prefix}
 		<div class="sform-prefix" onclick={() => inputElement?.focus()} role="presentation">

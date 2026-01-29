@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { TextareaInputProps } from '../types.js';
+	import TopLabel from './TopLabel.svelte';
 
 	let {
 		field,
@@ -27,9 +28,7 @@
 	let textareaElement: HTMLTextAreaElement | undefined = $state();
 </script>
 
-{#if label}
-	<label class={labelClass} for={name}>{label}</label>
-{/if}
+<TopLabel {label} {labelClass} {name} />
 <div class="sform-input-wrapper sform-textarea-wrapper {wrapperClass ?? ''}">
 	{#if prefix}
 		<div class="sform-prefix" onclick={() => textareaElement?.focus()} role="presentation">

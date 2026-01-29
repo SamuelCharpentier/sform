@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { SelectInputProps, SelectOption } from '../types.js';
+	import TopLabel from './TopLabel.svelte';
 
 	let {
 		field,
@@ -24,9 +25,7 @@
 	);
 </script>
 
-{#if label}
-	<label class={labelClass} for={name}>{label}</label>
-{/if}
+<TopLabel {label} {labelClass} {name} />
 <select {...fieldAttrs} id={name} class={className} {disabled} {onblur} {oninput}>
 	{#each normalizedOptions as option (option.value)}
 		<option value={option.value} disabled={option.disabled}>

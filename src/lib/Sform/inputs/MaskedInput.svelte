@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { MaskedInputProps } from '../types.js';
 	import { applyMask, MASK_PATTERNS, type MaskPattern, type MaskToken } from '../utils/mask.js';
+	import TopLabel from './TopLabel.svelte';
 
 	let {
 		field,
@@ -182,9 +183,7 @@
 	}
 </script>
 
-{#if label}
-	<label class={labelClass} for={name}>{label}</label>
-{/if}
+<TopLabel {label} {labelClass} {name} />
 <!-- Hidden input holds the actual value for form submission -->
 <input type="hidden" {name} value={field.value() ?? ''} />
 <!-- Visible input shows masked display value but doesn't submit (no name) -->

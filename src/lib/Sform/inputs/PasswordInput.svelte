@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PasswordInputProps } from '../types.js';
+	import TopLabel from './TopLabel.svelte';
 
 	let {
 		field,
@@ -32,9 +33,7 @@
 	}
 </script>
 
-{#if label}
-	<label class={labelClass} for={name}>{label}</label>
-{/if}
+<TopLabel {label} {labelClass} {name} />
 <div class="sform-password-wrapper">
 	<input
 		{...fieldAttrs}
