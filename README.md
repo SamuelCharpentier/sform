@@ -23,7 +23,6 @@ A type-safe form library for **Svelte 5** with **SvelteKit remote functions**.
     - [Radio](#radio)
     - [Range](#range)
     - [Toggle](#toggle)
-    - [Toggle Options](#toggle-options)
     - [Masked Input](#masked-input)
     - [Hidden Input](#hidden-input)
   - [`<Sbutton>`](#sbutton)
@@ -44,7 +43,6 @@ A type-safe form library for **Svelte 5** with **SvelteKit remote functions**.
 - ✅ **Masked inputs** - Phone, credit card, SSN formatting
 - ✅ **Range slider** - With optional value display
 - ✅ **Toggle switch** - Modern on/off control
-- ✅ **Toggle options** - Segmented control for mutually exclusive options
 - ✅ **Stateful button** - Shows pending state during submission
 
 ## Requirements
@@ -310,38 +308,6 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 | `offLabel`       | `string` | `undefined` | Label when off       |
 | `checkedValue`   | `string` | `'true'`    | Value when checked   |
 | `uncheckedValue` | `string` | `'false'`   | Value when unchecked |
-
-#### Toggle Options
-
-```svelte
-<Sfield
-	field={fields.theme}
-	type="toggle-options"
-	label="Theme"
-	options={[
-		{ value: 'light', label: 'Light' },
-		{ value: 'dark', label: 'Dark' },
-		{ value: 'auto', label: 'Auto' }
-	]}
-/>
-<!-- Multiple selection -->
-<Sfield
-	field={fields.features}
-	type="toggle-options"
-	label="Features"
-	multiple={true}
-	options={[
-		{ value: 'push', label: 'Push Notifications' },
-		{ value: 'email', label: 'Email' },
-		{ value: 'sms', label: 'SMS' }
-	]}
-/>
-```
-
-| Prop       | Type                         | Default  | Description               |
-| ---------- | ---------------------------- | -------- | ------------------------- |
-| `options`  | `ToggleOption[] \| string[]` | required | Toggle options            |
-| `multiple` | `boolean`                    | `false`  | Allow multiple selections |
 
 #### Masked Input
 

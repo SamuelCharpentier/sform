@@ -15,7 +15,6 @@
 	import RadioInput from './inputs/RadioInput.svelte';
 	import RangeInput from './inputs/RangeInput.svelte';
 	import ToggleInput from './inputs/ToggleInput.svelte';
-	import ToggleOptionsInput from './inputs/ToggleOptionsInput.svelte';
 	import MaskedInput from './inputs/MaskedInput.svelte';
 	import PasswordInput from './inputs/PasswordInput.svelte';
 	import HiddenInput from './inputs/HiddenInput.svelte';
@@ -147,8 +146,6 @@
 		<RangeInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'toggle'}
 		<ToggleInput {...passthroughProps()} {...internalProps} />
-	{:else if props.type === 'toggle-options'}
-		<ToggleOptionsInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'masked'}
 		<MaskedInput {...passthroughProps()} {...internalProps} />
 	{:else if props.type === 'hidden'}
