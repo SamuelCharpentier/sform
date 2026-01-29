@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { RadioInputProps, SelectOption } from '../types.js';
 	import Fieldset from '../utils/Fieldset.svelte';
+	import RadioCheckboxLabel from './RadioCheckboxLabel.svelte';
 
 	let {
 		field,
@@ -30,50 +31,10 @@
 	}
 </script>
 
-<Fieldset {label} {labelClass} {className} {disabled}>
+<Fieldset {label} {labelClass} {className} {disabled} type="radio">
 	{#each normalizedOptions as option}
 		{@const fieldAttrs = getFieldAttrs(option.value)}
 		{@const uniqueId = `${name}-${option.value}`}
-		<label class="sform-radio-option" class:disabled={option.disabled}>
-			<input
-				{...fieldAttrs}
-				type="radio"
-				id={uniqueId}
-				disabled={disabled || option.disabled}
-				{onblur}
-				{oninput}
-			/>
-			<span class="sform-radio-label">{option.label}</span>
-		</label>
+		<RadioCheckboxLabel {fieldAttrs} {uniqueId} {option} {disabled} {onblur} {oninput} />
 	{/each}
 </Fieldset>
-
-<style>
-	.sform-radio-group {
-		border: none;
-		padding: 0;
-		margin: 0;
-	}
-
-	.sform-radio-group legend {
-		padding: 0;
-		margin-bottom: 0.5rem;
-	}
-
-	.sform-radio-option {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		cursor: pointer;
-		padding: 0.25rem 0;
-	}
-
-	.sform-radio-option.disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-
-	.sform-radio-option input {
-		margin: 0;
-	}
-</style>

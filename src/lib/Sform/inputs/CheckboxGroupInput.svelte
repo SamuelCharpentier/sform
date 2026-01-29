@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { CheckboxGroupInputProps, SelectOption } from '../types.js';
 	import Fieldset from '../utils/Fieldset.svelte';
+	import RadioCheckboxLabel from './RadioCheckboxLabel.svelte';
 
 	let {
 		field,
@@ -30,39 +31,10 @@
 	}
 </script>
 
-<Fieldset {label} {labelClass} {className} {disabled}>
+<Fieldset {label} {labelClass} {className} {disabled} type="checkbox">
 	{#each normalizedOptions as option}
 		{@const fieldAttrs = getFieldAttrs(option.value)}
 		{@const uniqueId = `${name}-${option.value}`}
-		<label class="sform-checkbox-option" class:disabled={option.disabled}>
-			<input
-				{...fieldAttrs}
-				type="checkbox"
-				id={uniqueId}
-				disabled={disabled || option.disabled}
-				{onblur}
-				{oninput}
-			/>
-			<span class="sform-checkbox-label">{option.label}</span>
-		</label>
+		<RadioCheckboxLabel {fieldAttrs} {uniqueId} {option} {disabled} {onblur} {oninput} />
 	{/each}
 </Fieldset>
-
-<style>
-	.sform-checkbox-option {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		cursor: pointer;
-		padding: 0.25rem 0;
-	}
-
-	.sform-checkbox-option.disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-
-	.sform-checkbox-option input {
-		margin: 0;
-	}
-</style>
