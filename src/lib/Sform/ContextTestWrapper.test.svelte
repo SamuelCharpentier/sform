@@ -14,7 +14,8 @@
 		() => validateOn,
 		() => [],
 		() => {},
-		() => {}
+		() => {},
+		() => ({ fields: { allIssues: () => [] } })
 	);
 
 	// Use onMount lifecycle instead of $effect to avoid infinite loops

@@ -37,12 +37,16 @@
 
 	// Derive name from the field - all field types include name in their .as() output
 	const name = $derived(field.as('text').name);
+	const issueDisplay = $derived(props.issueDisplay ?? 'auto');
+	const shouldRenderFieldIssues = $derived(
+		issueDisplay === 'field' || (issueDisplay === 'auto' && props.type !== 'hidden')
+	);
+	const shouldMarkIssuesHandled = $derived(issueDisplay === 'none' || shouldRenderFieldIssues);
 
 	// Register this field with the context on mount
 	$effect(() => {
 		context.registerField(name);
-		// Register for issue display tracking (all types except hidden display their issues)
-		if (props.type !== 'hidden') {
+		if (shouldMarkIssuesHandled) {
 			context.registerFieldWithIssueDisplay(name);
 		}
 	});
@@ -51,7 +55,9 @@
 		typeof props.class === 'string' ? { wrapper: props.class } : (props.class ?? {})
 	);
 
-	const showIssues = $derived(context.shouldDisplayIssues(name, props.validateOn));
+	const showIssues = $derived(
+		shouldRenderFieldIssues && context.shouldDisplayIssues(name, props.validateOn)
+	);
 	const issues = $derived(showIssues ? field.issues() : []);
 	const hasIssues = $derived(issues && issues instanceof Array && issues.length > 0);
 
@@ -75,7 +81,7 @@
 		'class'
 	];
 	// Props that are Sfield-specific and not passed to components
-	const sfieldOnlyPropKeys = ['validateOn', 'hint', 'type'];
+	const sfieldOnlyPropKeys = ['validateOn', 'issueDisplay', 'hint', 'type'];
 
 	// Passthrough props: everything from parent except internal and sfield-only props
 	// This allows new component props to automatically flow through without updating Sfield

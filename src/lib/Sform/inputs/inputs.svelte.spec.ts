@@ -734,6 +734,22 @@ describe('MaskedInput', () => {
 	});
 });
 
+describe('HiddenInput', () => {
+	it('should set disabled attribute', async () => {
+		renderInput({
+			component: 'HiddenInput',
+			field: createMockField('secret'),
+			name: 'testField',
+			value: 'secret',
+			disabled: true
+		});
+
+		const input = document.querySelector('input[type="hidden"]');
+		expect(input).toBeInstanceOf(HTMLInputElement);
+		expect((input as HTMLInputElement).disabled).toBe(true);
+	});
+});
+
 describe('CheckboxGroupInput', () => {
 	it('should render checkbox group', async () => {
 		renderInput({

@@ -21,6 +21,7 @@
 		options?: SelectOption[];
 		min?: number;
 		max?: number;
+		issueDisplay?: 'auto' | 'field' | 'form' | 'none';
 		forceShowIssues?: boolean;
 		onTouched?: () => void;
 		onDirty?: () => void;
@@ -35,6 +36,7 @@
 		options,
 		min,
 		max,
+		issueDisplay,
 		forceShowIssues = false,
 		onTouched,
 		onDirty
@@ -45,7 +47,8 @@
 		() => 'blur',
 		() => [],
 		() => {},
-		() => {}
+		() => {},
+		() => ({ fields: { allIssues: () => [] } })
 	);
 
 	// If forceShowIssues, mark field as touched so issues display
@@ -77,5 +80,15 @@
 </script>
 
 <div data-testid="sfield-wrapper">
-	<TestSfield {type} {field} {label} {hint} class={className} {options} {min} {max} />
+	<TestSfield
+		{type}
+		{field}
+		{label}
+		{hint}
+		class={className}
+		{options}
+		{min}
+		{max}
+		{issueDisplay}
+	/>
 </div>

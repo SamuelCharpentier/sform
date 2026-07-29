@@ -350,9 +350,10 @@ Supported text types: `text`, `email`, `tel`, `url`, `search`, `date`, `datetime
 <Sfield field={fields.userId} type="hidden" value="12345" />
 ```
 
-| Prop    | Type     | Default | Description                                      |
-| ------- | -------- | ------- | ------------------------------------------------ |
-| `value` | `string` | `''`    | The value for the hidden field (can be reactive) |
+| Prop       | Type      | Default | Description                                      |
+| ---------- | --------- | ------- | ------------------------------------------------ |
+| `value`    | `string`  | `''`    | The value for the hidden field (can be reactive) |
+| `disabled` | `boolean` | `false` | Disables the hidden input so it is not submitted |
 
 Hidden inputs are useful for including data in form submissions without displaying it to the user. The `value` prop is reactive, so you can update it programmatically:
 
@@ -367,6 +368,34 @@ Hidden inputs are useful for including data in form submissions without displayi
 
 <Sfield field={fields.token} type="hidden" value={token} />
 ```
+
+You can disable a hidden field until it is ready to be submitted. This is useful for client-only tokens that should not be sent by an SSR/no-JS form:
+
+```svelte
+<Sfield field={fields.recaptcha} type="hidden" value={token} disabled={!clientReady} />
+```
+
+#### Field issue ownership
+
+By default, visible fields render their own issues and hidden fields leave their issues to `<SIssues>`. Use `issueDisplay` when a field needs different ownership:
+
+```svelte
+<!-- Render issues next to this field, even if it is hidden -->
+<Sfield field={fields.token} type="hidden" value={token} issueDisplay="field" />
+
+<!-- Leave this field's issues for <SIssues> -->
+<Sfield field={fields.email} type="email" label="Email" issueDisplay="form" />
+
+<!-- Mark issues as handled without rendering them -->
+<Sfield field={fields.recaptcha} type="hidden" value={token} issueDisplay="none" />
+```
+
+| Value   | Behavior                                                                                |
+| ------- | --------------------------------------------------------------------------------------- |
+| `auto`  | Default. Visible fields render their issues; hidden fields leave issues to `<SIssues>`. |
+| `field` | The field renders its own issues.                                                       |
+| `form`  | The field leaves its issues to `<SIssues>`.                                             |
+| `none`  | The field marks issues as handled without rendering them anywhere.                      |
 
 ### `<Sbutton>`
 

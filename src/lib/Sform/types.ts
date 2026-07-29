@@ -38,6 +38,15 @@ export type {
 export type ValidateOn = 'blur' | 'change' | 'submit';
 
 /**
+ * Where a field's issues should be displayed.
+ * - auto: visible fields display their own issues; hidden fields leave issues to SIssues
+ * - field: this field displays its own issues
+ * - form: this field leaves issues to SIssues
+ * - none: this field marks issues as handled without rendering them
+ */
+export type IssueDisplay = 'auto' | 'field' | 'form' | 'none';
+
+/**
  * Field state tracking
  */
 export interface FieldState {
@@ -467,6 +476,8 @@ interface SfieldExtraProps<T extends RemoteFormFieldValue> {
 	field: RemoteFormField<T>;
 	/** Field-level validateOn override */
 	validateOn?: ValidateOn;
+	/** Where this field's issues should be displayed */
+	issueDisplay?: IssueDisplay;
 	/** CSS classes for sub-elements (wrapper, label, input, messages) */
 	class?: SfieldClasses | string;
 	/** Hint text displayed below the input, above validation messages */
@@ -734,6 +745,8 @@ export interface HiddenInputProps {
 	name: string;
 	/** The value for the hidden field - required for hidden inputs */
 	value?: string;
+	/** Whether the hidden input is disabled */
+	disabled?: boolean;
 }
 
 /**

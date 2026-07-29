@@ -202,6 +202,29 @@ describe('Sfield', () => {
 			const input = document.querySelector('.sform-field-error');
 			expect(input).toBeTruthy();
 		});
+
+		it('should not render field issues when issueDisplay is none', async () => {
+			renderSfield({
+				type: 'text',
+				field: createMockField('', 'test', [{ path: ['test'], message: 'Hidden error' }]),
+				forceShowIssues: true,
+				issueDisplay: 'none'
+			});
+
+			expect(document.body.textContent).not.toContain('Hidden error');
+		});
+
+		it('should render hidden field issues when issueDisplay is field', async () => {
+			renderSfield({
+				type: 'hidden',
+				field: createMockField('', 'token', [{ path: ['token'], message: 'Token error' }]),
+				forceShowIssues: true,
+				issueDisplay: 'field'
+			});
+
+			const issueText = page.getByText('Token error');
+			await expect.element(issueText).toBeVisible();
+		});
 	});
 
 	describe('hint display', () => {

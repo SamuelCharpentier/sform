@@ -36,8 +36,8 @@ describe('ButtonInput', () => {
 	describe('rendering', () => {
 		it('should render button with default label', async () => {
 			renderButton({
-					form: createMockForm()
-				});
+				form: createMockForm()
+			});
 
 			const button = page.getByRole('button');
 			await expect.element(button).toHaveTextContent('Submit');
@@ -45,9 +45,9 @@ describe('ButtonInput', () => {
 
 		it('should render button with custom label', async () => {
 			renderButton({
-					form: createMockForm(),
-					label: 'Save'
-				});
+				form: createMockForm(),
+				label: 'Save'
+			});
 
 			const button = page.getByRole('button');
 			await expect.element(button).toHaveTextContent('Save');
@@ -55,9 +55,9 @@ describe('ButtonInput', () => {
 
 		it('should apply class prop', async () => {
 			renderButton({
-					form: createMockForm(),
-					class: 'custom-class'
-				});
+				form: createMockForm(),
+				class: 'custom-class'
+			});
 
 			const button = page.getByRole('button');
 			await expect.element(button).toHaveClass('custom-class');
@@ -65,8 +65,8 @@ describe('ButtonInput', () => {
 
 		it('should have submit type by default', async () => {
 			renderButton({
-					form: createMockForm()
-				});
+				form: createMockForm()
+			});
 
 			const button = document.querySelector('button');
 			expect(button?.getAttribute('type')).toBe('submit');
@@ -74,9 +74,9 @@ describe('ButtonInput', () => {
 
 		it('should allow button type override', async () => {
 			renderButton({
-					form: createMockForm(),
-					buttonType: 'button'
-				});
+				form: createMockForm(),
+				buttonType: 'button'
+			});
 
 			const button = document.querySelector('button');
 			expect(button?.getAttribute('type')).toBe('button');
@@ -86,9 +86,9 @@ describe('ButtonInput', () => {
 	describe('disabled state', () => {
 		it('should be disabled when disabled prop is true', async () => {
 			renderButton({
-					form: createMockForm(),
-					disabled: true
-				});
+				form: createMockForm(),
+				disabled: true
+			});
 
 			const button = page.getByRole('button');
 			await expect.element(button).toBeDisabled();
@@ -96,8 +96,8 @@ describe('ButtonInput', () => {
 
 		it('should be disabled when form is pending', async () => {
 			renderButton({
-					form: createMockForm({ pending: 1 })
-				});
+				form: createMockForm({ pending: 1 })
+			});
 
 			const button = page.getByRole('button');
 			await expect.element(button).toBeDisabled();
@@ -105,8 +105,8 @@ describe('ButtonInput', () => {
 
 		it('should not be disabled by default', async () => {
 			renderButton({
-					form: createMockForm()
-				});
+				form: createMockForm()
+			});
 
 			const button = page.getByRole('button');
 			await expect.element(button).not.toBeDisabled();
@@ -118,9 +118,9 @@ describe('ButtonInput', () => {
 			const onsubmit = vi.fn();
 
 			renderButton({
-					form: createMockForm(),
-					onsubmit
-				});
+				form: createMockForm(),
+				onsubmit
+			});
 
 			const button = page.getByRole('button');
 			await userEvent.click(button);
@@ -136,9 +136,9 @@ describe('ButtonInput', () => {
 			});
 
 			renderButton({
-					form: createMockForm(),
-					onsubmit
-				});
+				form: createMockForm(),
+				onsubmit
+			});
 
 			const button = page.getByRole('button');
 			await userEvent.click(button);
@@ -154,10 +154,10 @@ describe('ButtonInput', () => {
 			const onsubmit = vi.fn();
 
 			renderButton({
-					form: createMockForm(),
-					onsubmit,
-					buttonType: 'button'
-				});
+				form: createMockForm(),
+				onsubmit,
+				buttonType: 'button'
+			});
 
 			const button = page.getByRole('button');
 			await userEvent.click(button);
@@ -167,8 +167,8 @@ describe('ButtonInput', () => {
 
 		it('should work without onsubmit callback', async () => {
 			renderButton({
-					form: createMockForm()
-				});
+				form: createMockForm()
+			});
 
 			const button = page.getByRole('button');
 			await userEvent.click(button);
@@ -183,8 +183,8 @@ describe('ButtonInput', () => {
 			const form = createMockForm({ result: { success: true }, hasIssues: false });
 
 			renderButton({
-					form
-				});
+				form
+			});
 
 			// Default label shown
 			const button = page.getByRole('button');
@@ -193,8 +193,8 @@ describe('ButtonInput', () => {
 
 		it('should be disabled while pending', async () => {
 			renderButton({
-					form: createMockForm({ pending: 1 })
-				});
+				form: createMockForm({ pending: 1 })
+			});
 
 			const button = page.getByRole('button');
 			await expect.element(button).toBeDisabled();
@@ -202,12 +202,11 @@ describe('ButtonInput', () => {
 
 		it('should handle form with issues', async () => {
 			renderButton({
-					form: createMockForm({ hasIssues: true })
-				});
+				form: createMockForm({ hasIssues: true })
+			});
 
 			const button = page.getByRole('button');
 			await expect.element(button).toBeEnabled();
 		});
 	});
 });
-
