@@ -36,12 +36,12 @@ describe('TextInput', () => {
 	describe('rendering', () => {
 		it('should render text input', async () => {
 			renderInput({
-					component: 'TextInput',
-					field: createMockField('test value'),
-					type: 'text',
-					name: 'testField',
-					showIssues: false
-				});
+				component: 'TextInput',
+				field: createMockField('test value'),
+				type: 'text',
+				name: 'testField',
+				showIssues: false
+			});
 
 			const input = page.getByRole('textbox');
 			await expect.element(input).toBeVisible();
@@ -49,13 +49,13 @@ describe('TextInput', () => {
 
 		it('should render label when provided', async () => {
 			renderInput({
-					component: 'TextInput',
-					field: createMockField(),
-					type: 'text',
-					name: 'testField',
-					label: 'Test Label',
-					showIssues: false
-				});
+				component: 'TextInput',
+				field: createMockField(),
+				type: 'text',
+				name: 'testField',
+				label: 'Test Label',
+				showIssues: false
+			});
 
 			const label = page.getByText('Test Label');
 			await expect.element(label).toBeVisible();
@@ -63,13 +63,13 @@ describe('TextInput', () => {
 
 		it('should apply placeholder', async () => {
 			renderInput({
-					component: 'TextInput',
-					field: createMockField(),
-					type: 'text',
-					name: 'testField',
-					placeholder: 'Enter value',
-					showIssues: false
-				});
+				component: 'TextInput',
+				field: createMockField(),
+				type: 'text',
+				name: 'testField',
+				placeholder: 'Enter value',
+				showIssues: false
+			});
 
 			const input = page.getByPlaceholder('Enter value');
 			await expect.element(input).toBeVisible();
@@ -77,13 +77,13 @@ describe('TextInput', () => {
 
 		it('should render prefix as string', async () => {
 			renderInput({
-					component: 'TextInput',
-					field: createMockField(),
-					type: 'text',
-					name: 'testField',
-					prefix: '$',
-					showIssues: false
-				});
+				component: 'TextInput',
+				field: createMockField(),
+				type: 'text',
+				name: 'testField',
+				prefix: '$',
+				showIssues: false
+			});
 
 			const prefix = page.getByText('$');
 			await expect.element(prefix).toBeVisible();
@@ -91,13 +91,13 @@ describe('TextInput', () => {
 
 		it('should render suffix as string', async () => {
 			renderInput({
-					component: 'TextInput',
-					field: createMockField(),
-					type: 'text',
-					name: 'testField',
-					suffix: '%',
-					showIssues: false
-				});
+				component: 'TextInput',
+				field: createMockField(),
+				type: 'text',
+				name: 'testField',
+				suffix: '%',
+				showIssues: false
+			});
 
 			const suffix = page.getByText('%');
 			await expect.element(suffix).toBeVisible();
@@ -105,13 +105,13 @@ describe('TextInput', () => {
 
 		it('should set disabled attribute', async () => {
 			renderInput({
-					component: 'TextInput',
-					field: createMockField(),
-					type: 'text',
-					name: 'testField',
-					disabled: true,
-					showIssues: false
-				});
+				component: 'TextInput',
+				field: createMockField(),
+				type: 'text',
+				name: 'testField',
+				disabled: true,
+				showIssues: false
+			});
 
 			const input = page.getByRole('textbox');
 			await expect.element(input).toBeDisabled();
@@ -119,13 +119,13 @@ describe('TextInput', () => {
 
 		it('should set readonly attribute', async () => {
 			renderInput({
-					component: 'TextInput',
-					field: createMockField(),
-					type: 'text',
-					name: 'testField',
-					readonly: true,
-					showIssues: false
-				});
+				component: 'TextInput',
+				field: createMockField(),
+				type: 'text',
+				name: 'testField',
+				readonly: true,
+				showIssues: false
+			});
 
 			const input = document.querySelector('input');
 			expect(input?.hasAttribute('readonly')).toBe(true);
@@ -137,13 +137,13 @@ describe('TextInput', () => {
 			const onblur = vi.fn();
 
 			renderInput({
-					component: 'TextInput',
-					field: createMockField(),
-					type: 'text',
-					name: 'testField',
-					showIssues: false,
-					onblur
-				});
+				component: 'TextInput',
+				field: createMockField(),
+				type: 'text',
+				name: 'testField',
+				showIssues: false,
+				onblur
+			});
 
 			const input = page.getByRole('textbox');
 			await userEvent.click(input);
@@ -156,13 +156,13 @@ describe('TextInput', () => {
 			const oninput = vi.fn();
 
 			renderInput({
-					component: 'TextInput',
-					field: createMockField(),
-					type: 'text',
-					name: 'testField',
-					showIssues: false,
-					oninput
-				});
+				component: 'TextInput',
+				field: createMockField(),
+				type: 'text',
+				name: 'testField',
+				showIssues: false,
+				oninput
+			});
 
 			const input = page.getByRole('textbox');
 			await userEvent.type(input, 'test');
@@ -176,11 +176,11 @@ describe('NumberInput', () => {
 	describe('rendering', () => {
 		it('should render number input', async () => {
 			renderInput({
-					component: 'NumberInput',
-					field: createMockField(42),
-					name: 'testField',
-					showIssues: false
-				});
+				component: 'NumberInput',
+				field: createMockField(42),
+				name: 'testField',
+				showIssues: false
+			});
 
 			const input = page.getByRole('spinbutton');
 			await expect.element(input).toBeVisible();
@@ -188,13 +188,13 @@ describe('NumberInput', () => {
 
 		it('should render prefix and suffix', async () => {
 			renderInput({
-					component: 'NumberInput',
-					field: createMockField(100),
-					name: 'testField',
-					prefix: '$',
-					suffix: 'USD',
-					showIssues: false
-				});
+				component: 'NumberInput',
+				field: createMockField(100),
+				name: 'testField',
+				prefix: '$',
+				suffix: 'USD',
+				showIssues: false
+			});
 
 			const prefix = page.getByText('$');
 			const suffix = page.getByText('USD');
@@ -204,13 +204,13 @@ describe('NumberInput', () => {
 
 		it('should set min and max', async () => {
 			renderInput({
-					component: 'NumberInput',
-					field: createMockField(50),
-					name: 'testField',
-					min: 0,
-					max: 100,
-					showIssues: false
-				});
+				component: 'NumberInput',
+				field: createMockField(50),
+				name: 'testField',
+				min: 0,
+				max: 100,
+				showIssues: false
+			});
 
 			const input = document.querySelector('input');
 			expect(input?.getAttribute('min')).toBe('0');
@@ -219,12 +219,12 @@ describe('NumberInput', () => {
 
 		it('should set step', async () => {
 			renderInput({
-					component: 'NumberInput',
-					field: createMockField(5),
-					name: 'testField',
-					step: 5,
-					showIssues: false
-				});
+				component: 'NumberInput',
+				field: createMockField(5),
+				name: 'testField',
+				step: 5,
+				showIssues: false
+			});
 
 			const input = document.querySelector('input');
 			expect(input?.getAttribute('step')).toBe('5');
@@ -232,12 +232,12 @@ describe('NumberInput', () => {
 
 		it('should hide controls when showControls is false', async () => {
 			renderInput({
-					component: 'NumberInput',
-					field: createMockField(10),
-					name: 'testField',
-					showControls: false,
-					showIssues: false
-				});
+				component: 'NumberInput',
+				field: createMockField(10),
+				name: 'testField',
+				showControls: false,
+				showIssues: false
+			});
 
 			const input = document.querySelector('input');
 			expect(input?.classList.contains('sform-number-no-controls')).toBe(true);
@@ -246,12 +246,12 @@ describe('NumberInput', () => {
 
 		it('should align text to end', async () => {
 			renderInput({
-					component: 'NumberInput',
-					field: createMockField(10),
-					name: 'testField',
-					align: 'end',
-					showIssues: false
-				});
+				component: 'NumberInput',
+				field: createMockField(10),
+				name: 'testField',
+				align: 'end',
+				showIssues: false
+			});
 
 			const input = document.querySelector('input');
 			expect(input?.style.cssText).toContain('text-align: end');
@@ -261,12 +261,12 @@ describe('NumberInput', () => {
 	describe('maxDecimals', () => {
 		it('should prevent period key when maxDecimals is 0', async () => {
 			renderInput({
-					component: 'NumberInput',
-					field: createMockField(10),
-					name: 'testField',
-					maxDecimals: 0,
-					showIssues: false
-				});
+				component: 'NumberInput',
+				field: createMockField(10),
+				name: 'testField',
+				maxDecimals: 0,
+				showIssues: false
+			});
 
 			const input = page.getByRole('spinbutton');
 			await userEvent.click(input);
@@ -283,12 +283,12 @@ describe('NumberInput', () => {
 			const field = createMockField(0);
 
 			renderInput({
-					component: 'NumberInput',
-					field,
-					name: 'testField',
-					maxDecimals: 2,
-					showIssues: false
-				});
+				component: 'NumberInput',
+				field,
+				name: 'testField',
+				maxDecimals: 2,
+				showIssues: false
+			});
 
 			const input = document.querySelector('input')!;
 			// Simulate input with too many decimals
@@ -303,15 +303,15 @@ describe('NumberInput', () => {
 describe('SelectInput', () => {
 	it('should render select with options', async () => {
 		renderInput({
-				component: 'SelectInput',
-				field: createMockField('option1'),
-				name: 'testField',
-				options: [
-					{ value: 'option1', label: 'Option 1' },
-					{ value: 'option2', label: 'Option 2' }
-				],
-				showIssues: false
-			});
+			component: 'SelectInput',
+			field: createMockField('option1'),
+			name: 'testField',
+			options: [
+				{ value: 'option1', label: 'Option 1' },
+				{ value: 'option2', label: 'Option 2' }
+			],
+			showIssues: false
+		});
 
 		const select = page.getByRole('combobox');
 		await expect.element(select).toBeVisible();
@@ -322,15 +322,15 @@ describe('SelectInput', () => {
 
 	it('should render options with disabled flag', async () => {
 		renderInput({
-				component: 'SelectInput',
-				field: createMockField(''),
-				name: 'testField',
-				options: [
-					{ value: 'option1', label: 'Option 1' },
-					{ value: 'option2', label: 'Option 2', disabled: true }
-				],
-				showIssues: false
-			});
+			component: 'SelectInput',
+			field: createMockField(''),
+			name: 'testField',
+			options: [
+				{ value: 'option1', label: 'Option 1' },
+				{ value: 'option2', label: 'Option 2', disabled: true }
+			],
+			showIssues: false
+		});
 
 		const disabledOption = document.querySelector('option[disabled]');
 		expect(disabledOption).toBeTruthy();
@@ -339,12 +339,12 @@ describe('SelectInput', () => {
 
 	it('should support string options shorthand', async () => {
 		renderInput({
-				component: 'SelectInput',
-				field: createMockField(''),
-				name: 'testField',
-				options: ['Apple', 'Banana', 'Cherry'],
-				showIssues: false
-			});
+			component: 'SelectInput',
+			field: createMockField(''),
+			name: 'testField',
+			options: ['Apple', 'Banana', 'Cherry'],
+			showIssues: false
+		});
 
 		const options = document.querySelectorAll('option');
 		expect(options.length).toBe(3);
@@ -355,11 +355,11 @@ describe('SelectInput', () => {
 describe('CheckboxInput', () => {
 	it('should render checkbox', async () => {
 		renderInput({
-				component: 'CheckboxInput',
-				field: createMockField(false),
-				name: 'testField',
-				showIssues: false
-			});
+			component: 'CheckboxInput',
+			field: createMockField(false),
+			name: 'testField',
+			showIssues: false
+		});
 
 		const checkbox = page.getByRole('checkbox');
 		await expect.element(checkbox).toBeVisible();
@@ -367,12 +367,12 @@ describe('CheckboxInput', () => {
 
 	it('should render label', async () => {
 		renderInput({
-				component: 'CheckboxInput',
-				field: createMockField(false),
-				name: 'testField',
-				label: 'Accept terms',
-				showIssues: false
-			});
+			component: 'CheckboxInput',
+			field: createMockField(false),
+			name: 'testField',
+			label: 'Accept terms',
+			showIssues: false
+		});
 
 		const label = page.getByText('Accept terms');
 		await expect.element(label).toBeVisible();
@@ -380,12 +380,12 @@ describe('CheckboxInput', () => {
 
 	it('should support disabled state', async () => {
 		renderInput({
-				component: 'CheckboxInput',
-				field: createMockField(false),
-				name: 'testField',
-				disabled: true,
-				showIssues: false
-			});
+			component: 'CheckboxInput',
+			field: createMockField(false),
+			name: 'testField',
+			disabled: true,
+			showIssues: false
+		});
 
 		const checkbox = page.getByRole('checkbox');
 		await expect.element(checkbox).toBeDisabled();
@@ -395,15 +395,15 @@ describe('CheckboxInput', () => {
 describe('RadioInput', () => {
 	it('should render radio options', async () => {
 		renderInput({
-				component: 'RadioInput',
-				field: createMockField('option1'),
-				name: 'testField',
-				options: [
-					{ value: 'option1', label: 'Option 1' },
-					{ value: 'option2', label: 'Option 2' }
-				],
-				showIssues: false
-			});
+			component: 'RadioInput',
+			field: createMockField('option1'),
+			name: 'testField',
+			options: [
+				{ value: 'option1', label: 'Option 1' },
+				{ value: 'option2', label: 'Option 2' }
+			],
+			showIssues: false
+		});
 
 		const radios = page.getByRole('radio').all();
 		expect((await radios).length).toBe(2);
@@ -411,16 +411,16 @@ describe('RadioInput', () => {
 
 	it('should render with fieldset and legend', async () => {
 		renderInput({
-				component: 'RadioInput',
-				field: createMockField(''),
-				name: 'testField',
-				label: 'Choose an option',
-				options: [
-					{ value: 'option1', label: 'Option 1' },
-					{ value: 'option2', label: 'Option 2' }
-				],
-				showIssues: false
-			});
+			component: 'RadioInput',
+			field: createMockField(''),
+			name: 'testField',
+			label: 'Choose an option',
+			options: [
+				{ value: 'option1', label: 'Option 1' },
+				{ value: 'option2', label: 'Option 2' }
+			],
+			showIssues: false
+		});
 
 		const fieldset = document.querySelector('fieldset');
 		const legend = document.querySelector('legend');
@@ -430,15 +430,15 @@ describe('RadioInput', () => {
 
 	it('should support disabled options', async () => {
 		renderInput({
-				component: 'RadioInput',
-				field: createMockField(''),
-				name: 'testField',
-				options: [
-					{ value: 'option1', label: 'Option 1' },
-					{ value: 'option2', label: 'Option 2', disabled: true }
-				],
-				showIssues: false
-			});
+			component: 'RadioInput',
+			field: createMockField(''),
+			name: 'testField',
+			options: [
+				{ value: 'option1', label: 'Option 1' },
+				{ value: 'option2', label: 'Option 2', disabled: true }
+			],
+			showIssues: false
+		});
 
 		const radios = document.querySelectorAll('input[type="radio"]');
 		const disabledRadio = radios[1] as HTMLInputElement;
@@ -449,11 +449,11 @@ describe('RadioInput', () => {
 describe('TextareaInput', () => {
 	it('should render textarea', async () => {
 		renderInput({
-				component: 'TextareaInput',
-				field: createMockField('test content'),
-				name: 'testField',
-				showIssues: false
-			});
+			component: 'TextareaInput',
+			field: createMockField('test content'),
+			name: 'testField',
+			showIssues: false
+		});
 
 		const textarea = page.getByRole('textbox');
 		await expect.element(textarea).toBeVisible();
@@ -461,12 +461,12 @@ describe('TextareaInput', () => {
 
 	it('should render placeholder', async () => {
 		renderInput({
-				component: 'TextareaInput',
-				field: createMockField(''),
-				name: 'testField',
-				placeholder: 'Enter description...',
-				showIssues: false
-			});
+			component: 'TextareaInput',
+			field: createMockField(''),
+			name: 'testField',
+			placeholder: 'Enter description...',
+			showIssues: false
+		});
 
 		const textarea = page.getByPlaceholder('Enter description...');
 		await expect.element(textarea).toBeVisible();
@@ -474,12 +474,12 @@ describe('TextareaInput', () => {
 
 	it('should support disabled state', async () => {
 		renderInput({
-				component: 'TextareaInput',
-				field: createMockField(''),
-				name: 'testField',
-				disabled: true,
-				showIssues: false
-			});
+			component: 'TextareaInput',
+			field: createMockField(''),
+			name: 'testField',
+			disabled: true,
+			showIssues: false
+		});
 
 		const textarea = page.getByRole('textbox');
 		await expect.element(textarea).toBeDisabled();
@@ -487,12 +487,12 @@ describe('TextareaInput', () => {
 
 	it('should render prefix as string', async () => {
 		renderInput({
-				component: 'TextareaInput',
-				field: createMockField(''),
-				name: 'testField',
-				prefix: 'Note:',
-				showIssues: false
-			});
+			component: 'TextareaInput',
+			field: createMockField(''),
+			name: 'testField',
+			prefix: 'Note:',
+			showIssues: false
+		});
 
 		const prefix = page.getByText('Note:');
 		await expect.element(prefix).toBeVisible();
@@ -500,12 +500,12 @@ describe('TextareaInput', () => {
 
 	it('should render suffix as string', async () => {
 		renderInput({
-				component: 'TextareaInput',
-				field: createMockField(''),
-				name: 'testField',
-				suffix: '(optional)',
-				showIssues: false
-			});
+			component: 'TextareaInput',
+			field: createMockField(''),
+			name: 'testField',
+			suffix: '(optional)',
+			showIssues: false
+		});
 
 		const suffix = page.getByText('(optional)');
 		await expect.element(suffix).toBeVisible();
@@ -515,13 +515,13 @@ describe('TextareaInput', () => {
 describe('RangeInput', () => {
 	it('should render range slider', async () => {
 		renderInput({
-				component: 'RangeInput',
-				field: createMockField(50),
-				name: 'testField',
-				min: 0,
-				max: 100,
-				showIssues: false
-			});
+			component: 'RangeInput',
+			field: createMockField(50),
+			name: 'testField',
+			min: 0,
+			max: 100,
+			showIssues: false
+		});
 
 		const slider = page.getByRole('slider');
 		await expect.element(slider).toBeVisible();
@@ -529,13 +529,13 @@ describe('RangeInput', () => {
 
 	it('should set min and max', async () => {
 		renderInput({
-				component: 'RangeInput',
-				field: createMockField(25),
-				name: 'testField',
-				min: 0,
-				max: 100,
-				showIssues: false
-			});
+			component: 'RangeInput',
+			field: createMockField(25),
+			name: 'testField',
+			min: 0,
+			max: 100,
+			showIssues: false
+		});
 
 		const slider = document.querySelector('input[type="range"]');
 		expect(slider?.getAttribute('min')).toBe('0');
@@ -546,11 +546,11 @@ describe('RangeInput', () => {
 describe('ToggleInput', () => {
 	it('should render toggle', async () => {
 		renderInput({
-				component: 'ToggleInput',
-				field: createMockField(false),
-				name: 'testField',
-				showIssues: false
-			});
+			component: 'ToggleInput',
+			field: createMockField(false),
+			name: 'testField',
+			showIssues: false
+		});
 
 		// Toggle is implemented as checkbox with styling
 		const toggle = document.querySelector('.sform-toggle');
@@ -561,11 +561,11 @@ describe('ToggleInput', () => {
 describe('PasswordInput', () => {
 	it('should render password input', async () => {
 		renderInput({
-				component: 'PasswordInput',
-				field: createMockField('secret'),
-				name: 'testField',
-				showIssues: false
-			});
+			component: 'PasswordInput',
+			field: createMockField('secret'),
+			name: 'testField',
+			showIssues: false
+		});
 
 		const input = document.querySelector('input[type="password"]');
 		expect(input).toBeTruthy();
@@ -573,11 +573,11 @@ describe('PasswordInput', () => {
 
 	it('should have show/hide toggle', async () => {
 		renderInput({
-				component: 'PasswordInput',
-				field: createMockField('secret'),
-				name: 'testField',
-				showIssues: false
-			});
+			component: 'PasswordInput',
+			field: createMockField('secret'),
+			name: 'testField',
+			showIssues: false
+		});
 
 		const toggleButton = document.querySelector('.sform-password-toggle');
 		expect(toggleButton).toBeTruthy();
@@ -587,12 +587,12 @@ describe('PasswordInput', () => {
 describe('aria-invalid', () => {
 	it('should set aria-invalid when showIssues is true and has issues', async () => {
 		renderInput({
-				component: 'TextInput',
-				field: createMockField('', [{ path: ['testField'], message: 'Required' }]),
-				type: 'text',
-				name: 'testField',
-				showIssues: true
-			});
+			component: 'TextInput',
+			field: createMockField('', [{ path: ['testField'], message: 'Required' }]),
+			type: 'text',
+			name: 'testField',
+			showIssues: true
+		});
 
 		const input = document.querySelector('input');
 		expect(input?.getAttribute('aria-invalid')).toBe('true');
@@ -600,12 +600,12 @@ describe('aria-invalid', () => {
 
 	it('should not set aria-invalid when showIssues is false', async () => {
 		renderInput({
-				component: 'TextInput',
-				field: createMockField('', [{ path: ['testField'], message: 'Required' }]),
-				type: 'text',
-				name: 'testField',
-				showIssues: false
-			});
+			component: 'TextInput',
+			field: createMockField('', [{ path: ['testField'], message: 'Required' }]),
+			type: 'text',
+			name: 'testField',
+			showIssues: false
+		});
 
 		const input = document.querySelector('input');
 		// aria-invalid should be undefined/null when showIssues is false
@@ -616,12 +616,12 @@ describe('aria-invalid', () => {
 describe('MaskedInput', () => {
 	it('should render masked input', async () => {
 		renderInput({
-				component: 'MaskedInput',
-				field: createMockField(''),
-				name: 'testField',
-				mask: '999-999-9999',
-				showIssues: false
-			});
+			component: 'MaskedInput',
+			field: createMockField(''),
+			name: 'testField',
+			mask: '999-999-9999',
+			showIssues: false
+		});
 
 		const input = page.getByRole('textbox');
 		await expect.element(input).toBeVisible();
@@ -629,13 +629,13 @@ describe('MaskedInput', () => {
 
 	it('should render with label', async () => {
 		renderInput({
-				component: 'MaskedInput',
-				field: createMockField(''),
-				name: 'testField',
-				mask: 'phone',
-				label: 'Phone Number',
-				showIssues: false
-			});
+			component: 'MaskedInput',
+			field: createMockField(''),
+			name: 'testField',
+			mask: 'phone',
+			label: 'Phone Number',
+			showIssues: false
+		});
 
 		const label = page.getByText('Phone Number');
 		await expect.element(label).toBeVisible();
@@ -643,12 +643,12 @@ describe('MaskedInput', () => {
 
 	it('should support predefined mask patterns', async () => {
 		renderInput({
-				component: 'MaskedInput',
-				field: createMockField(''),
-				name: 'testField',
-				mask: 'phone',
-				showIssues: false
-			});
+			component: 'MaskedInput',
+			field: createMockField(''),
+			name: 'testField',
+			mask: 'phone',
+			showIssues: false
+		});
 
 		const input = page.getByRole('textbox');
 		await expect.element(input).toBeVisible();
@@ -656,13 +656,13 @@ describe('MaskedInput', () => {
 
 	it('should render prefix', async () => {
 		renderInput({
-				component: 'MaskedInput',
-				field: createMockField(''),
-				name: 'testField',
-				mask: 'phone',
-				prefix: '+1',
-				showIssues: false
-			});
+			component: 'MaskedInput',
+			field: createMockField(''),
+			name: 'testField',
+			mask: 'phone',
+			prefix: '+1',
+			showIssues: false
+		});
 
 		const prefix = page.getByText('+1');
 		await expect.element(prefix).toBeVisible();
@@ -670,13 +670,13 @@ describe('MaskedInput', () => {
 
 	it('should render suffix', async () => {
 		renderInput({
-				component: 'MaskedInput',
-				field: createMockField(''),
-				name: 'testField',
-				mask: 'phone',
-				suffix: 'ext',
-				showIssues: false
-			});
+			component: 'MaskedInput',
+			field: createMockField(''),
+			name: 'testField',
+			mask: 'phone',
+			suffix: 'ext',
+			showIssues: false
+		});
 
 		const suffix = page.getByText('ext');
 		await expect.element(suffix).toBeVisible();
@@ -684,13 +684,13 @@ describe('MaskedInput', () => {
 
 	it('should support disabled state', async () => {
 		renderInput({
-				component: 'MaskedInput',
-				field: createMockField(''),
-				name: 'testField',
-				mask: 'phone',
-				disabled: true,
-				showIssues: false
-			});
+			component: 'MaskedInput',
+			field: createMockField(''),
+			name: 'testField',
+			mask: 'phone',
+			disabled: true,
+			showIssues: false
+		});
 
 		const input = page.getByRole('textbox');
 		await expect.element(input).toBeDisabled();
@@ -700,12 +700,12 @@ describe('MaskedInput', () => {
 		const field = createMockField('');
 
 		renderInput({
-				component: 'MaskedInput',
-				field,
-				name: 'testField',
-				mask: '999-999-9999',
-				showIssues: false
-			});
+			component: 'MaskedInput',
+			field,
+			name: 'testField',
+			mask: '999-999-9999',
+			showIssues: false
+		});
 
 		const input = page.getByRole('textbox');
 		await userEvent.type(input, '1234567890');
@@ -718,12 +718,12 @@ describe('MaskedInput', () => {
 		const field = createMockField('');
 
 		renderInput({
-				component: 'MaskedInput',
-				field,
-				name: 'testField',
-				mask: '999-999',
-				showIssues: false
-			});
+			component: 'MaskedInput',
+			field,
+			name: 'testField',
+			mask: '999-999',
+			showIssues: false
+		});
 
 		const input = page.getByRole('textbox');
 		await userEvent.type(input, '123456');
@@ -737,15 +737,15 @@ describe('MaskedInput', () => {
 describe('CheckboxGroupInput', () => {
 	it('should render checkbox group', async () => {
 		renderInput({
-				component: 'CheckboxGroupInput',
-				field: createMockField([]),
-				name: 'testField',
-				options: [
-					{ value: 'option1', label: 'Option 1' },
-					{ value: 'option2', label: 'Option 2' }
-				],
-				showIssues: false
-			});
+			component: 'CheckboxGroupInput',
+			field: createMockField([]),
+			name: 'testField',
+			options: [
+				{ value: 'option1', label: 'Option 1' },
+				{ value: 'option2', label: 'Option 2' }
+			],
+			showIssues: false
+		});
 
 		const checkboxes = page.getByRole('checkbox').all();
 		expect((await checkboxes).length).toBe(2);
@@ -753,16 +753,16 @@ describe('CheckboxGroupInput', () => {
 
 	it('should render with legend', async () => {
 		renderInput({
-				component: 'CheckboxGroupInput',
-				field: createMockField([]),
-				name: 'testField',
-				label: 'Select options',
-				options: [
-					{ value: 'option1', label: 'Option 1' },
-					{ value: 'option2', label: 'Option 2' }
-				],
-				showIssues: false
-			});
+			component: 'CheckboxGroupInput',
+			field: createMockField([]),
+			name: 'testField',
+			label: 'Select options',
+			options: [
+				{ value: 'option1', label: 'Option 1' },
+				{ value: 'option2', label: 'Option 2' }
+			],
+			showIssues: false
+		});
 
 		const legend = document.querySelector('legend');
 		expect(legend?.textContent?.trim()).toBe('Select options');
@@ -770,15 +770,15 @@ describe('CheckboxGroupInput', () => {
 
 	it('should support disabled options', async () => {
 		renderInput({
-				component: 'CheckboxGroupInput',
-				field: createMockField([]),
-				name: 'testField',
-				options: [
-					{ value: 'option1', label: 'Option 1' },
-					{ value: 'option2', label: 'Option 2', disabled: true }
-				],
-				showIssues: false
-			});
+			component: 'CheckboxGroupInput',
+			field: createMockField([]),
+			name: 'testField',
+			options: [
+				{ value: 'option1', label: 'Option 1' },
+				{ value: 'option2', label: 'Option 2', disabled: true }
+			],
+			showIssues: false
+		});
 
 		const checkboxes = document.querySelectorAll('input[type="checkbox"]');
 		const disabledCheckbox = checkboxes[1] as HTMLInputElement;
