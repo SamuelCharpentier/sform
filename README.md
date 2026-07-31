@@ -123,18 +123,80 @@ Wrapper component that provides form context to all child fields.
 </Sform>
 ```
 
-| Prop            | Type                             | Default     | Description                                       |
-| --------------- | -------------------------------- | ----------- | ------------------------------------------------- |
-| `form`          | `RemoteForm`                     | required    | Remote form object from `form()` API              |
-| `validateOn`    | `'blur' \| 'change' \| 'submit'` | `'blur'`    | When to validate and show errors                  |
-| `class`         | `string`                         | `undefined` | CSS class for form element                        |
-| `preflightOnly` | `boolean`                        | `false`     | If true, client side validation is preflight only |
+| Prop             | Type                             | Default     | Description                                                          |
+| ---------------- | -------------------------------- | ----------- | -------------------------------------------------------------------- |
+| `form`           | `RemoteForm`                     | required    | Remote form object from `form()` API                                 |
+| `validateOn`     | `'blur' \| 'change' \| 'submit'` | `'blur'`    | When to validate and show errors                                     |
+| `class`          | `string`                         | `undefined` | CSS class for form element                                           |
+| `preflightOnly`  | `boolean`                        | `false`     | If true, client side validation is preflight only                    |
+| `resetOnSuccess` | `boolean`                        | `true`      | If false, keep touched/dirty/submitted state after successful submit |
+| `lifecycle`      | `SformLifecycleHooks`            | `undefined` | Register lifecycle hooks for submit/validate flow                    |
 
 **Validate Modes:**
 
 - `blur` - Validate and show errors after leaving field (default)
 - `change` - Validate and show errors as soon as value changes
 - `submit` - Validate and show all errors only after submit attempt
+
+**Lifecycle Hooks:**
+
+Use `lifecycle` to run sync/async functions at key points in the form lifecycle:
+
+```svelte
+<Sform
+	form={login}
+	lifecycle={{
+		beforeSubmit: async () => {
+			// Mutate values right before Sbutton triggers submit
+			login.fields.username.set(login.fields.username.value().trim());
+		},
+		afterSubmitTriggered: () => {
+			console.log('submit requested');
+		},
+		afterSubmitResponse: () => {
+			console.log('submit response received');
+		},
+		beforeValidate: () => {
+			console.log('before validate');
+		},
+		afterValidateCalled: () => {
+			console.log('validate called');
+		},
+		afterValidateSettled: () => {
+			console.log('validate settled');
+		}
+	}}
+>
+	{#snippet children(fields)}
+		<Sfield field={fields.username} type="text" />
+	{/snippet}
+</Sform>
+```
+
+Hook event names:
+
+- `beforeSubmit` - right before submit is triggered by `<Sbutton>` click
+- `afterSubmitTriggered` - right after submit is triggered
+- `afterSubmitResponse` - once pending resolves back to idle
+- `beforeValidate` - immediately before `form.validate()`
+- `afterValidateCalled` - immediately after `form.validate()` is called (validation may still be in flight)
+- `afterValidateSettled` - when `form.validate()` settles (resolved or rejected)
+
+Validation lifecycle hooks are intended for UX and instrumentation, not security decisions.
+
+- Good uses: loading indicators, tracing/metrics, validation timing analytics.
+- Avoid: relying on client-only validation hooks for authorization, policy enforcement, or bypass patterns.
+- Keep authoritative checks on server submit handlers and schemas.
+
+If you need to keep field touched/dirty/submitted state after a successful submit response:
+
+```svelte
+<Sform form={login} resetOnSuccess={false}>
+	{#snippet children(fields)}
+		<Sfield field={fields.username} type="text" />
+	{/snippet}
+</Sform>
+```
 
 ### `<Sfield>`
 
@@ -153,6 +215,7 @@ Smart field component with type-safe props based on input type.
 | `validateOn`  | `ValidateOn`              | inherited   | Override form validateOn              |
 | `class`       | `SfieldClasses \| string` | `undefined` | CSS classes                           |
 | `hint`        | `string \| Snippet`       | `undefined` | Help text shown below the field       |
+| `lifecycle`   | `SformLifecycleHooks`     | `undefined` | Register field-scoped lifecycle hooks |
 
 #### Text Inputs
 
@@ -452,15 +515,15 @@ The result type is automatically inferred from the `form` prop. When your remote
 </Sbutton>
 ```
 
-| Prop         | Type                              | Default     | Description                       |
-| ------------ | --------------------------------- | ----------- | --------------------------------- |
-| `form`       | `RemoteForm`                      | required    | Remote form for type inference    |
-| `label`      | `string`                          | `'Submit'`  | Button text (when no children)    |
-| `buttonType` | `'submit' \| 'reset' \| 'button'` | `'submit'`  | Button type                       |
-| `class`      | `string`                          | `undefined` | CSS class                         |
-| `disabled`   | `boolean`                         | `false`     | Disable button                    |
-| `children`   | `Snippet<[ButtonState<T>]>`       | `undefined` | Custom content with typed state   |
-| `onsubmit`   | `() => void \| Promise<void>`     | `undefined` | Callback before validation/submit |
+| Prop         | Type                              | Default     | Description                                         |
+| ------------ | --------------------------------- | ----------- | --------------------------------------------------- |
+| `form`       | `RemoteForm`                      | required    | Remote form for type inference                      |
+| `label`      | `string`                          | `'Submit'`  | Button text (when no children)                      |
+| `buttonType` | `'submit' \| 'reset' \| 'button'` | `'submit'`  | Button type                                         |
+| `class`      | `string`                          | `undefined` | CSS class                                           |
+| `disabled`   | `boolean`                         | `false`     | Disable button                                      |
+| `children`   | `Snippet<[ButtonState<T>]>`       | `undefined` | Custom content with typed state                     |
+| `onsubmit`   | `() => void \| Promise<void>`     | `undefined` | Callback before lifecycle `beforeSubmit` and submit |
 
 ### `<SIssues>`
 

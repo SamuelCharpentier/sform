@@ -23,6 +23,9 @@ export {
 export type {
 	// Sform-specific types
 	ValidateOn,
+	SformLifecycleEvent,
+	SformLifecycleHook,
+	SformLifecycleHooks,
 	FieldState,
 	SfieldClasses,
 	InputType,

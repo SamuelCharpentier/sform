@@ -6,11 +6,10 @@ import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import ContextTestWrapper from './ContextTestWrapper.test.svelte';
 import type { SformContext } from './types.js';
+import type { Component } from 'svelte';
 
-// Helper to render ContextTestWrapper with proper typing for vitest-browser-svelte
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderContext(props: Record<string, any>) {
-	return render(ContextTestWrapper as any, { props });
+function renderContext(props: Record<string, unknown>) {
+	return render(ContextTestWrapper as Component<Record<string, unknown>>, { props });
 }
 
 describe('createSformContext', () => {
@@ -258,6 +257,61 @@ describe('createSformContext', () => {
 			expect(results.field1.dirty).toBe(true);
 			expect(results.field2.touched).toBe(true);
 			expect(results.field2.dirty).toBe(true);
+		});
+	});
+
+	describe('lifecycle hooks', () => {
+		it('should run registered hooks for a lifecycle event', async () => {
+			const beforeSubmit = vi.fn();
+
+			renderContext({
+				onMount: async (ctx: SformContext) => {
+					ctx.registerLifecycleHooks({ beforeSubmit });
+					await ctx.runLifecycleHooks('beforeSubmit');
+				}
+			});
+
+			expect(beforeSubmit).toHaveBeenCalledTimes(1);
+		});
+
+		it('should await async hooks in registration order', async () => {
+			const calls: string[] = [];
+
+			renderContext({
+				onMount: async (ctx: SformContext) => {
+					ctx.registerLifecycleHooks({
+						beforeValidate: async () => {
+							calls.push('first-start');
+							await new Promise((resolve) => setTimeout(resolve, 10));
+							calls.push('first-end');
+						}
+					});
+
+					ctx.registerLifecycleHooks({
+						beforeValidate: () => {
+							calls.push('second');
+						}
+					});
+
+					await ctx.runLifecycleHooks('beforeValidate');
+				}
+			});
+
+			expect(calls).toEqual(['first-start', 'first-end', 'second']);
+		});
+
+		it('should unregister hooks', async () => {
+			const beforeSubmit = vi.fn();
+
+			renderContext({
+				onMount: async (ctx: SformContext) => {
+					const unregister = ctx.registerLifecycleHooks({ beforeSubmit });
+					unregister();
+					await ctx.runLifecycleHooks('beforeSubmit');
+				}
+			});
+
+			expect(beforeSubmit).not.toHaveBeenCalled();
 		});
 	});
 });

@@ -6,7 +6,12 @@ import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { page, userEvent } from 'vitest/browser';
 import SfieldTestWrapper from './SfieldTestWrapper.test.svelte';
-import type { RemoteFormField, RemoteFormFieldValue, RemoteFormIssue } from './types.js';
+import type {
+	RemoteFormField,
+	RemoteFormFieldValue,
+	RemoteFormIssue,
+	SformContext
+} from './types.js';
 
 // Helper to create mock field that matches RemoteFormField interface
 function createMockField(
@@ -167,6 +172,26 @@ describe('Sfield', () => {
 			expect(wrapper).toBeTruthy();
 			expect(input).toBeTruthy();
 			expect(label).toBeTruthy();
+		});
+	});
+
+	describe('lifecycle hooks', () => {
+		it('should register lifecycle hooks while field is mounted', async () => {
+			const beforeValidate = vi.fn();
+			let context: SformContext | undefined;
+
+			renderSfield({
+				type: 'text',
+				field: createMockField('', 'username'),
+				lifecycle: { beforeValidate },
+				onContext: (ctx: SformContext) => {
+					context = ctx;
+				}
+			});
+
+			await context?.runLifecycleHooks('beforeValidate');
+
+			expect(beforeValidate).toHaveBeenCalledTimes(1);
 		});
 	});
 

@@ -4,6 +4,9 @@ import type {
 	ButtonState,
 	FieldState,
 	RemoteFormIssue,
+	SformLifecycleEvent,
+	SformLifecycleHook,
+	SformLifecycleHooks,
 	SformContext,
 	ValidateOn
 } from './types.js';
@@ -23,7 +26,7 @@ interface FormLike {
 export function createSformContext(
 	getValidateOn: () => ValidateOn,
 	getFieldNames: () => string[],
-	triggerValidation: () => void,
+	triggerValidation: () => void | Promise<void>,
 	submitForm: () => void,
 	getForm: () => FormLike
 ): SformContext {
@@ -31,6 +34,14 @@ export function createSformContext(
 	const dirty = new SvelteSet<string>();
 	const registeredFields = new SvelteSet<string>();
 	const fieldsWithIssueDisplay = new SvelteSet<string>();
+	const lifecycleHooks: Record<SformLifecycleEvent, SvelteSet<SformLifecycleHook>> = {
+		beforeSubmit: new SvelteSet<SformLifecycleHook>(),
+		afterSubmitTriggered: new SvelteSet<SformLifecycleHook>(),
+		afterSubmitResponse: new SvelteSet<SformLifecycleHook>(),
+		beforeValidate: new SvelteSet<SformLifecycleHook>(),
+		afterValidateCalled: new SvelteSet<SformLifecycleHook>(),
+		afterValidateSettled: new SvelteSet<SformLifecycleHook>()
+	};
 	let submitted = $state(false);
 
 	const context: SformContext = {
@@ -81,6 +92,28 @@ export function createSformContext(
 		},
 		registerFieldWithIssueDisplay: (name: string) => {
 			fieldsWithIssueDisplay.add(name);
+		},
+		registerLifecycleHooks: (hooks: SformLifecycleHooks) => {
+			const registrations: Array<[SformLifecycleEvent, SformLifecycleHook]> = [];
+
+			for (const event of Object.keys(lifecycleHooks) as SformLifecycleEvent[]) {
+				const hook = hooks[event];
+				if (!hook) continue;
+
+				lifecycleHooks[event].add(hook);
+				registrations.push([event, hook]);
+			}
+
+			return () => {
+				for (const [event, hook] of registrations) {
+					lifecycleHooks[event].delete(hook);
+				}
+			};
+		},
+		runLifecycleHooks: async (event: SformLifecycleEvent) => {
+			for (const hook of [...lifecycleHooks[event]]) {
+				await hook();
+			}
 		},
 		resetFieldStates: () => {
 			touched.clear();

@@ -1,5 +1,10 @@
 <script lang="ts" generics="Input extends import('@sveltejs/kit').RemoteFormInput, Output">
-	import type { RemoteFormInstance, ValidateOn, EnhanceCallback } from './types.js';
+	import type {
+		RemoteFormInstance,
+		ValidateOn,
+		EnhanceCallback,
+		SformLifecycleHooks
+	} from './types.js';
 	import type { RemoteFormFields } from '@sveltejs/kit';
 	import type { StandardSchemaV1 } from '@standard-schema/spec';
 	import { createSformContext } from './context.svelte.js';
@@ -18,6 +23,8 @@
 		validateOn = 'blur',
 		class: className,
 		preflightOnly = false,
+		resetOnSuccess = true,
+		lifecycle,
 		children
 	}: {
 		/** Remote form object from form() API, or the result of form.for(id) */
@@ -30,6 +37,10 @@
 		validateOn?: ValidateOn;
 		/** If true, only run preflight validation (no submission) */
 		preflightOnly?: boolean;
+		/** If true, reset touched/dirty/submitted state after successful submit response */
+		resetOnSuccess?: boolean;
+		/** Lifecycle hooks for submit/validate phases */
+		lifecycle?: SformLifecycleHooks;
 		/** Form element class */
 		class?: string;
 		/**
@@ -52,8 +63,27 @@
 	};
 
 	// Trigger validation including untouched fields (for blur mode)
-	const triggerValidation = () => {
-		form.validate({ includeUntouched: true, preflightOnly });
+	const triggerValidation = async () => {
+		await context.runLifecycleHooks('beforeValidate');
+
+		const validateRequest = form.validate({ includeUntouched: true, preflightOnly });
+		let afterCalledError: unknown;
+
+		try {
+			await context.runLifecycleHooks('afterValidateCalled');
+		} catch (error) {
+			afterCalledError = error;
+		}
+
+		try {
+			await validateRequest;
+		} finally {
+			await context.runLifecycleHooks('afterValidateSettled');
+		}
+
+		if (afterCalledError) {
+			throw afterCalledError;
+		}
 	};
 
 	const context = createSformContext(
@@ -63,6 +93,11 @@
 		() => formElement?.requestSubmit(),
 		() => form
 	);
+
+	$effect(() => {
+		if (!lifecycle) return;
+		return context.registerLifecycleHooks(lifecycle);
+	});
 
 	// Apply preflight schema if provided
 	const formWithSchema = $derived(schema ? form.preflight(schema) : form);
@@ -80,16 +115,20 @@
 			(form.fields as { allIssues?: () => unknown[] | undefined }).allIssues?.() ?? [];
 		const hasNoIssues = allIssues.length === 0;
 
-		// Submission just completed successfully (was pending, now not, has result, no issues)
-		if (wasPending && !isPending && hasResult && hasNoIssues) {
-			context.resetFieldStates();
+		if (wasPending && !isPending) {
+			void context.runLifecycleHooks('afterSubmitResponse');
+
+			// Submission just completed successfully (was pending, now not, has result, no issues)
+			if (resetOnSuccess && hasResult && hasNoIssues) {
+				context.resetFieldStates();
+			}
 		}
 
 		wasPending = isPending;
 	});
 
 	function handleInput() {
-		triggerValidation();
+		void triggerValidation();
 	}
 
 	function handleSubmit() {

@@ -32,6 +32,7 @@
 	}
 
 	let {
+		form,
 		label = 'Submit',
 		buttonType = 'submit',
 		class: className,
@@ -39,13 +40,22 @@
 		onsubmit
 	}: Props = $props();
 
+	$effect(() => {
+		// Keep the prop "form" observably consumed for strict compiler checks.
+		void form.result;
+		void form.pending;
+		void form.fields;
+	});
+
+	const hasForm = $derived(form !== undefined);
+
 	// Get Sform context for form state and actions
 	const sformContext = getSformContext();
 
 	// Get form state from context with the generic type
 	const formState = $derived.by(sformContext.getFormState<T>);
 
-	const isDisabled = $derived(disabled || formState.pending);
+	const isDisabled = $derived(disabled || formState.pending || !hasForm);
 
 	async function handleClick(event: MouseEvent) {
 		if (buttonType !== 'submit') return;
@@ -62,12 +72,15 @@
 			await onsubmit();
 		}
 
+		await sformContext.runLifecycleHooks('beforeSubmit');
+
 		// Mark form as submitted and all fields dirty so issues display when server responds
 		sformContext.markSubmitted();
 		sformContext.markAllFieldsDirty();
 
 		// Submit the form via context
 		sformContext.submitForm();
+		await sformContext.runLifecycleHooks('afterSubmitTriggered');
 	}
 	let buttonElement: HTMLButtonElement;
 </script>

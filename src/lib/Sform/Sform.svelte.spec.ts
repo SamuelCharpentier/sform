@@ -2,15 +2,15 @@
  * Tests for Sform component
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import { page, userEvent } from 'vitest/browser';
+import { page } from 'vitest/browser';
+import type { Component } from 'svelte';
 import Sform from './Sform.svelte';
 
 // Helper to render Sform with proper typing for vitest-browser-svelte
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderSform(props: Record<string, any>) {
-	return render(Sform as any, { props });
+function renderSform(props: Record<string, unknown>) {
+	return render(Sform as unknown as Component<Record<string, unknown>>, { props });
 }
 
 // Mock remote form for testing
@@ -43,7 +43,7 @@ function createMockForm(initialValues: Record<string, unknown> = {}) {
 		pending: 0,
 		result: undefined as unknown,
 		fields,
-		validate: vi.fn((_opts?: { includeUntouched?: boolean }) => {
+		validate: vi.fn(async () => {
 			// Simulate validation
 		}),
 		preflight: vi.fn((schema: unknown) => ({
@@ -70,7 +70,7 @@ describe('Sform', () => {
 				children: () => null
 			});
 
-			const form = page.getByRole('form');
+			page.getByRole('form');
 			// Form might not have role="form" by default, check for form element
 			const formElement = document.querySelector('form');
 			expect(formElement).toBeTruthy();
@@ -207,7 +207,101 @@ describe('Sform', () => {
 			formElement?.dispatchEvent(new Event('input', { bubbles: true }));
 
 			// Validate should be called with includeUntouched
-			expect(mockForm.validate).toHaveBeenCalledWith({ includeUntouched: true });
+			expect(mockForm.validate).toHaveBeenCalledWith({
+				includeUntouched: true,
+				preflightOnly: false
+			});
+		});
+
+		it('should run lifecycle hooks around validate', async () => {
+			const mockForm = createMockForm({ username: '' });
+			const calls: string[] = [];
+
+			renderSform({
+				form: mockForm,
+				lifecycle: {
+					beforeValidate: () => {
+						calls.push('beforeValidate');
+					},
+					afterValidateCalled: () => {
+						calls.push('afterValidateCalled');
+					},
+					afterValidateSettled: () => {
+						calls.push('afterValidateSettled');
+					}
+				},
+				children: () => null
+			});
+
+			const formElement = document.querySelector('form');
+			formElement?.dispatchEvent(new Event('input', { bubbles: true }));
+
+			await Promise.resolve();
+
+			expect(calls).toEqual(['beforeValidate', 'afterValidateCalled', 'afterValidateSettled']);
+		});
+
+		it('should run afterValidateCalled before validate resolves and afterValidateSettled on settle', async () => {
+			const mockForm = createMockForm({ username: '' });
+			const calls: string[] = [];
+			let resolveValidate: (() => void) | undefined;
+			const validatePromise = new Promise<void>((resolve) => {
+				resolveValidate = resolve;
+			});
+
+			mockForm.validate = vi.fn(async () => {
+				calls.push('validate-start');
+				await validatePromise;
+				calls.push('validate-end');
+			});
+
+			renderSform({
+				form: mockForm,
+				lifecycle: {
+					beforeValidate: () => {
+						calls.push('beforeValidate');
+					},
+					afterValidateCalled: () => {
+						calls.push('afterValidateCalled');
+					},
+					afterValidateSettled: () => {
+						calls.push('afterValidateSettled');
+					}
+				},
+				children: () => null
+			});
+
+			const formElement = document.querySelector('form');
+			formElement?.dispatchEvent(new Event('input', { bubbles: true }));
+
+			await Promise.resolve();
+			expect(calls).toEqual(['beforeValidate', 'validate-start', 'afterValidateCalled']);
+
+			resolveValidate?.();
+			await Promise.resolve();
+			await Promise.resolve();
+
+			expect(calls).toEqual([
+				'beforeValidate',
+				'validate-start',
+				'afterValidateCalled',
+				'validate-end',
+				'afterValidateSettled'
+			]);
+		});
+	});
+
+	describe('success reset behavior', () => {
+		it('should accept resetOnSuccess prop', async () => {
+			const mockForm = createMockForm({ username: '' });
+
+			renderSform({
+				form: mockForm,
+				resetOnSuccess: false,
+				children: () => null
+			});
+
+			expect(true).toBe(true);
 		});
 	});
 

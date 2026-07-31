@@ -9,6 +9,7 @@
 		SelectOption,
 		SfieldClasses
 	} from './types.js';
+	import type { SformContext, SformLifecycleHooks } from './types.js';
 
 	// For testing purposes, we use a flexible Props interface
 	// The actual type safety is enforced by the real Sfield component and TypedSfieldProps
@@ -25,6 +26,8 @@
 		forceShowIssues?: boolean;
 		onTouched?: () => void;
 		onDirty?: () => void;
+		lifecycle?: SformLifecycleHooks;
+		onContext?: (ctx: SformContext) => void;
 	}
 
 	let {
@@ -39,7 +42,9 @@
 		issueDisplay,
 		forceShowIssues = false,
 		onTouched,
-		onDirty
+		onDirty,
+		lifecycle,
+		onContext
 	}: Props = $props();
 
 	// Create context
@@ -51,11 +56,19 @@
 		() => ({ fields: { allIssues: () => [] } })
 	);
 
+	$effect(() => {
+		onContext?.(ctx);
+	});
+
+	$effect(() => {
+		if (!lifecycle) return;
+		return ctx.registerLifecycleHooks(lifecycle);
+	});
+
 	// If forceShowIssues, mark field as touched so issues display
 	$effect(() => {
 		if (forceShowIssues) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const name = (field as any).as('text').name;
+			const name = (field as { as: (type: string) => { name: string } }).as('text').name;
 			ctx.markTouched(name);
 		}
 	});
@@ -74,9 +87,8 @@
 		onDirty?.();
 	};
 
-	// Cast Sfield to allow any props for testing flexibility
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const TestSfield = Sfield as Component<any>;
+	// Cast Sfield to allow test-only prop flexibility.
+	const TestSfield = Sfield as Component<Record<string, unknown>>;
 </script>
 
 <div data-testid="sfield-wrapper">

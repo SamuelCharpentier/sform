@@ -51,6 +51,11 @@
 		}
 	});
 
+	$effect(() => {
+		if (!props.lifecycle) return;
+		return context.registerLifecycleHooks(props.lifecycle);
+	});
+
 	const classes: SfieldClasses = $derived(
 		typeof props.class === 'string' ? { wrapper: props.class } : (props.class ?? {})
 	);
@@ -86,7 +91,7 @@
 	// Passthrough props: everything from parent except internal and sfield-only props
 	// This allows new component props to automatically flow through without updating Sfield
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const passthroughProps = $derived((): any => {
+	const passthroughProps = $derived.by((): any => {
 		const result: Record<string, unknown> = {};
 		for (const [key, value] of Object.entries(props)) {
 			if (!internalPropKeys.includes(key) && !sfieldOnlyPropKeys.includes(key)) {

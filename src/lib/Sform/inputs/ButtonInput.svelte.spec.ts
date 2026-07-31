@@ -150,12 +150,58 @@ describe('ButtonInput', () => {
 			expect(completed).toBe(true);
 		});
 
+		it('should run beforeSubmit and afterSubmitTriggered hooks around submit', async () => {
+			const calls: string[] = [];
+
+			renderButton({
+				form: createMockForm(),
+				lifecycle: {
+					beforeSubmit: () => {
+						calls.push('beforeSubmit');
+					},
+					afterSubmitTriggered: () => {
+						calls.push('afterSubmitTriggered');
+					}
+				}
+			});
+
+			const button = page.getByRole('button');
+			await userEvent.click(button);
+
+			expect(calls).toEqual(['beforeSubmit', 'afterSubmitTriggered']);
+		});
+
+		it('should await async beforeSubmit hook before triggering afterSubmitTriggered', async () => {
+			const calls: string[] = [];
+
+			renderButton({
+				form: createMockForm(),
+				lifecycle: {
+					beforeSubmit: async () => {
+						calls.push('before-start');
+						await new Promise((resolve) => setTimeout(resolve, 10));
+						calls.push('before-end');
+					},
+					afterSubmitTriggered: () => {
+						calls.push('after');
+					}
+				}
+			});
+
+			const button = page.getByRole('button');
+			await userEvent.click(button);
+
+			expect(calls).toEqual(['before-start', 'before-end', 'after']);
+		});
+
 		it('should not call onsubmit when buttonType is not submit', async () => {
 			const onsubmit = vi.fn();
+			const beforeSubmit = vi.fn();
 
 			renderButton({
 				form: createMockForm(),
 				onsubmit,
+				lifecycle: { beforeSubmit },
 				buttonType: 'button'
 			});
 
@@ -163,6 +209,7 @@ describe('ButtonInput', () => {
 			await userEvent.click(button);
 
 			expect(onsubmit).not.toHaveBeenCalled();
+			expect(beforeSubmit).not.toHaveBeenCalled();
 		});
 
 		it('should work without onsubmit callback', async () => {

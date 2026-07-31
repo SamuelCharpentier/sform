@@ -38,6 +38,40 @@ export type {
 export type ValidateOn = 'blur' | 'change' | 'submit';
 
 /**
+ * Lifecycle event names emitted by Sform.
+ */
+export type SformLifecycleEvent =
+	| 'beforeSubmit'
+	| 'afterSubmitTriggered'
+	| 'afterSubmitResponse'
+	| 'beforeValidate'
+	| 'afterValidateCalled'
+	| 'afterValidateSettled';
+
+/**
+ * Function signature for lifecycle hooks.
+ */
+export type SformLifecycleHook = () => void | Promise<void>;
+
+/**
+ * Lifecycle hooks that can be registered by Sform and Sfield components.
+ */
+export interface SformLifecycleHooks {
+	/** Runs before submit is triggered by Sbutton. */
+	beforeSubmit?: SformLifecycleHook;
+	/** Runs right after submit is triggered by Sbutton. */
+	afterSubmitTriggered?: SformLifecycleHook;
+	/** Runs after the submit cycle receives a response (pending -> idle). */
+	afterSubmitResponse?: SformLifecycleHook;
+	/** Runs immediately before form.validate() is called. */
+	beforeValidate?: SformLifecycleHook;
+	/** Runs immediately after form.validate() is called. */
+	afterValidateCalled?: SformLifecycleHook;
+	/** Runs when form.validate() settles (resolves or rejects). */
+	afterValidateSettled?: SformLifecycleHook;
+}
+
+/**
  * Where a field's issues should be displayed.
  * - auto: visible fields display their own issues; hidden fields leave issues to SIssues
  * - field: this field displays its own issues
@@ -225,7 +259,7 @@ export interface SformContext {
 	/** Form-level validateOn mode */
 	validateOn: ValidateOn;
 	/** Trigger validation (called on blur/input based on mode) */
-	triggerValidation: () => void;
+	triggerValidation: () => void | Promise<void>;
 	/** Whether form has been submitted */
 	submitted: boolean;
 	/** Mark form as submitted */
@@ -240,6 +274,10 @@ export interface SformContext {
 	registerFieldWithIssueDisplay: (name: string) => void;
 	/** Programmatically submit the form */
 	submitForm: () => void;
+	/** Register lifecycle hooks. Returns an unregister callback. */
+	registerLifecycleHooks: (hooks: SformLifecycleHooks) => () => void;
+	/** Run all hooks for a lifecycle event. */
+	runLifecycleHooks: (event: SformLifecycleEvent) => Promise<void>;
 	/** Get the current form state (for buttons and state-aware components) */
 	getFormState: <T = unknown>() => ButtonState<T>;
 	/** Get issues that are not displayed by any Sfield component */
@@ -283,6 +321,10 @@ export interface SformProps<Input extends RemoteFormInput = RemoteFormInput, Out
 	validateOn?: ValidateOn;
 	/** Form element class */
 	class?: string;
+	/** If true, reset touched/dirty/submitted state after successful submit response */
+	resetOnSuccess?: boolean;
+	/** Lifecycle hooks for submit/validate phases */
+	lifecycle?: SformLifecycleHooks;
 	/** Children content */
 	children: Snippet;
 }
@@ -482,6 +524,8 @@ interface SfieldExtraProps<T extends RemoteFormFieldValue> {
 	class?: SfieldClasses | string;
 	/** Hint text displayed below the input, above validation messages */
 	hint?: string | Snippet;
+	/** Lifecycle hooks registered while this field is mounted */
+	lifecycle?: SformLifecycleHooks;
 }
 
 /**
