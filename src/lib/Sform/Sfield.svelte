@@ -90,8 +90,7 @@
 
 	// Passthrough props: everything from parent except internal and sfield-only props
 	// This allows new component props to automatically flow through without updating Sfield
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const passthroughProps = $derived.by((): any => {
+	const passthroughProps = $derived.by((): Record<string, unknown> => {
 		const result: Record<string, unknown> = {};
 		for (const [key, value] of Object.entries(props)) {
 			if (!internalPropKeys.includes(key) && !sfieldOnlyPropKeys.includes(key)) {
@@ -135,32 +134,32 @@
 <div class={classes.wrapper}>
 	{#if isTextType}
 		<TextInput
-			{...passthroughProps()}
+			{...passthroughProps}
 			{...internalProps}
 			type={props.type as import('./types.js').TextInputType}
 		/>
 	{:else if props.type === 'password'}
-		<PasswordInput {...passthroughProps()} {...internalProps} />
+		<PasswordInput {...passthroughProps} {...internalProps} />
 	{:else if props.type === 'number'}
-		<NumberInput {...passthroughProps()} {...internalProps} />
+		<NumberInput {...passthroughProps} {...internalProps} />
 	{:else if props.type === 'textarea'}
-		<TextareaInput {...passthroughProps()} {...internalProps} />
+		<TextareaInput {...passthroughProps} {...internalProps} />
 	{:else if props.type === 'select'}
-		<SelectInput {...passthroughProps()} {...internalProps} />
+		<SelectInput {...passthroughProps} {...internalProps} />
 	{:else if props.type === 'checkbox'}
-		<CheckboxInput {...passthroughProps()} {...internalProps} />
+		<CheckboxInput {...passthroughProps} {...internalProps} />
 	{:else if props.type === 'checkbox-group'}
-		<CheckboxGroupInput {...passthroughProps()} {...internalProps} />
+		<CheckboxGroupInput {...passthroughProps} {...internalProps} />
 	{:else if props.type === 'radio'}
-		<RadioInput {...passthroughProps()} {...internalProps} />
+		<RadioInput {...passthroughProps} {...internalProps} />
 	{:else if props.type === 'range'}
-		<RangeInput {...passthroughProps()} {...internalProps} />
+		<RangeInput {...passthroughProps} {...internalProps} />
 	{:else if props.type === 'toggle'}
-		<ToggleInput {...passthroughProps()} {...internalProps} />
+		<ToggleInput {...passthroughProps} {...internalProps} />
 	{:else if props.type === 'masked'}
-		<MaskedInput {...passthroughProps()} {...internalProps} />
+		<MaskedInput {...passthroughProps} {...internalProps} />
 	{:else if props.type === 'hidden'}
-		<HiddenInput {...passthroughProps()} {...internalProps} />
+		<HiddenInput {...passthroughProps} {...internalProps} />
 	{/if}
 
 	{#if props.hint}
