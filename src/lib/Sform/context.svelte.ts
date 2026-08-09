@@ -111,9 +111,8 @@ export function createSformContext(
 			};
 		},
 		runLifecycleHooks: async (event: SformLifecycleEvent) => {
-			for (const hook of [...lifecycleHooks[event]]) {
-				await hook();
-			}
+			const hooks = [...lifecycleHooks[event]];
+			await Promise.all(hooks.map(async (hook) => hook()));
 		},
 		resetFieldStates: () => {
 			touched.clear();

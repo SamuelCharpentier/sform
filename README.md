@@ -182,6 +182,11 @@ Hook event names:
 - `afterValidateCalled` - immediately after `form.validate()` is called (validation may still be in flight)
 - `afterValidateSettled` - when `form.validate()` settles (resolved or rejected)
 
+Hooks registered for the same event run in parallel. Execution order is not guaranteed, especially when fields mount dynamically.
+
+- Keep same-event hooks independent and idempotent.
+- Do not rely on one same-event hook mutating state before another reads it.
+
 Validation lifecycle hooks are intended for UX and instrumentation, not security decisions.
 
 - Good uses: loading indicators, tracing/metrics, validation timing analytics.

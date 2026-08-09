@@ -274,7 +274,7 @@ describe('createSformContext', () => {
 			expect(beforeSubmit).toHaveBeenCalledTimes(1);
 		});
 
-		it('should await async hooks in registration order', async () => {
+		it('should await all hooks for an event in parallel', async () => {
 			const calls: string[] = [];
 
 			renderContext({
@@ -297,7 +297,7 @@ describe('createSformContext', () => {
 				}
 			});
 
-			expect(calls).toEqual(['first-start', 'first-end', 'second']);
+			expect(calls).toEqual(['first-start', 'second', 'first-end']);
 		});
 
 		it('should unregister hooks', async () => {

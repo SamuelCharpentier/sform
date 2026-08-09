@@ -3,7 +3,19 @@
 		SfieldClasses,
 		RemoteFormField,
 		RemoteFormFieldValue,
-		TypedSfieldProps
+		TypedSfieldProps,
+		SfieldTextProps,
+		SfieldPasswordProps,
+		SfieldNumberProps,
+		SfieldTextareaProps,
+		SfieldSelectProps,
+		SfieldCheckboxProps,
+		SfieldCheckboxGroupProps,
+		SfieldRadioProps,
+		SfieldRangeProps,
+		SfieldToggleProps,
+		SfieldMaskedProps,
+		SfieldHiddenProps
 	} from './types.js';
 	import { getSformContext } from './context.svelte.js';
 	import TextInput from './inputs/TextInput.svelte';
@@ -75,30 +87,173 @@
 		context.markDirty(name);
 	}
 
-	// Props that Sfield manages internally - these are set by Sfield, not passed from parent
-	const internalPropKeys = [
-		'field',
-		'name',
-		'showIssues',
-		'onblur',
-		'oninput',
-		'labelClass',
-		'class'
-	];
-	// Props that are Sfield-specific and not passed to components
-	const sfieldOnlyPropKeys = ['validateOn', 'issueDisplay', 'hint', 'type'];
-
-	// Passthrough props: everything from parent except internal and sfield-only props
-	// This allows new component props to automatically flow through without updating Sfield
-	const passthroughProps = $derived.by((): Record<string, unknown> => {
-		const result: Record<string, unknown> = {};
-		for (const [key, value] of Object.entries(props)) {
-			if (!internalPropKeys.includes(key) && !sfieldOnlyPropKeys.includes(key)) {
-				result[key] = value;
-			}
+	function isTextSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldTextProps {
+		switch (input.type) {
+			case 'text':
+			case 'email':
+			case 'tel':
+			case 'url':
+			case 'search':
+			case 'date':
+			case 'datetime-local':
+			case 'time':
+			case 'month':
+			case 'week':
+			case 'color':
+			case 'file':
+				return true;
+			default:
+				return false;
 		}
-		return result;
-	});
+	}
+
+	function isPasswordSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldPasswordProps {
+		return input.type === 'password';
+	}
+
+	function isNumberSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldNumberProps {
+		return input.type === 'number';
+	}
+
+	function isTextareaSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldTextareaProps {
+		return input.type === 'textarea';
+	}
+
+	function isSelectSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldSelectProps {
+		return input.type === 'select';
+	}
+
+	function isCheckboxSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldCheckboxProps {
+		return input.type === 'checkbox';
+	}
+
+	function isCheckboxGroupSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldCheckboxGroupProps {
+		return input.type === 'checkbox-group';
+	}
+
+	function isRadioSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldRadioProps {
+		return input.type === 'radio';
+	}
+
+	function isRangeSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldRangeProps {
+		return input.type === 'range';
+	}
+
+	function isToggleSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldToggleProps {
+		return input.type === 'toggle';
+	}
+
+	function isMaskedSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldMaskedProps {
+		return input.type === 'masked';
+	}
+
+	function isHiddenSfieldProps(
+		input: TypedSfieldProps<RemoteFormFieldValue>
+	): input is SfieldHiddenProps {
+		return input.type === 'hidden';
+	}
+
+	// Props that Sfield manages internally - these are set by Sfield, not passed from parent
+	type SfieldManagedProps =
+		| 'field'
+		| 'validateOn'
+		| 'issueDisplay'
+		| 'hint'
+		| 'type'
+		| 'lifecycle'
+		| 'class';
+
+	type InputPassthrough<T extends TypedSfieldProps<RemoteFormFieldValue>> = Omit<
+		T,
+		SfieldManagedProps
+	>;
+
+	function getPassthroughProps<T extends TypedSfieldProps<RemoteFormFieldValue>>(
+		input: T
+	): InputPassthrough<T> {
+		const {
+			field,
+			validateOn,
+			issueDisplay,
+			hint,
+			type,
+			lifecycle,
+			class: className,
+			...rest
+		} = input;
+
+		void field;
+		void validateOn;
+		void issueDisplay;
+		void hint;
+		void type;
+		void lifecycle;
+		void className;
+
+		return rest;
+	}
+
+	// Passthrough props: everything from parent except Sfield-managed props.
+	// Keep this generic so each input branch can recover exact prop typing.
+	const textPassthrough = $derived.by(() =>
+		isTextSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const passwordPassthrough = $derived.by(() =>
+		isPasswordSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const numberPassthrough = $derived.by(() =>
+		isNumberSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const textareaPassthrough = $derived.by(() =>
+		isTextareaSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const selectPassthrough = $derived.by(() =>
+		isSelectSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const checkboxPassthrough = $derived.by(() =>
+		isCheckboxSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const checkboxGroupPassthrough = $derived.by(() =>
+		isCheckboxGroupSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const radioPassthrough = $derived.by(() =>
+		isRadioSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const rangePassthrough = $derived.by(() =>
+		isRangeSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const togglePassthrough = $derived.by(() =>
+		isToggleSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const maskedPassthrough = $derived.by(() =>
+		isMaskedSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const hiddenPassthrough = $derived.by(() =>
+		isHiddenSfieldProps(props) ? getPassthroughProps(props) : undefined
+	);
+	const textInputType = $derived.by(() => (isTextSfieldProps(props) ? props.type : undefined));
 
 	// Internal props that Sfield computes/manages
 	const internalProps = $derived({
@@ -132,34 +287,30 @@
 </script>
 
 <div class={classes.wrapper}>
-	{#if isTextType}
-		<TextInput
-			{...passthroughProps}
-			{...internalProps}
-			type={props.type as import('./types.js').TextInputType}
-		/>
-	{:else if props.type === 'password'}
-		<PasswordInput {...passthroughProps} {...internalProps} />
-	{:else if props.type === 'number'}
-		<NumberInput {...passthroughProps} {...internalProps} />
-	{:else if props.type === 'textarea'}
-		<TextareaInput {...passthroughProps} {...internalProps} />
-	{:else if props.type === 'select'}
-		<SelectInput {...passthroughProps} {...internalProps} />
-	{:else if props.type === 'checkbox'}
-		<CheckboxInput {...passthroughProps} {...internalProps} />
-	{:else if props.type === 'checkbox-group'}
-		<CheckboxGroupInput {...passthroughProps} {...internalProps} />
-	{:else if props.type === 'radio'}
-		<RadioInput {...passthroughProps} {...internalProps} />
-	{:else if props.type === 'range'}
-		<RangeInput {...passthroughProps} {...internalProps} />
-	{:else if props.type === 'toggle'}
-		<ToggleInput {...passthroughProps} {...internalProps} />
-	{:else if props.type === 'masked'}
-		<MaskedInput {...passthroughProps} {...internalProps} />
-	{:else if props.type === 'hidden'}
-		<HiddenInput {...passthroughProps} {...internalProps} />
+	{#if isTextType && textPassthrough && textInputType}
+		<TextInput {...textPassthrough} {...internalProps} type={textInputType} />
+	{:else if passwordPassthrough}
+		<PasswordInput {...passwordPassthrough} {...internalProps} />
+	{:else if numberPassthrough}
+		<NumberInput {...numberPassthrough} {...internalProps} />
+	{:else if textareaPassthrough}
+		<TextareaInput {...textareaPassthrough} {...internalProps} />
+	{:else if selectPassthrough}
+		<SelectInput {...selectPassthrough} {...internalProps} />
+	{:else if checkboxPassthrough}
+		<CheckboxInput {...checkboxPassthrough} {...internalProps} />
+	{:else if checkboxGroupPassthrough}
+		<CheckboxGroupInput {...checkboxGroupPassthrough} {...internalProps} />
+	{:else if radioPassthrough}
+		<RadioInput {...radioPassthrough} {...internalProps} />
+	{:else if rangePassthrough}
+		<RangeInput {...rangePassthrough} {...internalProps} />
+	{:else if togglePassthrough}
+		<ToggleInput {...togglePassthrough} {...internalProps} />
+	{:else if maskedPassthrough}
+		<MaskedInput {...maskedPassthrough} {...internalProps} />
+	{:else if hiddenPassthrough}
+		<HiddenInput {...hiddenPassthrough} {...internalProps} />
 	{/if}
 
 	{#if props.hint}
