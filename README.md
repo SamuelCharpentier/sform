@@ -531,15 +531,17 @@ The result type is automatically inferred from the `form` prop. When your remote
 </Sbutton>
 ```
 
-| Prop         | Type                              | Default     | Description                                         |
-| ------------ | --------------------------------- | ----------- | --------------------------------------------------- |
-| `form`       | `RemoteForm`                      | required    | Remote form for type inference                      |
-| `label`      | `string`                          | `'Submit'`  | Button text (when no children)                      |
-| `buttonType` | `'submit' \| 'reset' \| 'button'` | `'submit'`  | Button type                                         |
-| `class`      | `string`                          | `undefined` | CSS class                                           |
-| `disabled`   | `boolean`                         | `false`     | Disable button                                      |
-| `children`   | `Snippet<[ButtonState<T>]>`       | `undefined` | Custom content with typed state                     |
-| `onsubmit`   | `() => void \| Promise<void>`     | `undefined` | Callback before lifecycle `beforeSubmit` and submit |
+| Prop         | Type                                       | Default     | Description                                          |
+| ------------ | ------------------------------------------- | ----------- | ----------------------------------------------------- |
+| `form`       | `RemoteForm`                                | required    | Remote form for type inference                        |
+| `label`      | `string \| Snippet<[ButtonState<T>]>`       | `'Submit'`  | Button text, or a snippet with typed state            |
+| `buttonType` | `'submit' \| 'reset' \| 'button'`           | `'submit'`  | Button type                                           |
+| `class`      | `string`                                    | `undefined` | CSS class                                             |
+| `disabled`   | `boolean`                                   | `false`     | Disable button                                        |
+| `children`   | `Snippet<[ButtonState<T>]>`                 | `undefined` | Custom content with typed state; takes precedence over `label` |
+| `onsubmit`   | `() => void \| Promise<void>`               | `undefined` | Callback before lifecycle `beforeSubmit` and submit  |
+
+`children` and `label` (as a snippet) both receive the same typed `ButtonState<T>` and render identically; `children` wins if both are provided.
 
 ### `<SIssues>`
 

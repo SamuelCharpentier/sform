@@ -23,6 +23,10 @@
 		onsubmit?: () => void | Promise<void>;
 		lifecycle?: SformLifecycleHooks;
 		children?: Snippet<[ButtonState]>;
+		/** Render ButtonInput's `children` prop as a real snippet receiving the typed state */
+		useChildrenSnippet?: boolean;
+		/** Render ButtonInput's `label` prop as a real snippet receiving the typed state */
+		useLabelSnippet?: boolean;
 	}
 
 	let {
@@ -34,7 +38,9 @@
 		formDisabled = false,
 		onsubmit,
 		lifecycle,
-		children
+		children,
+		useChildrenSnippet = false,
+		useLabelSnippet = false
 	}: Props = $props();
 
 	// Create and set context for ButtonInput (createSformContext calls setContext internally)
@@ -54,6 +60,22 @@
 	});
 </script>
 
+{#snippet childrenSnippet(state: ButtonState)}
+	children-state:{state.state}
+{/snippet}
+
+{#snippet labelSnippet(state: ButtonState)}
+	label-state:{state.state}
+{/snippet}
+
 <div data-testid="button-wrapper">
-	<ButtonInput {form} {label} {buttonType} class={className} {disabled} {onsubmit} {children} />
+	<ButtonInput
+		{form}
+		label={useLabelSnippet ? labelSnippet : label}
+		{buttonType}
+		class={className}
+		{disabled}
+		{onsubmit}
+		children={useChildrenSnippet ? childrenSnippet : children}
+	/>
 </div>

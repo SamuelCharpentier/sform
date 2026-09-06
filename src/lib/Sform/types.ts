@@ -833,8 +833,8 @@ export interface ButtonFormLike<T = unknown> {
 export interface ButtonInputProps<T = unknown> {
 	/** The remote form - used to infer the result type T */
 	form: ButtonFormLike<T>;
-	/** Button text (used if no children snippet provided) */
-	label?: string | Snippet;
+	/** Button text (used if no children snippet provided). Can also be a snippet receiving ButtonState<T>. */
+	label?: string | Snippet<[ButtonState<T>]>;
 	/** Button type */
 	buttonType?: 'submit' | 'reset' | 'button';
 	/** Button class */

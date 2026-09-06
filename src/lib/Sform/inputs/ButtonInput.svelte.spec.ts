@@ -83,6 +83,63 @@ describe('ButtonInput', () => {
 		});
 	});
 
+	describe('children snippet', () => {
+		it('should render children content instead of the default label', async () => {
+			renderButton({
+				form: createMockForm(),
+				useChildrenSnippet: true
+			});
+
+			const button = page.getByRole('button');
+			await expect.element(button).toHaveTextContent('children-state:default');
+			await expect.element(button).not.toHaveTextContent('Submit');
+		});
+
+		it('should receive the typed ButtonState in children', async () => {
+			renderButton({
+				form: createMockForm({ pending: 1 }),
+				useChildrenSnippet: true
+			});
+
+			const button = page.getByRole('button');
+			await expect.element(button).toHaveTextContent('children-state:pending');
+		});
+
+		it('should render a label snippet and receive typed state', async () => {
+			renderButton({
+				form: createMockForm(),
+				useLabelSnippet: true
+			});
+
+			const button = page.getByRole('button');
+			await expect.element(button).toHaveTextContent('label-state:default');
+		});
+
+		it('should prefer children over a label snippet when both are provided', async () => {
+			renderButton({
+				form: createMockForm(),
+				useChildrenSnippet: true,
+				useLabelSnippet: true
+			});
+
+			const button = page.getByRole('button');
+			await expect.element(button).toHaveTextContent('children-state:default');
+			await expect.element(button).not.toHaveTextContent('label-state:default');
+		});
+
+		it('should prefer children over a string label when both are provided', async () => {
+			renderButton({
+				form: createMockForm(),
+				useChildrenSnippet: true,
+				label: 'Save'
+			});
+
+			const button = page.getByRole('button');
+			await expect.element(button).toHaveTextContent('children-state:default');
+			await expect.element(button).not.toHaveTextContent('Save');
+		});
+	});
+
 	describe('disabled state', () => {
 		it('should be disabled when disabled prop is true', async () => {
 			renderButton({

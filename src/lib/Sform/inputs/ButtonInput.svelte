@@ -1,35 +1,7 @@
 <script lang="ts" generics="T = unknown">
-	import { tick, type Snippet } from 'svelte';
-	import type { ButtonState, RemoteFormIssue } from '../types.js';
+	import { tick } from 'svelte';
+	import type { ButtonInputProps } from '../types.js';
 	import { getSformContext } from '../context.svelte.js';
-
-	/**
-	 * Minimal form shape needed for type inference.
-	 * This allows the component to infer T from the form's result type.
-	 */
-	interface FormLike<Output> {
-		result?: Output;
-		pending?: number;
-		fields: {
-			allIssues?: () => RemoteFormIssue[] | undefined;
-			[key: string]: unknown;
-		};
-	}
-
-	interface Props {
-		/** The remote form - used to infer the result type T */
-		form: FormLike<T>;
-		/** Button text (used if no children snippet provided) */
-		label?: string | Snippet<[ButtonState<T>]>;
-		/** Button type */
-		buttonType?: 'submit' | 'reset' | 'button';
-		/** Button class */
-		class?: string;
-		/** Whether button is disabled */
-		disabled?: boolean;
-		/** Callback that runs before validation/submission (can be async) */
-		onsubmit?: () => void | Promise<void>;
-	}
 
 	let {
 		form,
@@ -37,8 +9,9 @@
 		buttonType = 'submit',
 		class: className,
 		disabled = false,
-		onsubmit
-	}: Props = $props();
+		onsubmit,
+		children
+	}: ButtonInputProps<T> = $props();
 
 	$effect(() => {
 		// Keep the prop "form" observably consumed for strict compiler checks.
@@ -96,7 +69,9 @@
 	disabled={isDisabled}
 	onclick={handleClick}
 >
-	{#if typeof label === 'function'}
+	{#if children}
+		{@render children(formState)}
+	{:else if typeof label === 'function'}
 		{@render label(formState)}
 	{:else}
 		{label}
