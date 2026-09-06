@@ -28,7 +28,6 @@ export type {
 	SfieldRadioProps,
 	SfieldRangeProps,
 	SfieldToggleProps,
-	SfieldToggleOptionsProps,
 	SfieldMaskedProps,
 	// Re-exported SvelteKit remote form types
 	RemoteForm,

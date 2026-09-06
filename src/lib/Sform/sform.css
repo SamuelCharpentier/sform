@@ -418,47 +418,6 @@ select.sform-input {
 }
 
 /* ===========================================
-   Toggle Options (Segmented Control)
-   =========================================== */
-.sform-toggle-options {
-	display: inline-flex;
-	background: var(--sform-bg-muted);
-	border-radius: var(--sform-radius-lg);
-	padding: 0.25rem;
-	gap: 0.25rem;
-}
-
-.sform-toggle-option {
-	padding: var(--sform-padding-sm);
-	font-size: var(--sform-font-size-sm);
-	font-weight: 500;
-	color: var(--sform-text-muted);
-	background: transparent;
-	border: none;
-	border-radius: var(--sform-radius);
-	cursor: pointer;
-	transition:
-		background-color var(--sform-transition),
-		color var(--sform-transition);
-}
-
-.sform-toggle-option:hover:not(:disabled):not(.selected) {
-	color: var(--sform-text);
-	background: rgba(0, 0, 0, 0.05);
-}
-
-.sform-toggle-option.selected {
-	color: var(--sform-primary);
-	background: var(--sform-bg);
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.sform-toggle-option:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-/* ===========================================
    Password Input with Toggle
    =========================================== */
 .sform-password-wrapper {

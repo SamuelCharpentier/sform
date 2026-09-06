@@ -39,8 +39,6 @@ export type {
 	InputAffixProps,
 	RangeInputProps,
 	ToggleInputProps,
-	ToggleOption,
-	ToggleOptionsInputProps,
 	// Type-safe field types
 	SfieldTypeMap,
 	AllowedSfieldType,
@@ -58,7 +56,6 @@ export type {
 	SfieldRadioProps,
 	SfieldRangeProps,
 	SfieldToggleProps,
-	SfieldToggleOptionsProps,
 	SfieldMaskedProps,
 	// Re-exported SvelteKit remote form types
 	RemoteForm,

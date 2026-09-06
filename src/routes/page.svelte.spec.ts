@@ -86,17 +86,6 @@ describe('/+page.svelte', () => {
 			await expect.element(toggle).toBeInTheDocument();
 		});
 
-		it('should have theme toggle options', async () => {
-			// Look for text within toggle option buttons (they render as buttons in ToggleOptionsInput)
-			const lightText = page.getByText('Light', { exact: true });
-			const darkText = page.getByText('Dark', { exact: true });
-			const autoText = page.getByText('Auto', { exact: true });
-
-			await expect.element(lightText).toBeInTheDocument();
-			await expect.element(darkText).toBeInTheDocument();
-			await expect.element(autoText).toBeInTheDocument();
-		});
-
 		it('should have priority select dropdown', async () => {
 			const select = page.getByLabelText('Priority Level');
 			await expect.element(select).toBeInTheDocument();

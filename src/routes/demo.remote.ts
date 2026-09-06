@@ -4,12 +4,11 @@ import { customAmountSchema } from './customAmount.schema';
 
 /**
  * User Settings Demo Form
- * Demonstrates: range, toggle, toggle-options, select
+ * Demonstrates: range, toggle, select
  */
 const settingsSchema = v.object({
 	volume: v.pipe(v.number(), v.minValue(0), v.maxValue(100)),
 	notifications: v.fallback(v.boolean(), false),
-	theme: v.pipe(v.string(), v.nonEmpty('Please select a theme')),
 	priority: v.pipe(v.string(), v.nonEmpty('Please select a priority level'))
 });
 

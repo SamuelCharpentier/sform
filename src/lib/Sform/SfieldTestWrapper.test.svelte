@@ -93,7 +93,7 @@
 	};
 
 	// Cast Sfield to allow test-only prop flexibility.
-	const TestSfield = Sfield as Component<Record<string, unknown>>;
+	const TestSfield = Sfield as unknown as Component<Record<string, unknown>>;
 </script>
 
 <div data-testid="sfield-wrapper">

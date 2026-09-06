@@ -169,18 +169,6 @@
 			/>
 
 			<Sfield
-				field={fields.theme}
-				type="toggle-options"
-				label="Theme"
-				options={[
-					{ value: 'light', label: 'Light' },
-					{ value: 'dark', label: 'Dark' },
-					{ value: 'auto', label: 'Auto' }
-				]}
-				class={fieldClasses}
-			/>
-
-			<Sfield
 				field={fields.priority}
 				type="select"
 				label="Priority Level"

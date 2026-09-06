@@ -140,7 +140,6 @@ export interface SfieldTypeMap {
 	// String (single selection)
 	select: string;
 	radio: string;
-	'toggle-options': string;
 	// String array types
 	'checkbox-group': string[];
 	// File types (less commonly used with remote forms)
@@ -181,7 +180,6 @@ export type InputType =
 	| 'hidden'
 	| 'range'
 	| 'toggle'
-	| 'toggle-options'
 	| 'masked';
 
 /** Text-like input types */
@@ -460,17 +458,6 @@ export interface ToggleSfieldProps extends BaseSfieldProps {
 }
 
 /**
- * Props for toggle-options input (button group)
- */
-export interface ToggleOptionsSfieldProps extends BaseSfieldProps {
-	type: 'toggle-options';
-	/** Options for toggle buttons */
-	options: ToggleOption[] | string[];
-	/** Allow multiple selections */
-	multiple?: boolean;
-}
-
-/**
  * Props for masked input
  */
 export interface MaskedSfieldProps extends BaseSfieldProps {
@@ -499,7 +486,6 @@ export type SfieldProps =
 	| RadioSfieldProps
 	| RangeSfieldProps
 	| ToggleSfieldProps
-	| ToggleOptionsSfieldProps
 	| MaskedSfieldProps;
 
 // ============================================================================
@@ -582,13 +568,6 @@ export type SfieldRangeProps = SfieldPropsFrom<RangeInputProps, number, 'range'>
 /** Props for toggle input */
 export type SfieldToggleProps = SfieldPropsFrom<ToggleInputProps, boolean, 'toggle'>;
 
-/** Props for toggle-options input */
-export type SfieldToggleOptionsProps = SfieldPropsFrom<
-	ToggleOptionsInputProps,
-	string,
-	'toggle-options'
->;
-
 /** Props for masked input */
 export type SfieldMaskedProps = SfieldPropsFrom<MaskedInputProps, string, 'masked'>;
 
@@ -611,7 +590,6 @@ type AllSfieldProps =
 	| SfieldRadioProps
 	| SfieldRangeProps
 	| SfieldToggleProps
-	| SfieldToggleOptionsProps
 	| SfieldMaskedProps
 	| SfieldHiddenProps;
 
@@ -894,25 +872,6 @@ export interface ToggleInputProps extends BaseInputComponentProps {
 	checkedValue?: string;
 	/** Value when unchecked */
 	uncheckedValue?: string;
-}
-
-/**
- * Toggle option for ToggleOptions component
- */
-export interface ToggleOption {
-	value: string;
-	label: string | Snippet;
-	disabled?: boolean;
-}
-
-/**
- * Props for toggle options (button group) component
- */
-export interface ToggleOptionsInputProps extends BaseInputComponentProps {
-	/** Options to display as toggle buttons */
-	options: ToggleOption[] | string[];
-	/** Allow multiple selections */
-	multiple?: boolean;
 }
 
 /**
