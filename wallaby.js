@@ -1,4 +1,4 @@
-export default function (wallaby) {
+export default function () {
 	process.env.VITEST_CONFIG = './vitest.config.wallaby.ts';
 
 	return {
