@@ -262,6 +262,8 @@ export interface SformContext {
 	triggerValidation: () => void | Promise<void>;
 	/** Whether form has been submitted */
 	submitted: boolean;
+	/** Whether the whole form is disabled */
+	disabled: boolean;
 	/** Mark form as submitted */
 	markSubmitted: () => void;
 	/** Mark all fields as touched and dirty to show all issues */
@@ -321,10 +323,14 @@ export interface SformProps<Input extends RemoteFormInput = RemoteFormInput, Out
 	validateOn?: ValidateOn;
 	/** Form element class */
 	class?: string;
+	/** If true, only run preflight validation (no submission) */
+	preflightOnly?: boolean;
 	/** If true, reset touched/dirty/submitted state after successful submit response */
 	resetOnSuccess?: boolean;
 	/** Lifecycle hooks for submit/validate phases */
 	lifecycle?: SformLifecycleHooks;
+	/** If true, disables the entire form: no validation, no submission, all fields disabled */
+	disabled?: boolean;
 	/** Children content */
 	children: Snippet;
 }

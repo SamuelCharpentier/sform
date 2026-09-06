@@ -55,12 +55,16 @@
 	// Get form state from context with the generic type
 	const formState = $derived.by(sformContext.getFormState<T>);
 
-	const isDisabled = $derived(disabled || formState.pending || !hasForm);
+	const isDisabled = $derived(
+		disabled || formState.pending || !hasForm || sformContext.disabled
+	);
 
 	async function handleClick(event: MouseEvent) {
 		if (buttonType !== 'submit') return;
 
 		event.preventDefault();
+
+		if (sformContext.disabled) return;
 
 		// Focus the button to trigger blur on any focused input before submission
 		// This ensures blur validation runs with valid form data, not stale data

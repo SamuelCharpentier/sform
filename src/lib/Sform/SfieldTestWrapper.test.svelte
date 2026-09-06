@@ -23,6 +23,8 @@
 		min?: number;
 		max?: number;
 		issueDisplay?: 'auto' | 'field' | 'form' | 'none';
+		disabled?: boolean;
+		formDisabled?: boolean;
 		forceShowIssues?: boolean;
 		onTouched?: () => void;
 		onDirty?: () => void;
@@ -40,6 +42,8 @@
 		min,
 		max,
 		issueDisplay,
+		disabled,
+		formDisabled = false,
 		forceShowIssues = false,
 		onTouched,
 		onDirty,
@@ -53,7 +57,8 @@
 		() => [],
 		() => {},
 		() => {},
-		() => ({ fields: { allIssues: () => [] } })
+		() => ({ fields: { allIssues: () => [] } }),
+		() => formDisabled
 	);
 
 	$effect(() => {
@@ -102,5 +107,6 @@
 		{min}
 		{max}
 		{issueDisplay}
+		{disabled}
 	/>
 </div>

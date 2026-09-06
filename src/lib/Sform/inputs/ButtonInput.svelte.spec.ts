@@ -111,6 +111,53 @@ describe('ButtonInput', () => {
 			const button = page.getByRole('button');
 			await expect.element(button).not.toBeDisabled();
 		});
+
+		it('should be disabled when the form context is disabled, even if not pending', async () => {
+			renderButton({
+				form: createMockForm(),
+				formDisabled: true
+			});
+
+			const button = page.getByRole('button');
+			await expect.element(button).toBeDisabled();
+		});
+	});
+
+	describe('form context disabled', () => {
+		it('should not run beforeSubmit hooks when clicked while the form context is disabled', async () => {
+			const beforeSubmit = vi.fn();
+
+			renderButton({
+				form: createMockForm(),
+				formDisabled: true,
+				lifecycle: { beforeSubmit }
+			});
+
+			const button = document.querySelector('button') as HTMLButtonElement;
+			// Bypass the native disabled attribute to exercise the handler's own guard.
+			button.disabled = false;
+			button.click();
+			await Promise.resolve();
+
+			expect(beforeSubmit).not.toHaveBeenCalled();
+		});
+
+		it('should not call onsubmit when clicked while the form context is disabled', async () => {
+			const onsubmit = vi.fn();
+
+			renderButton({
+				form: createMockForm(),
+				formDisabled: true,
+				onsubmit
+			});
+
+			const button = document.querySelector('button') as HTMLButtonElement;
+			button.disabled = false;
+			button.click();
+			await Promise.resolve();
+
+			expect(onsubmit).not.toHaveBeenCalled();
+		});
 	});
 
 	describe('onsubmit callback', () => {

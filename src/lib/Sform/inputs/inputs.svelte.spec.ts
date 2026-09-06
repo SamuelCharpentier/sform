@@ -696,6 +696,20 @@ describe('MaskedInput', () => {
 		await expect.element(input).toBeDisabled();
 	});
 
+	it('should disable the hidden value input backing the visible masked input', async () => {
+		renderInput({
+			component: 'MaskedInput',
+			field: createMockField(''),
+			name: 'testField',
+			mask: 'phone',
+			disabled: true,
+			showIssues: false
+		});
+
+		const hiddenInput = document.querySelector('input[type="hidden"]');
+		expect((hiddenInput as HTMLInputElement)?.disabled).toBe(true);
+	});
+
 	it('should apply mask on input', async () => {
 		const field = createMockField('');
 

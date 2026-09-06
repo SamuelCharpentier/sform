@@ -131,12 +131,23 @@ Wrapper component that provides form context to all child fields.
 | `preflightOnly`  | `boolean`                        | `false`     | If true, client side validation is preflight only                    |
 | `resetOnSuccess` | `boolean`                        | `true`      | If false, keep touched/dirty/submitted state after successful submit |
 | `lifecycle`      | `SformLifecycleHooks`            | `undefined` | Register lifecycle hooks for submit/validate flow                    |
+| `disabled`       | `boolean`                        | `false`     | Disable the entire form: no validation, no submission, all fields disabled |
 
 **Validate Modes:**
 
 - `blur` - Validate and show errors after leaving field (default)
 - `change` - Validate and show errors as soon as value changes
 - `submit` - Validate and show all errors only after submit attempt
+
+**Disabled Forms:**
+
+Setting `disabled` on `<Sform>` freezes the whole form:
+
+- All local (preflight) and remote validation is suppressed — no `form.validate()` calls, and the `beforeValidate`/`afterValidateCalled`/`afterValidateSettled` lifecycle hooks don't run.
+- Submission is blocked, even from a custom `<button type="submit">` inside the form; `Sbutton` is automatically disabled.
+- Every child `Sfield` (including `type="hidden"` and the hidden value input backing `type="masked"`) receives the HTML `disabled` attribute and is excluded from the submitted `FormData`. Form-level `disabled` always wins over a field's own `disabled` prop.
+- Validation messages (field-level and `SIssues`) are hidden while disabled. `touched`/`dirty`/`submitted` state is preserved, so previously shown messages reappear unchanged once the form is re-enabled — they are **not** cleared while disabled.
+- The `<form>` element gets `aria-disabled="true"` and `data-disabled` attributes for styling/AT hooks. `inert` is intentionally not applied, since it would also remove links and static content from the accessibility tree.
 
 **Lifecycle Hooks:**
 

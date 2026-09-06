@@ -260,6 +260,86 @@ describe('createSformContext', () => {
 		});
 	});
 
+	describe('disabled', () => {
+		it('exposes the disabled getter reactively', async () => {
+			const results: boolean[] = [];
+
+			renderContext({
+				formDisabled: true,
+				onMount: (ctx: SformContext) => {
+					results.push(ctx.disabled);
+				}
+			});
+
+			expect(results[0]).toBe(true);
+		});
+
+		it('defaults to not disabled', async () => {
+			const results: boolean[] = [];
+
+			renderContext({
+				onMount: (ctx: SformContext) => {
+					results.push(ctx.disabled);
+				}
+			});
+
+			expect(results[0]).toBe(false);
+		});
+
+		it('should not mark fields touched or dirty while disabled', async () => {
+			const results: Record<string, boolean> = {};
+
+			renderContext({
+				formDisabled: true,
+				onMount: (ctx: SformContext) => {
+					ctx.markTouched('field1');
+					ctx.markDirty('field1');
+					results.touched = ctx.getFieldState('field1').touched;
+					results.dirty = ctx.getFieldState('field1').dirty;
+				}
+			});
+
+			expect(results.touched).toBe(false);
+			expect(results.dirty).toBe(false);
+		});
+
+		it('should not mark form submitted or fields dirty while disabled', async () => {
+			const results: Record<string, boolean> = {};
+
+			renderContext({
+				formDisabled: true,
+				onMount: (ctx: SformContext) => {
+					ctx.registerField('field1');
+					ctx.markSubmitted();
+					ctx.markAllFieldsDirty();
+					results.submitted = ctx.submitted;
+					results.touched = ctx.getFieldState('field1').touched;
+					results.dirty = ctx.getFieldState('field1').dirty;
+				}
+			});
+
+			expect(results.submitted).toBe(false);
+			expect(results.touched).toBe(false);
+			expect(results.dirty).toBe(false);
+		});
+
+		it('should not display issues while disabled, regardless of validateOn mode', async () => {
+			const results: boolean[] = [];
+
+			renderContext({
+				formDisabled: true,
+				validateOn: 'submit',
+				onMount: (ctx: SformContext) => {
+					// Force submitted true isn't possible since markSubmitted is a no-op while
+					// disabled, so directly assert shouldDisplayIssues short-circuits regardless.
+					results.push(ctx.shouldDisplayIssues('field1'));
+				}
+			});
+
+			expect(results[0]).toBe(false);
+		});
+	});
+
 	describe('lifecycle hooks', () => {
 		it('should run registered hooks for a lifecycle event', async () => {
 			const beforeSubmit = vi.fn();

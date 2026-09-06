@@ -22,7 +22,7 @@
 	const formState = $derived(context.getFormState());
 
 	// Show issues only after form submission and when there are issues
-	const shouldShow = $derived(context.submitted && formState.hasIssues);
+	const shouldShow = $derived(!context.disabled && context.submitted && formState.hasIssues);
 	const hasUnhandledIssues = $derived(unhandledIssues.length > 0);
 </script>
 

@@ -185,7 +185,7 @@
 
 <TopLabel {label} {labelClass} {name} />
 <!-- Hidden input holds the actual value for form submission -->
-<input type="hidden" {name} value={field.value() ?? ''} />
+<input type="hidden" {name} value={field.value() ?? ''} {disabled} />
 <!-- Visible input shows masked display value but doesn't submit (no name) -->
 <div class="sform-input-wrapper {wrapperClass ?? ''}">
 	{#if prefix}

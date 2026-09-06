@@ -19,6 +19,7 @@
 		buttonType?: 'submit' | 'reset' | 'button';
 		class?: string;
 		disabled?: boolean;
+		formDisabled?: boolean;
 		onsubmit?: () => void | Promise<void>;
 		lifecycle?: SformLifecycleHooks;
 		children?: Snippet<[ButtonState]>;
@@ -30,6 +31,7 @@
 		buttonType,
 		class: className,
 		disabled,
+		formDisabled = false,
 		onsubmit,
 		lifecycle,
 		children
@@ -42,7 +44,8 @@
 		() => [],
 		() => {},
 		() => {},
-		() => form
+		() => form,
+		() => formDisabled
 	);
 
 	$effect(() => {

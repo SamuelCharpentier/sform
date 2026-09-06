@@ -28,7 +28,8 @@ export function createSformContext(
 	getFieldNames: () => string[],
 	triggerValidation: () => void | Promise<void>,
 	submitForm: () => void,
-	getForm: () => FormLike
+	getForm: () => FormLike,
+	getDisabled: () => boolean = () => false
 ): SformContext {
 	const touched = new SvelteSet<string>();
 	const dirty = new SvelteSet<string>();
@@ -51,18 +52,25 @@ export function createSformContext(
 		get submitted() {
 			return submitted;
 		},
+		get disabled() {
+			return getDisabled();
+		},
 		triggerValidation,
 		getFieldState: (name: string): FieldState => ({
 			touched: touched.has(name),
 			dirty: dirty.has(name)
 		}),
 		markTouched: (name: string) => {
+			if (getDisabled()) return;
 			touched.add(name);
 		},
 		markDirty: (name: string) => {
+			if (getDisabled()) return;
 			dirty.add(name);
 		},
 		shouldDisplayIssues: (name: string, fieldValidateOn?: ValidateOn) => {
+			if (getDisabled()) return false;
+
 			const effectiveValidateOn = fieldValidateOn ?? getValidateOn();
 
 			switch (effectiveValidateOn) {
@@ -77,9 +85,11 @@ export function createSformContext(
 			}
 		},
 		markSubmitted: () => {
+			if (getDisabled()) return;
 			submitted = true;
 		},
 		markAllFieldsDirty: () => {
+			if (getDisabled()) return;
 			// Use registered fields from Sfield components
 			const fieldNames = [...registeredFields];
 			for (const name of fieldNames) {

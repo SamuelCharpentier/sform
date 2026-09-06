@@ -5,17 +5,19 @@
 
 	interface Props {
 		validateOn?: ValidateOn;
+		formDisabled?: boolean;
 		onMount?: (ctx: SformContext) => void;
 	}
 
-	let { validateOn = 'blur', onMount: onMountCallback }: Props = $props();
+	let { validateOn = 'blur', formDisabled = false, onMount: onMountCallback }: Props = $props();
 
 	const ctx = createSformContext(
 		() => validateOn,
 		() => [],
 		() => {},
 		() => {},
-		() => ({ fields: { allIssues: () => [] } })
+		() => ({ fields: { allIssues: () => [] } }),
+		() => formDisabled
 	);
 
 	// Use onMount lifecycle instead of $effect to avoid infinite loops

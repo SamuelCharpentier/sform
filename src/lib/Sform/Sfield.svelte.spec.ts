@@ -265,6 +265,90 @@ describe('Sfield', () => {
 		});
 	});
 
+	describe('disabled', () => {
+		it('should set the disabled attribute on the input when disabled', async () => {
+			renderSfield({
+				type: 'text',
+				field: createMockField('', 'username'),
+				disabled: true
+			});
+
+			const input = page.getByRole('textbox');
+			await expect.element(input).toBeDisabled();
+		});
+
+		it('should not be disabled by default', async () => {
+			renderSfield({
+				type: 'text',
+				field: createMockField('', 'username')
+			});
+
+			const input = page.getByRole('textbox');
+			await expect.element(input).not.toBeDisabled();
+		});
+
+		it('should disable a hidden field', async () => {
+			renderSfield({
+				type: 'hidden',
+				field: createMockField('', 'token'),
+				disabled: true
+			});
+
+			const input = document.querySelector('input[type="hidden"]');
+			expect((input as HTMLInputElement)?.disabled).toBe(true);
+		});
+
+		it('should force-disable the field when the form context is disabled, even if disabled=false', async () => {
+			renderSfield({
+				type: 'text',
+				field: createMockField('', 'username'),
+				disabled: false,
+				formDisabled: true
+			});
+
+			const input = page.getByRole('textbox');
+			await expect.element(input).toBeDisabled();
+		});
+
+		it('should not mark field touched on blur while disabled', async () => {
+			let touched = false;
+
+			renderSfield({
+				type: 'text',
+				field: createMockField('', 'test'),
+				disabled: true,
+				onTouched: () => {
+					touched = true;
+				}
+			});
+
+			const input = document.querySelector('input') as HTMLInputElement;
+			// Simulate the Firefox behavior where blur fires when a focused
+			// element becomes disabled, bypassing normal interaction restrictions.
+			input.dispatchEvent(new FocusEvent('blur', { bubbles: true }));
+
+			expect(touched).toBe(false);
+		});
+
+		it('should not mark field dirty on input while disabled', async () => {
+			let dirty = false;
+
+			renderSfield({
+				type: 'text',
+				field: createMockField('', 'test'),
+				disabled: true,
+				onDirty: () => {
+					dirty = true;
+				}
+			});
+
+			const input = document.querySelector('input') as HTMLInputElement;
+			input.dispatchEvent(new Event('input', { bubbles: true }));
+
+			expect(dirty).toBe(false);
+		});
+	});
+
 	describe('blur and input handlers', () => {
 		it('should mark field touched on blur', async () => {
 			let touched = false;

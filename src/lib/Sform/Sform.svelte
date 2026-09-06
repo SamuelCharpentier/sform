@@ -25,7 +25,8 @@
 		preflightOnly = false,
 		resetOnSuccess = true,
 		lifecycle,
-		children
+		children,
+		disabled
 	}: {
 		/** Remote form object from form() API, or the result of form.for(id) */
 		form: RemoteFormInstance<Input, Output>;
@@ -55,6 +56,7 @@
 		 * ```
 		 */
 		children: Snippet<[FormFields]>;
+		disabled?: boolean;
 	} = $props();
 
 	// Get field names for marking all dirty on submit
@@ -62,8 +64,12 @@
 		return Object.keys(form.fields).filter((key) => !['value', 'set', 'allIssues'].includes(key));
 	};
 
+	const isDisabled = $derived(disabled === true);
+
 	// Trigger validation including untouched fields (for blur mode)
 	const triggerValidation = async () => {
+		if (isDisabled) return;
+
 		await context.runLifecycleHooks('beforeValidate');
 
 		const validateRequest = form.validate({ includeUntouched: true, preflightOnly });
@@ -91,7 +97,8 @@
 		getFieldNames,
 		triggerValidation,
 		() => formElement?.requestSubmit(),
-		() => form
+		() => form,
+		() => isDisabled
 	);
 
 	$effect(() => {
@@ -102,8 +109,21 @@
 	// Apply preflight schema if provided
 	const formWithSchema = $derived(schema ? form.preflight(schema) : form);
 
+	// Guard the consumer-provided enhance callback so a disabled form never submits,
+	// even if the native submit-blocking guards below are bypassed.
+	const guardedEnhance = $derived(
+		enhance
+			? (opts: Parameters<EnhanceCallback<Input>>[0]) => {
+					if (isDisabled) return;
+					return enhance(opts);
+				}
+			: undefined
+	);
+
 	// Apply enhance if provided - returns a minimal object for spreading onto form element
-	const formProps = $derived(enhance ? formWithSchema.enhance(enhance) : formWithSchema);
+	const formProps = $derived(
+		guardedEnhance ? formWithSchema.enhance(guardedEnhance) : formWithSchema
+	);
 
 	// Track previous pending state to detect submission completion
 	let wasPending = $state(false);
@@ -128,10 +148,16 @@
 	});
 
 	function handleInput() {
+		if (isDisabled) return;
 		void triggerValidation();
 	}
 
-	function handleSubmit() {
+	function handleSubmit(event: SubmitEvent) {
+		if (isDisabled) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			return;
+		}
 		context.markSubmitted();
 		context.markAllFieldsDirty();
 	}
@@ -139,6 +165,7 @@
 	let formElement: HTMLFormElement | undefined = $state();
 </script>
 
+<!-- svelte-ignore a11y_role_supports_aria_props_implicit -->
 <form
 	bind:this={formElement}
 	{...formProps as unknown as HTMLFormAttributes}
@@ -146,6 +173,8 @@
 	novalidate
 	oninput={handleInput}
 	onsubmit={handleSubmit}
+	aria-disabled={isDisabled ? 'true' : undefined}
+	data-disabled={isDisabled ? '' : undefined}
 >
 	{@render (children as Snippet<[FormFields]>)(form.fields)}
 </form>

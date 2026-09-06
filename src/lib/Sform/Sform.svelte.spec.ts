@@ -322,6 +322,138 @@ describe('Sform', () => {
 		});
 	});
 
+	describe('disabled prop', () => {
+		it('should set aria-disabled and data-disabled on the form element when disabled', async () => {
+			const mockForm = createMockForm({ username: '' });
+
+			renderSform({
+				form: mockForm,
+				disabled: true,
+				children: () => null
+			});
+
+			const formElement = document.querySelector('form');
+			expect(formElement?.getAttribute('aria-disabled')).toBe('true');
+			expect(formElement?.hasAttribute('data-disabled')).toBe(true);
+		});
+
+		it('should not set aria-disabled or data-disabled when not disabled', async () => {
+			const mockForm = createMockForm({ username: '' });
+
+			renderSform({
+				form: mockForm,
+				children: () => null
+			});
+
+			const formElement = document.querySelector('form');
+			expect(formElement?.hasAttribute('aria-disabled')).toBe(false);
+			expect(formElement?.hasAttribute('data-disabled')).toBe(false);
+		});
+
+		it('should not call validate on input event while disabled', async () => {
+			const mockForm = createMockForm({ username: '' });
+
+			renderSform({
+				form: mockForm,
+				disabled: true,
+				children: () => null
+			});
+
+			const formElement = document.querySelector('form');
+			formElement?.dispatchEvent(new Event('input', { bubbles: true }));
+
+			// Flush microtasks - validate() is only reached after awaiting beforeValidate hooks
+			await Promise.resolve();
+			await Promise.resolve();
+
+			expect(mockForm.validate).not.toHaveBeenCalled();
+		});
+
+		it('should still call validate on input event when re-enabled', async () => {
+			const mockForm = createMockForm({ username: '' });
+
+			const screen = renderSform({
+				form: mockForm,
+				disabled: true,
+				children: () => null
+			});
+
+			await screen.rerender({ form: mockForm, disabled: false, children: () => null });
+
+			const formElement = document.querySelector('form');
+			formElement?.dispatchEvent(new Event('input', { bubbles: true }));
+
+			await vi.waitFor(() => {
+				expect(mockForm.validate).toHaveBeenCalled();
+			});
+		});
+
+		it('should not run beforeValidate/afterValidateCalled/afterValidateSettled hooks while disabled', async () => {
+			const mockForm = createMockForm({ username: '' });
+			const calls: string[] = [];
+
+			renderSform({
+				form: mockForm,
+				disabled: true,
+				lifecycle: {
+					beforeValidate: () => {
+						calls.push('beforeValidate');
+					},
+					afterValidateCalled: () => {
+						calls.push('afterValidateCalled');
+					},
+					afterValidateSettled: () => {
+						calls.push('afterValidateSettled');
+					}
+				},
+				children: () => null
+			});
+
+			const formElement = document.querySelector('form');
+			formElement?.dispatchEvent(new Event('input', { bubbles: true }));
+
+			await Promise.resolve();
+			await Promise.resolve();
+
+			expect(calls).toEqual([]);
+		});
+
+		it('should prevent and stop the native submit event while disabled', async () => {
+			const mockForm = createMockForm({ username: '' });
+
+			renderSform({
+				form: mockForm,
+				disabled: true,
+				children: () => null
+			});
+
+			const formElement = document.querySelector('form') as HTMLFormElement;
+			const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+			formElement.dispatchEvent(submitEvent);
+
+			expect(submitEvent.defaultPrevented).toBe(true);
+		});
+
+		it('should not invoke the enhance callback while disabled', async () => {
+			const mockForm = createMockForm({ username: '' });
+			const enhanceCallback = vi.fn();
+
+			renderSform({
+				form: mockForm,
+				enhance: enhanceCallback,
+				disabled: true,
+				children: () => null
+			});
+
+			// Grab the guarded callback passed to form.enhance and invoke it directly,
+			// since jsdom form submission does not exercise SvelteKit's real enhance flow.
+			const guardedCallback = (mockForm.enhance as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
+			await guardedCallback?.({});
+
+			expect(enhanceCallback).not.toHaveBeenCalled();
+		});
+	});
+
 	describe('schema and enhance combined', () => {
 		it('should apply both schema and enhance', async () => {
 			const mockForm = createMockForm({ username: '' });

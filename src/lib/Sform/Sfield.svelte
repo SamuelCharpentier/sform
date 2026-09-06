@@ -55,6 +55,9 @@
 	);
 	const shouldMarkIssuesHandled = $derived(issueDisplay === 'none' || shouldRenderFieldIssues);
 
+	// Form-level disabled always wins over a field's own disabled prop (OR semantics)
+	const effectiveDisabled = $derived(context.disabled || props.disabled === true);
+
 	// Register this field with the context on mount
 	$effect(() => {
 		context.registerField(name);
@@ -79,11 +82,13 @@
 	const hasIssues = $derived(issues && issues instanceof Array && issues.length > 0);
 
 	async function handleBlur() {
+		if (effectiveDisabled) return;
 		context.markTouched(name);
 		context.triggerValidation();
 	}
 
 	function handleInput() {
+		if (effectiveDisabled) return;
 		context.markDirty(name);
 	}
 
@@ -183,7 +188,8 @@
 		| 'hint'
 		| 'type'
 		| 'lifecycle'
-		| 'class';
+		| 'class'
+		| 'disabled';
 
 	type InputPassthrough<T extends TypedSfieldProps<RemoteFormFieldValue>> = Omit<
 		T,
@@ -201,6 +207,7 @@
 			type,
 			lifecycle,
 			class: className,
+			disabled: fieldDisabled,
 			...rest
 		} = input;
 
@@ -211,6 +218,7 @@
 		void type;
 		void lifecycle;
 		void className;
+		void fieldDisabled;
 
 		return rest;
 	}
@@ -263,6 +271,7 @@
 		labelClass: classes.label,
 		wrapperClass: classes.inputWrapper,
 		showIssues,
+		disabled: effectiveDisabled,
 		onblur: handleBlur,
 		oninput: handleInput
 	});
