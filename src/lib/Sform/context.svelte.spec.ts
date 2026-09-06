@@ -377,7 +377,10 @@ describe('createSformContext', () => {
 				}
 			});
 
-			expect(calls).toEqual(['first-start', 'second', 'first-end']);
+			// The async hook resolves on a timer, so wait for the full ordering
+			await vi.waitFor(() => {
+				expect(calls).toEqual(['first-start', 'second', 'first-end']);
+			});
 		});
 
 		it('should unregister hooks', async () => {

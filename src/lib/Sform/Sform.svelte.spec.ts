@@ -206,10 +206,13 @@ describe('Sform', () => {
 			const formElement = document.querySelector('form');
 			formElement?.dispatchEvent(new Event('input', { bubbles: true }));
 
-			// Validate should be called with includeUntouched
-			expect(mockForm.validate).toHaveBeenCalledWith({
-				includeUntouched: true,
-				preflightOnly: false
+			// Validate should be called with includeUntouched. It is only reached after the
+			// awaited beforeValidate hooks resolve, so wait instead of asserting synchronously.
+			await vi.waitFor(() => {
+				expect(mockForm.validate).toHaveBeenCalledWith({
+					includeUntouched: true,
+					preflightOnly: false
+				});
 			});
 		});
 
@@ -236,9 +239,9 @@ describe('Sform', () => {
 			const formElement = document.querySelector('form');
 			formElement?.dispatchEvent(new Event('input', { bubbles: true }));
 
-			await Promise.resolve();
-
-			expect(calls).toEqual(['beforeValidate', 'afterValidateCalled', 'afterValidateSettled']);
+			await vi.waitFor(() => {
+				expect(calls).toEqual(['beforeValidate', 'afterValidateCalled', 'afterValidateSettled']);
+			});
 		});
 
 		it('should run afterValidateCalled before validate resolves and afterValidateSettled on settle', async () => {
@@ -274,20 +277,21 @@ describe('Sform', () => {
 			const formElement = document.querySelector('form');
 			formElement?.dispatchEvent(new Event('input', { bubbles: true }));
 
-			await Promise.resolve();
-			expect(calls).toEqual(['beforeValidate', 'validate-start', 'afterValidateCalled']);
+			await vi.waitFor(() => {
+				expect(calls).toEqual(['beforeValidate', 'validate-start', 'afterValidateCalled']);
+			});
 
 			resolveValidate?.();
-			await Promise.resolve();
-			await Promise.resolve();
 
-			expect(calls).toEqual([
-				'beforeValidate',
-				'validate-start',
-				'afterValidateCalled',
-				'validate-end',
-				'afterValidateSettled'
-			]);
+			await vi.waitFor(() => {
+				expect(calls).toEqual([
+					'beforeValidate',
+					'validate-start',
+					'afterValidateCalled',
+					'validate-end',
+					'afterValidateSettled'
+				]);
+			});
 		});
 	});
 

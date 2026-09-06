@@ -238,7 +238,10 @@ describe('ButtonInput', () => {
 			const button = page.getByRole('button');
 			await userEvent.click(button);
 
-			expect(calls).toEqual(['before-start', 'before-end', 'after']);
+			// beforeSubmit resolves on a timer, so afterSubmitTriggered runs later
+			await vi.waitFor(() => {
+				expect(calls).toEqual(['before-start', 'before-end', 'after']);
+			});
 		});
 
 		it('should not call onsubmit when buttonType is not submit', async () => {
