@@ -4,6 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { Sform, Sfield, Sbutton, SIssues, SResult } from '$lib/index.js';
+import { SformLocal, createForm, wireName } from '$lib/local/index.js';
 import { applyMask, unmask, MASK_PATTERNS, DEFAULT_TOKENS } from './utils/mask.js';
 
 describe('Library exports', () => {
@@ -25,6 +26,22 @@ describe('Library exports', () => {
 
 	it('should export SResult component', () => {
 		expect(SResult).toBeDefined();
+	});
+});
+
+describe('Local mode exports', () => {
+	it('should export SformLocal component', () => {
+		expect(SformLocal).toBeDefined();
+	});
+
+	it('should export createForm', () => {
+		expect(createForm).toBeDefined();
+		expect(typeof createForm).toBe('function');
+	});
+
+	it('should export wireName', () => {
+		expect(wireName).toBeDefined();
+		expect(typeof wireName).toBe('function');
 	});
 });
 

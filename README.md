@@ -1,6 +1,6 @@
 # Sform
 
-A type-safe form library for **Svelte 5** with **SvelteKit remote functions**.
+A type-safe form library for **Svelte 5** with **SvelteKit remote functions**, plus an optional [local mode](#local-mode-no-remote-functions) for static sites and third-party form endpoints.
 
 ## Table of Contents
 
@@ -10,6 +10,7 @@ A type-safe form library for **Svelte 5** with **SvelteKit remote functions**.
 - [Quick Start](#quick-start)
   - [Create a Remote Form](#1-create-a-remote-form)
   - [Create Your Form Component](#2-create-your-form-component)
+- [Local Mode (no remote functions)](#local-mode-no-remote-functions)
 - [Components](#components)
   - [`<Sform>`](#sform)
   - [`<Sfield>`](#sfield)
@@ -44,12 +45,22 @@ A type-safe form library for **Svelte 5** with **SvelteKit remote functions**.
 - ✅ **Range slider** - With optional value display
 - ✅ **Toggle switch** - Modern on/off control
 - ✅ **Stateful button** - Shows pending state during submission
+- ✅ **Local mode** - Schema-only forms that post to any endpoint, with no remote functions and no server
 
 ## Requirements
+
+**Remote mode (default entry point):**
 
 - Svelte 5
 - SvelteKit with `remoteFunctions: true` in config
 - Valibot for schema validation
+
+**Local mode (`@samuel-charpentier/sform/local`):**
+
+- Svelte 5
+- Valibot, or any Standard Schema validator
+- No remote functions and no Node server at runtime. A static adapter is enough.
+- SvelteKit is still referenced by the package's shared field types, so keep it installed for type checking. It is not needed at runtime.
 
 ## Installation
 
@@ -57,7 +68,7 @@ A type-safe form library for **Svelte 5** with **SvelteKit remote functions**.
 npm install @samuel-charpentier/sform
 ```
 
-Enable remote functions in `svelte.config.js`:
+Enable remote functions in `svelte.config.js` (remote mode only, skip this for [local mode](#local-mode-no-remote-functions)):
 
 ```javascript
 export default {
@@ -108,6 +119,95 @@ export const login = form(loginSchema, async ({ username, _password }) => {
 	{/snippet}
 </Sform>
 ```
+
+## Local Mode (no remote functions)
+
+The `./local` entry point renders the same fields, issue display, and button states as remote mode, but validates with a Standard Schema and submits a plain HTML form. It needs no `.remote.ts` file, no `remoteFunctions: true`, and no server at runtime, so it works with `adapter-static` on shared hosting.
+
+```svelte
+<script lang="ts">
+	import { createForm, SformLocal, Sfield, Sbutton } from '@samuel-charpentier/sform/local';
+	import { subscribeSchema } from './subscribe.schema.js';
+
+	const subscribe = createForm(subscribeSchema, {
+		action: 'https://provider.example/subscribe',
+		method: 'POST',
+		hidden: { u: 'list-id' }
+	});
+</script>
+
+<SformLocal form={subscribe} validateOn="blur">
+	{#snippet children(fields)}
+		<Sfield field={fields.email} type="email" label="Email" />
+		<Sfield field={fields.first_name} type="text" label="First name" />
+		<Sbutton form={subscribe} label="Subscribe" />
+	{/snippet}
+</SformLocal>
+```
+
+```typescript
+// subscribe.schema.ts
+import * as v from 'valibot';
+import { wireName } from '@samuel-charpentier/sform/local';
+
+export const subscribeSchema = v.object({
+	email: v.pipe(
+		v.string(),
+		wireName('EMAIL'),
+		v.nonEmpty('Email is required'),
+		v.email('Enter a valid email address')
+	),
+	first_name: v.optional(v.pipe(v.string(), wireName('FNAME')), '')
+});
+```
+
+### Field names
+
+`wireName('EMAIL')` sets the HTML `name` attribute to `EMAIL`. Local mode does not append the `/<form-id>` suffix or `n:`/`b:` type prefixes that remote forms use. Precedence, from highest to lowest:
+
+1. The `names` option: `createForm(schema, { names: { email: 'EMAIL' } })`
+2. `wireName()` metadata on the schema field
+3. The schema key itself
+
+Use `hidden` for provider fields that must be submitted but are not user input. They are skipped by validation.
+
+### Submission behavior
+
+- **With JavaScript:** the schema validates on the configured `validateOn` mode. An invalid submit is blocked and all issues are shown; a valid submit is passed to `onSubmit` when provided, otherwise the browser performs the native POST.
+- **Without JavaScript:** the browser submits the same `<form action method>` normally. The markup keeps native constraint attributes (no `novalidate` in server output) so the no-JS path is still guarded.
+- **After hydration:** `novalidate` is enabled so the schema is the single source of truth and all issues can be displayed at once.
+
+The `novalidate` prop controls this explicitly:
+
+| Value       | Behavior                                                        |
+| ----------- | --------------------------------------------------------------- |
+| `undefined` | Native constraints in static markup, schema-only after hydration |
+| `true`      | Schema-only, including the no-JS path                           |
+| `false`     | Native constraints only                                         |
+
+### Inline results
+
+Return a value from `onSubmit` to populate `form.result` and `<SResult>` without navigating:
+
+```typescript
+const subscribe = createForm(subscribeSchema, {
+	action: 'https://provider.example/subscribe',
+	onSubmit: async ({ form }) => {
+		const response = await fetch(form.action, {
+			method: form.method,
+			body: new FormData(form)
+		});
+
+		return { success: response.ok };
+	}
+});
+```
+
+This path requires the provider to allow cross-origin `fetch`. If it only accepts a form POST and redirects, omit `onSubmit` and let the browser submit natively.
+
+### Static hosting
+
+The form's `action` points at the provider, so there is no SvelteKit endpoint to prerender. Set `export const prerender = true` in the root layout (or prerender the specific route) and use `@sveltejs/adapter-static`. Local mode has no request-time dependency on Kit or Node.
 
 ## Components
 

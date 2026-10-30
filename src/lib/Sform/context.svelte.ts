@@ -29,7 +29,8 @@ export function createSformContext(
 	triggerValidation: () => void | Promise<void>,
 	submitForm: () => void,
 	getForm: () => FormLike,
-	getDisabled: () => boolean = () => false
+	getDisabled: () => boolean = () => false,
+	normalizeFieldName: (name: string) => string = (name) => name
 ): SformContext {
 	const touched = new SvelteSet<string>();
 	const dirty = new SvelteSet<string>();
@@ -176,6 +177,7 @@ export function createSformContext(
 		getUnhandledIssues: (): RemoteFormIssue[] => {
 			const form = getForm();
 			const allIssues = form.fields.allIssues?.() ?? [];
+			const handled = new SvelteSet([...fieldsWithIssueDisplay].map(normalizeFieldName));
 			// Filter out issues that are linked to fields with issue display
 			return allIssues.filter((issue) => {
 				// If issue has no path, it's a form-level issue (from invalid("message"))
@@ -183,8 +185,8 @@ export function createSformContext(
 					return true;
 				}
 				// Check if the first path segment is a field that displays issues
-				const fieldName = String(issue.path[0]);
-				return !fieldsWithIssueDisplay.has(fieldName);
+				const fieldName = normalizeFieldName(String(issue.path[0]));
+				return !handled.has(fieldName);
 			});
 		}
 	};

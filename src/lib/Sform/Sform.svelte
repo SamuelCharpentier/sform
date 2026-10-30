@@ -7,7 +7,7 @@
 	} from './types.js';
 	import type { RemoteFormFields } from '@sveltejs/kit';
 	import type { StandardSchemaV1 } from '@standard-schema/spec';
-	import { createSformContext } from './context.svelte.js';
+	import { createSformEngine } from './engine.svelte.js';
 	import type { HTMLFormAttributes } from 'svelte/elements';
 	import type { Snippet } from 'svelte';
 
@@ -59,120 +59,36 @@
 		disabled?: boolean;
 	} = $props();
 
-	// Get field names for marking all dirty on submit
+	let formElement: HTMLFormElement | undefined = $state();
+
 	const getFieldNames = () => {
 		return Object.keys(form.fields).filter((key) => !['value', 'set', 'allIssues'].includes(key));
 	};
 
-	const isDisabled = $derived(disabled === true);
-
-	// Trigger validation including untouched fields (for blur mode)
-	const triggerValidation = async () => {
-		if (isDisabled) return;
-
-		await context.runLifecycleHooks('beforeValidate');
-
-		const validateRequest = form.validate({ includeUntouched: true, preflightOnly });
-		let afterCalledError: unknown;
-
-		try {
-			await context.runLifecycleHooks('afterValidateCalled');
-		} catch (error) {
-			afterCalledError = error;
-		}
-
-		try {
-			await validateRequest;
-		} finally {
-			await context.runLifecycleHooks('afterValidateSettled');
-		}
-
-		if (afterCalledError) {
-			throw afterCalledError;
-		}
-	};
-
-	const context = createSformContext(
-		() => validateOn,
+	const engine = createSformEngine<Input, Output>({
+		getForm: () => form,
+		getSchema: () => schema,
+		getEnhance: () => enhance,
+		getValidateOn: () => validateOn,
+		getPreflightOnly: () => preflightOnly,
+		getResetOnSuccess: () => resetOnSuccess,
+		getLifecycle: () => lifecycle,
+		getDisabled: () => disabled === true,
 		getFieldNames,
-		triggerValidation,
-		() => formElement?.requestSubmit(),
-		() => form,
-		() => isDisabled
-	);
-
-	$effect(() => {
-		if (!lifecycle) return;
-		return context.registerLifecycleHooks(lifecycle);
+		getElement: () => formElement
 	});
 
-	// Apply preflight schema if provided
-	const formWithSchema = $derived(schema ? form.preflight(schema) : form);
-
-	// Guard the consumer-provided enhance callback so a disabled form never submits,
-	// even if the native submit-blocking guards below are bypassed.
-	const guardedEnhance = $derived(
-		enhance
-			? (opts: Parameters<EnhanceCallback<Input>>[0]) => {
-					if (isDisabled) return;
-					return enhance(opts);
-				}
-			: undefined
-	);
-
-	// Apply enhance if provided - returns a minimal object for spreading onto form element
-	const formProps = $derived(
-		guardedEnhance ? formWithSchema.enhance(guardedEnhance) : formWithSchema
-	);
-
-	// Track previous pending state to detect submission completion
-	let wasPending = $state(false);
-
-	$effect(() => {
-		const isPending = form.pending !== 0;
-		const hasResult = form.result !== undefined;
-		const allIssues =
-			(form.fields as { allIssues?: () => unknown[] | undefined }).allIssues?.() ?? [];
-		const hasNoIssues = allIssues.length === 0;
-
-		if (wasPending && !isPending) {
-			void context.runLifecycleHooks('afterSubmitResponse');
-
-			// Submission just completed successfully (was pending, now not, has result, no issues)
-			if (resetOnSuccess && hasResult && hasNoIssues) {
-				context.resetFieldStates();
-			}
-		}
-
-		wasPending = isPending;
-	});
-
-	function handleInput() {
-		if (isDisabled) return;
-		void triggerValidation();
-	}
-
-	function handleSubmit(event: SubmitEvent) {
-		if (isDisabled) {
-			event.preventDefault();
-			event.stopImmediatePropagation();
-			return;
-		}
-		context.markSubmitted();
-		context.markAllFieldsDirty();
-	}
-
-	let formElement: HTMLFormElement | undefined = $state();
+	const isDisabled = $derived(disabled === true);
 </script>
 
 <!-- svelte-ignore a11y_role_supports_aria_props_implicit -->
 <form
 	bind:this={formElement}
-	{...formProps as unknown as HTMLFormAttributes}
+	{...engine.formProps as unknown as HTMLFormAttributes}
 	class={className}
 	novalidate
-	oninput={handleInput}
-	onsubmit={handleSubmit}
+	oninput={engine.handleInput}
+	onsubmit={engine.handleSubmit}
 	aria-disabled={isDisabled ? 'true' : undefined}
 	data-disabled={isDisabled ? '' : undefined}
 >
